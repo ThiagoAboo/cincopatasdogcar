@@ -62,32 +62,87 @@ const BRL = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 // --- Calculator ------------------------------------------------------------
+type PorteId = "pequeno" | "medio" | "grande" | "gigante";
+
+const PORTE_OPTIONS: {
+  id: PorteId;
+  label: string;
+  weight: string;
+  base: number;
+}[] = [
+  { id: "pequeno", label: "Pequeno", weight: "Até 10 kg", base: 25 },
+  { id: "medio", label: "Médio", weight: "11–25 kg", base: 30 },
+  { id: "grande", label: "Grande", weight: "26–45 kg", base: 38 },
+  { id: "gigante", label: "Gigante", weight: "45 kg +", base: 48 },
+];
+
+// Aceita endereço com nome de via + número OU bairro/cidade explícito.
+// Exige pelo menos duas "palavras" e um número ou uma vírgula separando bairro.
+function validateAddress(v: string): string | null {
+  const s = v.trim();
+  if (s.length < 8) return "Endereço muito curto — informe rua e bairro.";
+  if (!/[A-Za-zÀ-ÿ]{3,}/.test(s))
+    return "Informe o nome da rua com pelo menos 3 letras.";
+  const hasNumber = /\d{1,5}/.test(s);
+  const hasComma = /,/.test(s);
+  if (!hasNumber && !hasComma)
+    return "Inclua o número do imóvel ou o bairro (separado por vírgula).";
+  const words = s.split(/\s+/).filter(Boolean);
+  if (words.length < 2) return "Endereço incompleto — informe rua e bairro.";
+  return null;
+}
+
 function TaxiCalculator() {
+  const [porte, setPorte] = useState<PorteId>("medio");
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
+  const [errors, setErrors] = useState<{ pickup?: string; destination?: string }>(
+    {},
+  );
   const [result, setResult] = useState<null | {
     distToPickup: number;
     distTrip: number;
     fuelCost: number;
     tripCost: number;
     base: number;
+    porteLabel: string;
     total: number;
   }>(null);
 
   const calc = () => {
-    if (!pickup.trim() || !destination.trim()) return;
+    const pickupErr = validateAddress(pickup);
+    const destErr = validateAddress(destination);
+    if (pickupErr || destErr) {
+      setErrors({ pickup: pickupErr ?? undefined, destination: destErr ?? undefined });
+      setResult(null);
+      return;
+    }
+    setErrors({});
+    const porteData = PORTE_OPTIONS.find((p) => p.id === porte)!;
     const distToPickup = mockDistanceKm("alcantara", pickup, 4, 22);
     const distTrip = mockDistanceKm(pickup, destination, 3, 28);
-    const base = 25;
+    const base = porteData.base;
     const fuelCost = Math.round(distToPickup * 0.34 * 100) / 100;
-    const tripCost = Math.round(distTrip * 3 * 100) / 100;
+    // Trajeto: pets maiores exigem mais espaço/manejo → leve acréscimo por km.
+    const perKm = porte === "pequeno" ? 2.8 : porte === "medio" ? 3.0 : porte === "grande" ? 3.4 : 3.8;
+    const tripCost = Math.round(distTrip * perKm * 100) / 100;
     const total = Math.round((base + fuelCost + tripCost) * 100) / 100;
-    setResult({ distToPickup, distTrip, fuelCost, tripCost, base, total });
+    setResult({
+      distToPickup,
+      distTrip,
+      fuelCost,
+      tripCost,
+      base,
+      porteLabel: porteData.label,
+      total,
+    });
   };
 
   const waLink = useMemo(() => {
     if (!result) return "#";
-    const msg = `Olá! Gostaria de agendar um Táxi Dog.%0A%0A📍 Partida: ${encodeURIComponent(
+    const msg = `Olá! Gostaria de agendar um Táxi Dog.%0A%0A🐶 Porte: ${encodeURIComponent(
+      result.porteLabel,
+    )}%0A📍 Partida: ${encodeURIComponent(
       pickup,
     )}%0A🎯 Destino: ${encodeURIComponent(
       destination,
@@ -113,6 +168,35 @@ function TaxiCalculator() {
 
           <div className="mt-8 space-y-5">
             <div>
+              <Label className="mb-2 flex items-center gap-2 text-white/90">
+                <PawPrint className="h-4 w-4 text-gold" />
+                Porte do Pet
+              </Label>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {PORTE_OPTIONS.map((p) => {
+                  const active = porte === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPorte(p.id)}
+                      aria-pressed={active}
+                      className={
+                        "rounded-xl border px-2 py-2.5 text-left transition " +
+                        (active
+                          ? "border-gold bg-gold/15 text-white shadow-gold"
+                          : "border-white/15 bg-white/5 text-white/80 hover:border-white/30")
+                      }
+                    >
+                      <div className="text-sm font-semibold">{p.label}</div>
+                      <div className="text-[10px] text-white/60">{p.weight}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
               <Label htmlFor="pickup" className="mb-2 flex items-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4 text-gold" />
                 Endereço de Partida do Pet
@@ -120,10 +204,20 @@ function TaxiCalculator() {
               <Input
                 id="pickup"
                 value={pickup}
-                onChange={(e) => setPickup(e.target.value)}
-                placeholder="Ex: Rua Coronel Moreira César, Icaraí"
-                className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold"
+                onChange={(e) => {
+                  setPickup(e.target.value);
+                  if (errors.pickup) setErrors((s) => ({ ...s, pickup: undefined }));
+                }}
+                aria-invalid={!!errors.pickup}
+                placeholder="Ex: Rua Coronel Moreira César, 123, Icaraí"
+                className={
+                  "border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold " +
+                  (errors.pickup ? "border-red-400/70 focus-visible:ring-red-400" : "")
+                }
               />
+              {errors.pickup && (
+                <p className="mt-1.5 text-xs text-red-300">{errors.pickup}</p>
+              )}
             </div>
             <div>
               <Label
@@ -136,10 +230,21 @@ function TaxiCalculator() {
               <Input
                 id="destination"
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                placeholder="Ex: Clínica Veterinária, Centro de SG"
-                className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold"
+                onChange={(e) => {
+                  setDestination(e.target.value);
+                  if (errors.destination)
+                    setErrors((s) => ({ ...s, destination: undefined }));
+                }}
+                aria-invalid={!!errors.destination}
+                placeholder="Ex: Av. Presidente Kennedy, 500, Centro, SG"
+                className={
+                  "border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold " +
+                  (errors.destination ? "border-red-400/70 focus-visible:ring-red-400" : "")
+                }
               />
+              {errors.destination && (
+                <p className="mt-1.5 text-xs text-red-300">{errors.destination}</p>
+              )}
             </div>
             <Button
               onClick={calc}
@@ -149,6 +254,7 @@ function TaxiCalculator() {
               Calcular Valor Estimado
             </Button>
           </div>
+
         </div>
 
         {/* Result */}
@@ -165,9 +271,16 @@ function TaxiCalculator() {
             </div>
           ) : (
             <div className="flex h-full flex-col">
-              <div className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Orçamento detalhado
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Orçamento detalhado
+                </div>
+                <Badge className="bg-navy text-white hover:bg-navy">
+                  <PawPrint className="mr-1 h-3 w-3 text-gold" />
+                  Porte {result.porteLabel}
+                </Badge>
               </div>
+
 
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
