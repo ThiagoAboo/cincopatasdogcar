@@ -168,6 +168,35 @@ function TaxiCalculator() {
 
           <div className="mt-8 space-y-5">
             <div>
+              <Label className="mb-2 flex items-center gap-2 text-white/90">
+                <PawPrint className="h-4 w-4 text-gold" />
+                Porte do Pet
+              </Label>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {PORTE_OPTIONS.map((p) => {
+                  const active = porte === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPorte(p.id)}
+                      aria-pressed={active}
+                      className={
+                        "rounded-xl border px-2 py-2.5 text-left transition " +
+                        (active
+                          ? "border-gold bg-gold/15 text-white shadow-gold"
+                          : "border-white/15 bg-white/5 text-white/80 hover:border-white/30")
+                      }
+                    >
+                      <div className="text-sm font-semibold">{p.label}</div>
+                      <div className="text-[10px] text-white/60">{p.weight}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
               <Label htmlFor="pickup" className="mb-2 flex items-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4 text-gold" />
                 Endereço de Partida do Pet
@@ -175,10 +204,20 @@ function TaxiCalculator() {
               <Input
                 id="pickup"
                 value={pickup}
-                onChange={(e) => setPickup(e.target.value)}
-                placeholder="Ex: Rua Coronel Moreira César, Icaraí"
-                className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold"
+                onChange={(e) => {
+                  setPickup(e.target.value);
+                  if (errors.pickup) setErrors((s) => ({ ...s, pickup: undefined }));
+                }}
+                aria-invalid={!!errors.pickup}
+                placeholder="Ex: Rua Coronel Moreira César, 123, Icaraí"
+                className={
+                  "border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold " +
+                  (errors.pickup ? "border-red-400/70 focus-visible:ring-red-400" : "")
+                }
               />
+              {errors.pickup && (
+                <p className="mt-1.5 text-xs text-red-300">{errors.pickup}</p>
+              )}
             </div>
             <div>
               <Label
@@ -191,10 +230,21 @@ function TaxiCalculator() {
               <Input
                 id="destination"
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                placeholder="Ex: Clínica Veterinária, Centro de SG"
-                className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold"
+                onChange={(e) => {
+                  setDestination(e.target.value);
+                  if (errors.destination)
+                    setErrors((s) => ({ ...s, destination: undefined }));
+                }}
+                aria-invalid={!!errors.destination}
+                placeholder="Ex: Av. Presidente Kennedy, 500, Centro, SG"
+                className={
+                  "border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold " +
+                  (errors.destination ? "border-red-400/70 focus-visible:ring-red-400" : "")
+                }
               />
+              {errors.destination && (
+                <p className="mt-1.5 text-xs text-red-300">{errors.destination}</p>
+              )}
             </div>
             <Button
               onClick={calc}
@@ -204,6 +254,7 @@ function TaxiCalculator() {
               Calcular Valor Estimado
             </Button>
           </div>
+
         </div>
 
         {/* Result */}
