@@ -62,32 +62,87 @@ const BRL = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 // --- Calculator ------------------------------------------------------------
+type PorteId = "pequeno" | "medio" | "grande" | "gigante";
+
+const PORTE_OPTIONS: {
+  id: PorteId;
+  label: string;
+  weight: string;
+  base: number;
+}[] = [
+  { id: "pequeno", label: "Pequeno", weight: "Até 10 kg", base: 25 },
+  { id: "medio", label: "Médio", weight: "11–25 kg", base: 30 },
+  { id: "grande", label: "Grande", weight: "26–45 kg", base: 38 },
+  { id: "gigante", label: "Gigante", weight: "45 kg +", base: 48 },
+];
+
+// Aceita endereço com nome de via + número OU bairro/cidade explícito.
+// Exige pelo menos duas "palavras" e um número ou uma vírgula separando bairro.
+function validateAddress(v: string): string | null {
+  const s = v.trim();
+  if (s.length < 8) return "Endereço muito curto — informe rua e bairro.";
+  if (!/[A-Za-zÀ-ÿ]{3,}/.test(s))
+    return "Informe o nome da rua com pelo menos 3 letras.";
+  const hasNumber = /\d{1,5}/.test(s);
+  const hasComma = /,/.test(s);
+  if (!hasNumber && !hasComma)
+    return "Inclua o número do imóvel ou o bairro (separado por vírgula).";
+  const words = s.split(/\s+/).filter(Boolean);
+  if (words.length < 2) return "Endereço incompleto — informe rua e bairro.";
+  return null;
+}
+
 function TaxiCalculator() {
+  const [porte, setPorte] = useState<PorteId>("medio");
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
+  const [errors, setErrors] = useState<{ pickup?: string; destination?: string }>(
+    {},
+  );
   const [result, setResult] = useState<null | {
     distToPickup: number;
     distTrip: number;
     fuelCost: number;
     tripCost: number;
     base: number;
+    porteLabel: string;
     total: number;
   }>(null);
 
   const calc = () => {
-    if (!pickup.trim() || !destination.trim()) return;
+    const pickupErr = validateAddress(pickup);
+    const destErr = validateAddress(destination);
+    if (pickupErr || destErr) {
+      setErrors({ pickup: pickupErr ?? undefined, destination: destErr ?? undefined });
+      setResult(null);
+      return;
+    }
+    setErrors({});
+    const porteData = PORTE_OPTIONS.find((p) => p.id === porte)!;
     const distToPickup = mockDistanceKm("alcantara", pickup, 4, 22);
     const distTrip = mockDistanceKm(pickup, destination, 3, 28);
-    const base = 25;
+    const base = porteData.base;
     const fuelCost = Math.round(distToPickup * 0.34 * 100) / 100;
-    const tripCost = Math.round(distTrip * 3 * 100) / 100;
+    // Trajeto: pets maiores exigem mais espaço/manejo → leve acréscimo por km.
+    const perKm = porte === "pequeno" ? 2.8 : porte === "medio" ? 3.0 : porte === "grande" ? 3.4 : 3.8;
+    const tripCost = Math.round(distTrip * perKm * 100) / 100;
     const total = Math.round((base + fuelCost + tripCost) * 100) / 100;
-    setResult({ distToPickup, distTrip, fuelCost, tripCost, base, total });
+    setResult({
+      distToPickup,
+      distTrip,
+      fuelCost,
+      tripCost,
+      base,
+      porteLabel: porteData.label,
+      total,
+    });
   };
 
   const waLink = useMemo(() => {
     if (!result) return "#";
-    const msg = `Olá! Gostaria de agendar um Táxi Dog.%0A%0A📍 Partida: ${encodeURIComponent(
+    const msg = `Olá! Gostaria de agendar um Táxi Dog.%0A%0A🐶 Porte: ${encodeURIComponent(
+      result.porteLabel,
+    )}%0A📍 Partida: ${encodeURIComponent(
       pickup,
     )}%0A🎯 Destino: ${encodeURIComponent(
       destination,
