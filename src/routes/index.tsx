@@ -271,9 +271,16 @@ function TaxiCalculator() {
             </div>
           ) : (
             <div className="flex h-full flex-col">
-              <div className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Orçamento detalhado
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Orçamento detalhado
+                </div>
+                <Badge className="bg-navy text-white hover:bg-navy">
+                  <PawPrint className="mr-1 h-3 w-3 text-gold" />
+                  Porte {result.porteLabel}
+                </Badge>
               </div>
+
 
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
