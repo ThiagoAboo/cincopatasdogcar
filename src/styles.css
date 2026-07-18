@@ -154,8 +154,51 @@
     border-color: var(--color-border);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+    letter-spacing: -0.02em;
   }
 }
+
+@utility bg-hero-gradient {
+  background: var(--gradient-hero);
+}
+@utility bg-gold-gradient {
+  background: var(--gradient-gold);
+}
+@utility shadow-elegant {
+  box-shadow: var(--shadow-elegant);
+}
+@utility shadow-gold {
+  box-shadow: var(--shadow-gold);
+}
+@utility text-gold {
+  color: var(--gold);
+}
+@utility bg-gold {
+  background-color: var(--gold);
+}
+@utility bg-navy {
+  background-color: var(--navy);
+}
+@utility text-navy {
+  color: var(--navy);
+}
+@utility bg-navy-deep {
+  background-color: var(--navy-deep);
+}
+@utility bg-whatsapp {
+  background-color: var(--whatsapp);
+}
+
