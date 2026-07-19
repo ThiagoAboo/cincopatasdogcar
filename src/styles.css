@@ -59,6 +59,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-warm: var(--warm);
 }
 
 :root {
@@ -93,6 +94,8 @@
   --gold: oklch(0.82 0.14 82);
   --gold-soft: oklch(0.9 0.09 88);
   --whatsapp: oklch(0.7 0.17 148);
+  --warm: oklch(0.97 0.02 82);
+  --warm-foreground: oklch(0.22 0.05 260);
 
   --gradient-hero: linear-gradient(135deg, oklch(0.2 0.06 260) 0%, oklch(0.32 0.08 260) 60%, oklch(0.4 0.09 265) 100%);
   --gradient-gold: linear-gradient(135deg, oklch(0.86 0.13 88) 0%, oklch(0.78 0.15 78) 100%);
@@ -147,6 +150,8 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --warm: oklch(0.25 0.03 82);
+  --warm-foreground: oklch(0.984 0.003 247.858);
 }
 
 @layer base {
@@ -201,4 +206,11 @@
 @utility bg-whatsapp {
   background-color: var(--whatsapp);
 }
+@utility border-gold {
+  border-color: var(--gold);
+}
+@utility border-l-gold {
+  border-left-color: var(--gold);
+}
+
 

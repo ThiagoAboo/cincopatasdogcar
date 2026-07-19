@@ -16,6 +16,7 @@ import {
   XCircle,
   Wind,
   Menu,
+  Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -435,6 +436,7 @@ function Index() {
             <a href="#calculadora" className="hover:text-gold">Calculadora</a>
             <a href="#passeios" className="hover:text-gold">Passeios</a>
             <a href="#planos" className="hover:text-gold">Planos</a>
+            <a href="#sobre" className="hover:text-gold">Sobre</a>
             <a href="#faq" className="hover:text-gold">FAQ</a>
           </nav>
           <a
@@ -732,6 +734,82 @@ function Index() {
                   </div>
                 </Card>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SOBRE MIM */}
+      <section id="sobre" className="bg-warm py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge className="bg-gold text-navy hover:bg-gold">Sobre Mim</Badge>
+            <h2 className="mt-4 font-display text-3xl font-extrabold text-navy sm:text-4xl">
+              Quem vai cuidar do seu melhor amigo?
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Muito prazer, eu sou o Thiago. Conheça a história que deu vida à Cinco Patas.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+            {/* Photo placeholder */}
+            <div className="relative">
+              <div
+                className="absolute -inset-4 rounded-[2.5rem] bg-gold/20 blur-2xl"
+                aria-hidden
+              />
+              <Card className="relative flex aspect-[4/5] flex-col items-center justify-center overflow-hidden border-0 bg-white shadow-elegant">
+                <div className="grid h-24 w-24 place-items-center rounded-full bg-secondary">
+                  <PawPrint className="h-12 w-12 text-navy" />
+                </div>
+                <p className="mt-4 text-sm font-medium text-muted-foreground">
+                  Foto do Thiago com a turma
+                </p>
+              </Card>
+            </div>
+
+            {/* Story content */}
+            <div className="space-y-5 text-base leading-relaxed text-navy/90">
+              <p>
+                Há mais de 5 anos, morei em uma chácara em Papucaia e vivi o que
+                significa estar verdadeiramente cercado de amor canino. Com o
+                tempo, fui “adotado” por vários cães de rua e vizinhos que
+                escolheram o meu quintal como ponto de encontro favorito.
+              </p>
+              <p>
+                Meus companheiros de sempre foram <strong>Baylie e Kyra</strong>,
+                mas a família cresceu rápido. Cuidei de um grupo diverso e cheio
+                de personalidade: <strong>Jessie</strong>, a Labrador cheia de
+                energia; <strong>Pretinho e Jhulie</strong>, Pitbulls poderosos mas
+                carinhosos; e <strong>Amora e BB</strong>, as pequenas Pinschers
+                corajosas. Gerenciar essa mistura me ensinou liderança,
+                paciência e leitura corporal canina na prática.
+              </p>
+              <p>
+                Além do meu próprio bando, atuei como voluntário em um abrigo
+                local de Papucaia, ajudando a cuidar de cerca de 15 animais
+                resgatados por vez. Foi ali que aprendi sobre manejo, higiene,
+                primeiros socorros e a importância de cada detalhe no cuidado com
+                um pet.
+              </p>
+              <p>
+                Hoje, morando em Alcântara e dirigindo uma Nissan Livina
+                espaçosa e com ar-condicionado, coloco toda essa experiência
+                prática, paciência e amor no serviço da{" "}
+                <strong>Cinco Patas Dog Car & Walker</strong>. Seu pet não vai
+                apenas ganhar uma carona ou um passeio; estará sob os cuidados
+                de alguém que dedicou anos da vida a entender e respeitar os
+                animais.
+              </p>
+
+              <Card className="mt-8 border-l-4 border-l-gold bg-white p-6 shadow-elegant">
+                <Quote className="h-8 w-8 text-gold" />
+                <p className="mt-3 font-display text-lg font-semibold text-navy">
+                  Mais que um serviço, um cuidado baseado em anos de convivência,
+                  respeito e amor real pelos animais.
+                </p>
+              </Card>
             </div>
           </div>
         </div>
