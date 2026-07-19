@@ -86,8 +86,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Cinco Patas Dog Car & Walker | Transporte e Passeios Pet" },
       { name: "twitter:description", content: "Táxi Dog e Dog Walker profissional em Alcântara, São Gonçalo. Atendemos Niterói, Maricá e Itaboraí com segurança, conforto e preços justos." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5dedb028-6102-4914-8c4c-55bf6858d485/id-preview-bce7166d--70bb0b89-5d26-445a-bccb-25ca1abda64f.lovable.app-1784385329337.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5dedb028-6102-4914-8c4c-55bf6858d485/id-preview-bce7166d--70bb0b89-5d26-445a-bccb-25ca1abda64f.lovable.app-1784385329337.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/57ba4f9d-e01e-48b9-954c-17de7e644137" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/57ba4f9d-e01e-48b9-954c-17de7e644137" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
