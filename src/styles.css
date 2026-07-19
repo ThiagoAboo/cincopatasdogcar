@@ -206,4 +206,11 @@
 @utility bg-whatsapp {
   background-color: var(--whatsapp);
 }
+@utility border-gold {
+  border-color: var(--gold);
+}
+@utility border-l-gold {
+  border-left-color: var(--gold);
+}
+
 
