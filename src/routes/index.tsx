@@ -16,6 +16,7 @@ import {
   XCircle,
   Wind,
   Menu,
+  Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -435,6 +436,7 @@ function Index() {
             <a href="#calculadora" className="hover:text-gold">Calculadora</a>
             <a href="#passeios" className="hover:text-gold">Passeios</a>
             <a href="#planos" className="hover:text-gold">Planos</a>
+            <a href="#sobre" className="hover:text-gold">Sobre</a>
             <a href="#faq" className="hover:text-gold">FAQ</a>
           </nav>
           <a
