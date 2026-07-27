@@ -37,6 +37,8 @@ import thiago1 from "@/assets/thiago-1.jpg.asset.json";
 import thiago2 from "@/assets/thiago-2.jpg.asset.json";
 import thiago3 from "@/assets/thiago-3.jpg.asset.json";
 import thiago4 from "@/assets/thiago-4.jpg.asset.json";
+import car1 from "@/assets/car-1.jpg.asset.json";
+import car2 from "@/assets/car-2.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
