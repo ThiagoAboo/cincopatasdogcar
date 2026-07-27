@@ -214,3 +214,28 @@
 }
 
 
+
+/* Business card sizing (screen) */
+.business-card {
+  width: 340px;
+  height: 220px;
+}
+
+@media print {
+  body * { visibility: hidden !important; }
+  .print-card-section, .print-card-section * { visibility: visible !important; }
+  .print-hide { display: none !important; }
+  .print-card-section {
+    position: absolute; inset: 0; padding: 0 !important; background: white !important;
+  }
+  .print-card-wrapper {
+    display: flex !important; flex-direction: column !important; align-items: center !important;
+    gap: 10mm !important; margin: 10mm auto !important;
+  }
+  .business-card {
+    width: 85mm !important; height: 55mm !important;
+    box-shadow: none !important; page-break-inside: avoid;
+    border: 1px solid #ddd !important;
+  }
+  .business-card-back { page-break-before: always; }
+}

@@ -20,6 +20,10 @@ import {
   Timer,
   Loader2,
   Repeat,
+  Printer,
+  Syringe,
+  Users,
+  Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +41,8 @@ import thiago1 from "@/assets/thiago-1.jpg.asset.json";
 import thiago2 from "@/assets/thiago-2.jpg.asset.json";
 import thiago3 from "@/assets/thiago-3.jpg.asset.json";
 import thiago4 from "@/assets/thiago-4.jpg.asset.json";
+import car1 from "@/assets/car-1.jpg.asset.json";
+import car2 from "@/assets/car-2.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -111,7 +117,8 @@ type TaxiResult = {
   distTrip: number;
   fuelCost: number;
   tripCost: number;
-  base: number;
+  perKm: number;
+  withHuman: boolean;
   tripType: "ida" | "ida_volta";
   total: number;
   pickup: string;
@@ -147,6 +154,7 @@ function TaxiCalculator({
 }) {
   const [porte, setPorte] = useState<PorteId>("medio");
   const [tripType, setTripType] = useState<"ida" | "ida_volta">("ida");
+  const [withHuman, setWithHuman] = useState(false);
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
   const [errors, setErrors] = useState<{ pickup?: string; destination?: string; geo?: string }>({});
@@ -178,11 +186,11 @@ function TaxiCalculator({
     const distToPickup = haversineKm(ALCANTARA_COORDS, pCoord);
     const distTripOneWay = haversineKm(pCoord, dCoord);
     const pd = porteData(porte);
-    const perKm = porte === "pequeno" ? 2.8 : porte === "medio" ? 3.0 : porte === "grande" ? 3.4 : 3.8;
+    const perKm = withHuman ? 5 : 4;
     const distTrip = tripType === "ida_volta" ? distTripOneWay * 2 : distTripOneWay;
     const fuelCost = Math.round(distToPickup * 0.34 * 100) / 100;
     const tripCost = Math.round(distTrip * perKm * 100) / 100;
-    const total = Math.round((pd.base + fuelCost + tripCost) * 100) / 100;
+    const total = Math.round((fuelCost + tripCost) * 100) / 100;
     const r: TaxiResult = {
       porte,
       porteLabel: pd.label,
@@ -190,7 +198,8 @@ function TaxiCalculator({
       distTrip: Math.round(distTrip * 10) / 10,
       fuelCost,
       tripCost,
-      base: pd.base,
+      perKm,
+      withHuman,
       tripType,
       total,
       pickup,
@@ -198,7 +207,7 @@ function TaxiCalculator({
     };
     setResult(r);
     onResult(r);
-  }, [porte, tripType, pickup, destination, onResult]);
+  }, [porte, tripType, withHuman, pickup, destination, onResult]);
 
   const wa = useMemo(() => {
     if (!result) return "#";
@@ -207,9 +216,10 @@ function TaxiCalculator({
       `Olá! Gostaria de agendar um *Táxi Dog* pela ${BRAND}.\n\n` +
         `🐶 Porte: ${result.porteLabel}\n` +
         `🔁 Modalidade: ${tipo}\n` +
+        `👤 Humano junto: ${result.withHuman ? "Sim" : "Não"}\n` +
         `📍 Partida: ${result.pickup}\n` +
         `🎯 Destino: ${result.destination}\n` +
-        `📏 Distância trajeto: ${result.distTrip} km\n` +
+        `📏 Distância trajeto: ${result.distTrip} km (${BRL(result.perKm)}/km)\n` +
         `💰 Valor estimado: ${BRL(result.total)}\n\n` +
         `Podemos confirmar o horário?`,
     );
@@ -218,7 +228,7 @@ function TaxiCalculator({
   return (
     <Card className="relative overflow-hidden border-0 p-0 shadow-elegant">
       <div className="grid gap-0 md:grid-cols-2">
-        <div className="bg-navy p-8 text-white md:p-10">
+        <div className="bg-navy p-5 text-white sm:p-8 md:p-10">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
             <Sparkles className="h-3.5 w-3.5 text-gold" />
             Calculadora Inteligente
@@ -280,6 +290,36 @@ function TaxiCalculator({
                       }
                     >
                       {t === "ida" ? "Somente Ida" : "Ida e Volta"}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-2 flex items-center gap-2 text-white/90">
+                <Users className="h-4 w-4 text-gold" /> O humano vai junto?
+              </Label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { v: false, label: "Só o Pet · R$ 4/km" },
+                  { v: true, label: "Pet + Humano · R$ 5/km" },
+                ].map((o) => {
+                  const active = withHuman === o.v;
+                  return (
+                    <button
+                      key={String(o.v)}
+                      type="button"
+                      onClick={() => setWithHuman(o.v)}
+                      aria-pressed={active}
+                      className={
+                        "rounded-xl border px-3 py-2.5 text-xs font-semibold transition sm:text-sm " +
+                        (active
+                          ? "border-gold bg-gold/15 text-white shadow-gold"
+                          : "border-white/15 bg-white/5 text-white/80 hover:border-white/30")
+                      }
+                    >
+                      {o.label}
                     </button>
                   );
                 })}
@@ -354,7 +394,7 @@ function TaxiCalculator({
           </div>
         </div>
 
-        <div className="bg-white p-8 md:p-10">
+        <div className="bg-white p-5 sm:p-8 md:p-10">
           {!result ? (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
               <div className="grid h-16 w-16 place-items-center rounded-2xl bg-secondary">
@@ -380,14 +420,15 @@ function TaxiCalculator({
                     <Repeat className="mr-1 h-3 w-3" />
                     {result.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}
                   </Badge>
+                  {result.withHuman && (
+                    <Badge className="bg-navy text-white hover:bg-navy">
+                      <Users className="mr-1 h-3 w-3 text-gold" /> + Humano
+                    </Badge>
+                  )}
                 </div>
               </div>
 
               <ul className="space-y-3 text-sm">
-                <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
-                  <span className="text-muted-foreground">Taxa de Saída (Base)</span>
-                  <span className="font-semibold text-navy">{BRL(result.base)}</span>
-                </li>
                 <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
                   <span className="text-muted-foreground">
                     Combustível até você
@@ -399,30 +440,30 @@ function TaxiCalculator({
                 </li>
                 <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
                   <span className="text-muted-foreground">
-                    Trajeto do seu Pet
+                    Trajeto {result.withHuman ? "Pet + Humano" : "do Pet"}
                     <span className="mt-0.5 block text-xs text-muted-foreground/70">
                       {result.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} ·{" "}
-                      {result.distTrip} km
+                      {result.distTrip} km × {BRL(result.perKm)}/km
                     </span>
                   </span>
                   <span className="font-semibold text-navy">{BRL(result.tripCost)}</span>
                 </li>
               </ul>
 
-              <div className="mt-5 rounded-2xl bg-navy p-5 text-white">
+              <div className="mt-5 rounded-2xl bg-navy p-4 text-white sm:p-5">
                 <div className="text-xs uppercase tracking-wider text-white/60">
                   Valor Total Estimado
                 </div>
-                <div className="mt-1 font-display text-4xl font-extrabold text-gold sm:text-5xl">
+                <div className="mt-1 font-display text-3xl font-extrabold text-gold sm:text-4xl md:text-5xl">
                   {BRL(result.total)}
                 </div>
               </div>
 
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — será
-                cobrada apenas em caso de incidente higiênico durante o trajeto (xixi, cocô ou
-                vômito), de R$ 15,00 a R$ 40,00 conforme a limpeza necessária. Os primeiros 20
-                minutos de espera são grátis; após isso, R$ 15,00 a cada 30 minutos.
+                <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só
+                será cobrada em caso de incidente higiênico (xixi, cocô ou vômito), de R$ 15,00 a
+                R$ 40,00 conforme a limpeza necessária. Os primeiros <strong>30 minutos de espera
+                são grátis</strong>; após isso, R$ 15,00 a cada 30 minutos.
               </p>
 
               <a href={wa} target="_blank" rel="noreferrer" className="mt-5">
@@ -509,7 +550,7 @@ function WalkerCalculator({
   return (
     <Card className="relative overflow-hidden border-0 p-0 shadow-elegant">
       <div className="grid gap-0 md:grid-cols-2">
-        <div className="bg-gold-gradient p-8 text-navy md:p-10">
+        <div className="bg-gold-gradient p-5 text-navy sm:p-8 md:p-10">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold">
             <Sparkles className="h-3.5 w-3.5" /> Simulador de Passeio
           </div>
@@ -610,7 +651,7 @@ function WalkerCalculator({
           </div>
         </div>
 
-        <div className="bg-white p-8 md:p-10">
+        <div className="bg-white p-5 sm:p-8 md:p-10">
           {!result ? (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
               <div className="grid h-16 w-16 place-items-center rounded-2xl bg-secondary">
@@ -823,7 +864,14 @@ function Index() {
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden bg-hero-gradient text-white">
-        <div className="absolute inset-0 opacity-[0.08]" aria-hidden>
+        <img
+          src={car2.url}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
+        />
+        <div className="absolute inset-0 bg-hero-gradient/80" aria-hidden />
+        <div className="absolute inset-0 opacity-[0.10]" aria-hidden>
           <div className="absolute -left-32 top-24 h-96 w-96 rounded-full bg-gold blur-3xl" />
           <div className="absolute right-0 top-64 h-96 w-96 rounded-full bg-white blur-3xl" />
         </div>
@@ -875,32 +923,30 @@ function Index() {
 
             <div className="relative hidden lg:block">
               <div className="absolute -inset-6 rounded-[2.5rem] bg-gold/10 blur-2xl" aria-hidden />
-              <Card className="relative overflow-hidden border-white/10 bg-white/[0.06] p-8 text-white shadow-elegant backdrop-blur">
-                <div className="grid grid-cols-2 gap-4">
+              <Card className="relative overflow-hidden border-white/10 bg-white/[0.06] p-5 text-white shadow-elegant backdrop-blur">
+                <div className="overflow-hidden rounded-2xl">
+                  <img
+                    src={car1.url}
+                    alt="Nissan Livina da Cinco Patas Dog Car & Walker"
+                    className="aspect-[4/3] w-full object-cover"
+                    loading="eager"
+                  />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
                   {[
-                    { icon: Car, title: "Nissan Livina", sub: "Espaçoso, com ar-condicionado" },
+                    { icon: Car, title: "Nissan Livina", sub: "Espaçosa, ar-condicionado" },
                     { icon: ShieldCheck, title: "Cinto Pet", sub: "Certificado, banco traseiro" },
-                    { icon: RouteIcon, title: "Rota otimizada", sub: "GNV econômico, preço justo" },
-                    { icon: PawPrint, title: "Cabine limpa", sub: "Higienização a cada corrida" },
+                    { icon: RouteIcon, title: "GNV econômico", sub: "Preço justo, sem surpresas" },
+                    { icon: PawPrint, title: "Cabine cuidada", sub: "Higienização entre corridas" },
                   ].map((f) => (
-                    <div key={f.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold-gradient">
-                        <f.icon className="h-5 w-5 text-navy" />
+                    <div key={f.title} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                      <div className="grid h-8 w-8 place-items-center rounded-lg bg-gold-gradient">
+                        <f.icon className="h-4 w-4 text-navy" />
                       </div>
-                      <div className="mt-3 font-semibold">{f.title}</div>
-                      <div className="mt-0.5 text-xs text-white/60">{f.sub}</div>
+                      <div className="mt-2 text-sm font-semibold">{f.title}</div>
+                      <div className="mt-0.5 text-[11px] text-white/60">{f.sub}</div>
                     </div>
                   ))}
-                </div>
-                <div className="mt-6 rounded-2xl bg-navy-deep p-4 text-sm">
-                  <div className="flex items-center gap-2 text-gold">
-                    <Sparkles className="h-4 w-4" />
-                    <span className="font-semibold">Preço 100% transparente</span>
-                  </div>
-                  <p className="mt-1 text-xs text-white/70">
-                    Cobramos o custo real do combustível no deslocamento até você. Sem taxas
-                    escondidas.
-                  </p>
                 </div>
               </Card>
             </div>
@@ -923,6 +969,49 @@ function Index() {
           </div>
           <div className="mt-10">
             <TaxiCalculator onResult={setTaxi} />
+          </div>
+
+          {/* Regras Importantes */}
+          <div className="mt-12">
+            <div className="mb-6 text-center">
+              <Badge className="bg-navy text-white hover:bg-navy">Boas práticas</Badge>
+              <h3 className="mt-3 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+                Regras Importantes para o seu Táxi Dog
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Regras simples que garantem uma viagem tranquila para o seu pet e para todos os
+                outros que usam o serviço.
+              </p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2">
+              {[
+                {
+                  icon: ShieldCheck,
+                  title: "Segurança em primeiro lugar",
+                  desc: "O pet só viaja em caixa de transporte higienizada (para gatos) ou com cinto de segurança próprio para cães no banco traseiro.",
+                },
+                {
+                  icon: Syringe,
+                  title: "Vacinação em dia",
+                  desc: "É indispensável a carteira de vacinação atualizada para o transporte — proteção do seu pet e de todos os outros cães que usam o serviço.",
+                },
+              ].map((r) => (
+                <Card
+                  key={r.title}
+                  className="flex items-start gap-4 border-l-4 border-l-gold bg-white p-5 shadow-elegant"
+                >
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold-gradient">
+                    <r.icon className="h-5 w-5 text-navy" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-display text-lg font-bold text-navy">{r.title}</h4>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {r.desc}
+                    </p>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -1222,34 +1311,24 @@ function Index() {
           </div>
 
           <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            {/* Photo gallery */}
-            <div className="relative">
-              <div className="absolute -inset-4 rounded-[2.5rem] bg-gold/20 blur-2xl" aria-hidden />
-              <div className="relative grid grid-cols-2 gap-3">
-                <img
-                  src={thiago1.url}
-                  alt="Thiago descansando com sua cachorrinha"
-                  className="col-span-2 aspect-[4/3] w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
-                <img
-                  src={thiago2.url}
-                  alt="Baylie, cachorrinha loira em campo aberto"
-                  className="aspect-square w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
-                <img
-                  src={thiago3.url}
-                  alt="Kyra, cachorrinha preta de olhos expressivos"
-                  className="aspect-square w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
-                <img
-                  src={thiago4.url}
-                  alt="A turma de cães do Thiago observando o horizonte"
-                  className="col-span-2 aspect-[16/9] w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
+            {/* Photo gallery — compact */}
+            <div className="relative mx-auto w-full max-w-sm lg:mx-0">
+              <div className="absolute -inset-3 rounded-[2rem] bg-gold/20 blur-2xl" aria-hidden />
+              <div className="relative grid grid-cols-2 gap-2.5">
+                {[
+                  { src: thiago1.url, alt: "Thiago com sua cachorrinha" },
+                  { src: thiago2.url, alt: "Baylie em campo aberto" },
+                  { src: thiago3.url, alt: "Kyra deitada na grama" },
+                  { src: thiago4.url, alt: "A turma observando o horizonte" },
+                ].map((p) => (
+                  <img
+                    key={p.src}
+                    src={p.src}
+                    alt={p.alt}
+                    className="aspect-square w-full rounded-xl object-cover shadow-elegant"
+                    loading="lazy"
+                  />
+                ))}
               </div>
             </div>
 
@@ -1309,7 +1388,7 @@ function Index() {
               {[
                 { icon: ShieldCheck, t: "Cinto pet certificado" },
                 { icon: Wind, t: "Ar-condicionado sempre ligado" },
-                { icon: Clock, t: "20 min de espera grátis" },
+                { icon: Clock, t: "30 min de espera grátis" },
               ].map((i) => (
                 <li key={i.t} className="flex items-center gap-3 text-navy/90">
                   <div className="grid h-9 w-9 place-items-center rounded-lg bg-secondary">
@@ -1330,7 +1409,7 @@ function Index() {
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
                 Todos os pets viajam protegidos por cinto de segurança pet certificado no banco
-                traseiro ou em caixas de transporte totalmente desinfetadas. Veículo Nissan Livina
+                traseiro ou em caixa de transporte higienizada (para gatos). Veículo Nissan Livina
                 espaçoso com ar-condicionado sempre ligado.
               </AccordionContent>
             </AccordionItem>
@@ -1371,6 +1450,104 @@ function Index() {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+        </div>
+      </section>
+
+      {/* BUSINESS CARD (printable) */}
+      <section id="cartao" className="print-card-section bg-secondary/40 py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center print-hide">
+            <Badge className="bg-gold text-navy hover:bg-gold">Cartão de Visita</Badge>
+            <h2 className="mt-4 font-display text-3xl font-extrabold text-navy sm:text-4xl">
+              Leve a Cinco Patas no bolso
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Cartão de visita virtual — imprima em formato padrão (85 × 55 mm) com o verso de{" "}
+              <strong>fidelidade</strong>.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <Button
+                size="lg"
+                onClick={() => typeof window !== "undefined" && window.print()}
+                className="bg-navy font-semibold text-white hover:bg-navy-deep"
+              >
+                <Printer className="mr-2 h-5 w-5" /> Imprimir Cartão
+              </Button>
+            </div>
+          </div>
+
+          <div className="mx-auto mt-10 flex max-w-4xl flex-col items-center gap-6 print-card-wrapper sm:flex-row sm:justify-center">
+            {/* FRENTE */}
+            <div className="business-card business-card-front relative flex flex-col justify-between overflow-hidden rounded-xl bg-navy p-4 text-white shadow-elegant">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-25"
+                style={{
+                  backgroundImage: `url(${car1.url})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  mixBlendMode: "luminosity",
+                }}
+              />
+              <div className="absolute inset-0 bg-hero-gradient/80" aria-hidden />
+              <div className="relative flex items-center gap-2">
+                <div className="grid h-9 w-9 place-items-center rounded-lg bg-gold-gradient">
+                  <PawPrint className="h-5 w-5 text-navy" />
+                </div>
+                <div className="leading-tight">
+                  <div className="font-display text-[13px] font-extrabold">Cinco Patas</div>
+                  <div className="text-[9px] uppercase tracking-wider text-gold">
+                    Dog Car & Walker
+                  </div>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="font-display text-[11px] font-semibold text-gold">
+                  Thiago · Táxi Dog & Dog Walker
+                </div>
+                <ul className="mt-1.5 space-y-1 text-[10px] leading-tight text-white/85">
+                  <li className="flex items-center gap-1.5">
+                    <Phone className="h-3 w-3 text-gold" /> {PHONE_DISPLAY}
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <MessageCircle className="h-3 w-3 text-gold" /> WhatsApp
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <MapPin className="h-3 w-3 text-gold" /> Alcântara · São Gonçalo (RJ)
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <Instagram className="h-3 w-3 text-gold" /> @cincopatasdogcar
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* VERSO — Fidelidade */}
+            <div className="business-card business-card-back relative flex flex-col justify-between rounded-xl border border-gold/40 bg-white p-4 text-navy shadow-elegant">
+              <div>
+                <div className="font-display text-[12px] font-extrabold text-navy">
+                  Programa Fidelidade
+                </div>
+                <p className="mt-0.5 text-[9px] leading-tight text-muted-foreground">
+                  A cada corrida ou passeio, carimbe uma patinha. Complete 10 e ganhe{" "}
+                  <strong>1 serviço grátis</strong>.
+                </p>
+              </div>
+              <div className="grid grid-cols-5 gap-1.5">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="grid aspect-square place-items-center rounded-md border border-dashed border-gold/60 bg-warm text-gold/60"
+                  >
+                    <PawPrint className="h-3.5 w-3.5" />
+                  </div>
+                ))}
+              </div>
+              <div className="text-center text-[8px] uppercase tracking-wider text-muted-foreground">
+                cincopatasdogcar.lovable.app
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
