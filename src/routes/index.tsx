@@ -1340,7 +1340,7 @@ function Index() {
               {[
                 { icon: ShieldCheck, t: "Cinto pet certificado" },
                 { icon: Wind, t: "Ar-condicionado sempre ligado" },
-                { icon: Clock, t: "20 min de espera grátis" },
+                { icon: Clock, t: "30 min de espera grátis" },
               ].map((i) => (
                 <li key={i.t} className="flex items-center gap-3 text-navy/90">
                   <div className="grid h-9 w-9 place-items-center rounded-lg bg-secondary">
@@ -1361,7 +1361,7 @@ function Index() {
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
                 Todos os pets viajam protegidos por cinto de segurança pet certificado no banco
-                traseiro ou em caixas de transporte totalmente desinfetadas. Veículo Nissan Livina
+                traseiro ou em caixa de transporte higienizada (para gatos). Veículo Nissan Livina
                 espaçoso com ar-condicionado sempre ligado.
               </AccordionContent>
             </AccordionItem>
