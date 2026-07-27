@@ -117,7 +117,8 @@ type TaxiResult = {
   distTrip: number;
   fuelCost: number;
   tripCost: number;
-  base: number;
+  perKm: number;
+  withHuman: boolean;
   tripType: "ida" | "ida_volta";
   total: number;
   pickup: string;
