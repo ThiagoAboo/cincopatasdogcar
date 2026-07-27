@@ -419,14 +419,15 @@ function TaxiCalculator({
                     <Repeat className="mr-1 h-3 w-3" />
                     {result.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}
                   </Badge>
+                  {result.withHuman && (
+                    <Badge className="bg-navy text-white hover:bg-navy">
+                      <Users className="mr-1 h-3 w-3 text-gold" /> + Humano
+                    </Badge>
+                  )}
                 </div>
               </div>
 
               <ul className="space-y-3 text-sm">
-                <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
-                  <span className="text-muted-foreground">Taxa de Saída (Base)</span>
-                  <span className="font-semibold text-navy">{BRL(result.base)}</span>
-                </li>
                 <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
                   <span className="text-muted-foreground">
                     Combustível até você
@@ -438,30 +439,30 @@ function TaxiCalculator({
                 </li>
                 <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
                   <span className="text-muted-foreground">
-                    Trajeto do seu Pet
+                    Trajeto {result.withHuman ? "Pet + Humano" : "do Pet"}
                     <span className="mt-0.5 block text-xs text-muted-foreground/70">
                       {result.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} ·{" "}
-                      {result.distTrip} km
+                      {result.distTrip} km × {BRL(result.perKm)}/km
                     </span>
                   </span>
                   <span className="font-semibold text-navy">{BRL(result.tripCost)}</span>
                 </li>
               </ul>
 
-              <div className="mt-5 rounded-2xl bg-navy p-5 text-white">
+              <div className="mt-5 rounded-2xl bg-navy p-4 text-white sm:p-5">
                 <div className="text-xs uppercase tracking-wider text-white/60">
                   Valor Total Estimado
                 </div>
-                <div className="mt-1 font-display text-4xl font-extrabold text-gold sm:text-5xl">
+                <div className="mt-1 font-display text-3xl font-extrabold text-gold sm:text-4xl md:text-5xl">
                   {BRL(result.total)}
                 </div>
               </div>
 
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — será
-                cobrada apenas em caso de incidente higiênico durante o trajeto (xixi, cocô ou
-                vômito), de R$ 15,00 a R$ 40,00 conforme a limpeza necessária. Os primeiros 20
-                minutos de espera são grátis; após isso, R$ 15,00 a cada 30 minutos.
+                <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só
+                será cobrada em caso de incidente higiênico (xixi, cocô ou vômito), de R$ 15,00 a
+                R$ 40,00 conforme a limpeza necessária. Os primeiros <strong>30 minutos de espera
+                são grátis</strong>; após isso, R$ 15,00 a cada 30 minutos.
               </p>
 
               <a href={wa} target="_blank" rel="noreferrer" className="mt-5">
