@@ -1263,34 +1263,24 @@ function Index() {
           </div>
 
           <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            {/* Photo gallery */}
-            <div className="relative">
-              <div className="absolute -inset-4 rounded-[2.5rem] bg-gold/20 blur-2xl" aria-hidden />
-              <div className="relative grid grid-cols-2 gap-3">
-                <img
-                  src={thiago1.url}
-                  alt="Thiago descansando com sua cachorrinha"
-                  className="col-span-2 aspect-[4/3] w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
-                <img
-                  src={thiago2.url}
-                  alt="Baylie, cachorrinha loira em campo aberto"
-                  className="aspect-square w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
-                <img
-                  src={thiago3.url}
-                  alt="Kyra, cachorrinha preta de olhos expressivos"
-                  className="aspect-square w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
-                <img
-                  src={thiago4.url}
-                  alt="A turma de cães do Thiago observando o horizonte"
-                  className="col-span-2 aspect-[16/9] w-full rounded-2xl object-cover shadow-elegant"
-                  loading="lazy"
-                />
+            {/* Photo gallery — compact */}
+            <div className="relative mx-auto w-full max-w-sm lg:mx-0">
+              <div className="absolute -inset-3 rounded-[2rem] bg-gold/20 blur-2xl" aria-hidden />
+              <div className="relative grid grid-cols-2 gap-2.5">
+                {[
+                  { src: thiago1.url, alt: "Thiago com sua cachorrinha" },
+                  { src: thiago2.url, alt: "Baylie em campo aberto" },
+                  { src: thiago3.url, alt: "Kyra deitada na grama" },
+                  { src: thiago4.url, alt: "A turma observando o horizonte" },
+                ].map((p) => (
+                  <img
+                    key={p.src}
+                    src={p.src}
+                    alt={p.alt}
+                    className="aspect-square w-full rounded-xl object-cover shadow-elegant"
+                    loading="lazy"
+                  />
+                ))}
               </div>
             </div>
 
