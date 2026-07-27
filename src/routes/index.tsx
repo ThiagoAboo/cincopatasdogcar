@@ -923,32 +923,30 @@ function Index() {
 
             <div className="relative hidden lg:block">
               <div className="absolute -inset-6 rounded-[2.5rem] bg-gold/10 blur-2xl" aria-hidden />
-              <Card className="relative overflow-hidden border-white/10 bg-white/[0.06] p-8 text-white shadow-elegant backdrop-blur">
-                <div className="grid grid-cols-2 gap-4">
+              <Card className="relative overflow-hidden border-white/10 bg-white/[0.06] p-5 text-white shadow-elegant backdrop-blur">
+                <div className="overflow-hidden rounded-2xl">
+                  <img
+                    src={car1.url}
+                    alt="Nissan Livina da Cinco Patas Dog Car & Walker"
+                    className="aspect-[4/3] w-full object-cover"
+                    loading="eager"
+                  />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
                   {[
-                    { icon: Car, title: "Nissan Livina", sub: "Espaçoso, com ar-condicionado" },
+                    { icon: Car, title: "Nissan Livina", sub: "Espaçosa, ar-condicionado" },
                     { icon: ShieldCheck, title: "Cinto Pet", sub: "Certificado, banco traseiro" },
-                    { icon: RouteIcon, title: "Rota otimizada", sub: "GNV econômico, preço justo" },
-                    { icon: PawPrint, title: "Cabine limpa", sub: "Higienização a cada corrida" },
+                    { icon: RouteIcon, title: "GNV econômico", sub: "Preço justo, sem surpresas" },
+                    { icon: PawPrint, title: "Cabine cuidada", sub: "Higienização entre corridas" },
                   ].map((f) => (
-                    <div key={f.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold-gradient">
-                        <f.icon className="h-5 w-5 text-navy" />
+                    <div key={f.title} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                      <div className="grid h-8 w-8 place-items-center rounded-lg bg-gold-gradient">
+                        <f.icon className="h-4 w-4 text-navy" />
                       </div>
-                      <div className="mt-3 font-semibold">{f.title}</div>
-                      <div className="mt-0.5 text-xs text-white/60">{f.sub}</div>
+                      <div className="mt-2 text-sm font-semibold">{f.title}</div>
+                      <div className="mt-0.5 text-[11px] text-white/60">{f.sub}</div>
                     </div>
                   ))}
-                </div>
-                <div className="mt-6 rounded-2xl bg-navy-deep p-4 text-sm">
-                  <div className="flex items-center gap-2 text-gold">
-                    <Sparkles className="h-4 w-4" />
-                    <span className="font-semibold">Preço 100% transparente</span>
-                  </div>
-                  <p className="mt-1 text-xs text-white/70">
-                    Cobramos o custo real do combustível no deslocamento até você. Sem taxas
-                    escondidas.
-                  </p>
                 </div>
               </Card>
             </div>
