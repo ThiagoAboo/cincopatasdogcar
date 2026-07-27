@@ -154,6 +154,7 @@ function TaxiCalculator({
 }) {
   const [porte, setPorte] = useState<PorteId>("medio");
   const [tripType, setTripType] = useState<"ida" | "ida_volta">("ida");
+  const [withHuman, setWithHuman] = useState(false);
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
   const [errors, setErrors] = useState<{ pickup?: string; destination?: string; geo?: string }>({});
@@ -185,11 +186,11 @@ function TaxiCalculator({
     const distToPickup = haversineKm(ALCANTARA_COORDS, pCoord);
     const distTripOneWay = haversineKm(pCoord, dCoord);
     const pd = porteData(porte);
-    const perKm = porte === "pequeno" ? 2.8 : porte === "medio" ? 3.0 : porte === "grande" ? 3.4 : 3.8;
+    const perKm = withHuman ? 5 : 4;
     const distTrip = tripType === "ida_volta" ? distTripOneWay * 2 : distTripOneWay;
     const fuelCost = Math.round(distToPickup * 0.34 * 100) / 100;
     const tripCost = Math.round(distTrip * perKm * 100) / 100;
-    const total = Math.round((pd.base + fuelCost + tripCost) * 100) / 100;
+    const total = Math.round((fuelCost + tripCost) * 100) / 100;
     const r: TaxiResult = {
       porte,
       porteLabel: pd.label,
@@ -197,7 +198,8 @@ function TaxiCalculator({
       distTrip: Math.round(distTrip * 10) / 10,
       fuelCost,
       tripCost,
-      base: pd.base,
+      perKm,
+      withHuman,
       tripType,
       total,
       pickup,
@@ -205,7 +207,7 @@ function TaxiCalculator({
     };
     setResult(r);
     onResult(r);
-  }, [porte, tripType, pickup, destination, onResult]);
+  }, [porte, tripType, withHuman, pickup, destination, onResult]);
 
   const wa = useMemo(() => {
     if (!result) return "#";
