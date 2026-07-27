@@ -970,6 +970,49 @@ function Index() {
           <div className="mt-10">
             <TaxiCalculator onResult={setTaxi} />
           </div>
+
+          {/* Regras Importantes */}
+          <div className="mt-12">
+            <div className="mb-6 text-center">
+              <Badge className="bg-navy text-white hover:bg-navy">Boas práticas</Badge>
+              <h3 className="mt-3 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+                Regras Importantes para o seu Táxi Dog
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Regras simples que garantem uma viagem tranquila para o seu pet e para todos os
+                outros que usam o serviço.
+              </p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2">
+              {[
+                {
+                  icon: ShieldCheck,
+                  title: "Segurança em primeiro lugar",
+                  desc: "O pet só viaja em caixa de transporte higienizada (para gatos) ou com cinto de segurança próprio para cães no banco traseiro.",
+                },
+                {
+                  icon: Syringe,
+                  title: "Vacinação em dia",
+                  desc: "É indispensável a carteira de vacinação atualizada para o transporte — proteção do seu pet e de todos os outros cães que usam o serviço.",
+                },
+              ].map((r) => (
+                <Card
+                  key={r.title}
+                  className="flex items-start gap-4 border-l-4 border-l-gold bg-white p-5 shadow-elegant"
+                >
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold-gradient">
+                    <r.icon className="h-5 w-5 text-navy" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-display text-lg font-bold text-navy">{r.title}</h4>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {r.desc}
+                    </p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
