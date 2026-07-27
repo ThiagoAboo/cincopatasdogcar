@@ -864,7 +864,14 @@ function Index() {
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden bg-hero-gradient text-white">
-        <div className="absolute inset-0 opacity-[0.08]" aria-hidden>
+        <img
+          src={car2.url}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
+        />
+        <div className="absolute inset-0 bg-hero-gradient/80" aria-hidden />
+        <div className="absolute inset-0 opacity-[0.10]" aria-hidden>
           <div className="absolute -left-32 top-24 h-96 w-96 rounded-full bg-gold blur-3xl" />
           <div className="absolute right-0 top-64 h-96 w-96 rounded-full bg-white blur-3xl" />
         </div>
