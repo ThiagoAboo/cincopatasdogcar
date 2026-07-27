@@ -296,6 +296,36 @@ function TaxiCalculator({
             </div>
 
             <div>
+              <Label className="mb-2 flex items-center gap-2 text-white/90">
+                <Users className="h-4 w-4 text-gold" /> O humano vai junto?
+              </Label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { v: false, label: "Só o Pet · R$ 4/km" },
+                  { v: true, label: "Pet + Humano · R$ 5/km" },
+                ].map((o) => {
+                  const active = withHuman === o.v;
+                  return (
+                    <button
+                      key={String(o.v)}
+                      type="button"
+                      onClick={() => setWithHuman(o.v)}
+                      aria-pressed={active}
+                      className={
+                        "rounded-xl border px-3 py-2.5 text-xs font-semibold transition sm:text-sm " +
+                        (active
+                          ? "border-gold bg-gold/15 text-white shadow-gold"
+                          : "border-white/15 bg-white/5 text-white/80 hover:border-white/30")
+                      }
+                    >
+                      {o.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
               <Label htmlFor="pickup" className="mb-2 flex items-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4 text-gold" /> Endereço de Partida do Pet
               </Label>
