@@ -216,9 +216,10 @@ function TaxiCalculator({
       `Olá! Gostaria de agendar um *Táxi Dog* pela ${BRAND}.\n\n` +
         `🐶 Porte: ${result.porteLabel}\n` +
         `🔁 Modalidade: ${tipo}\n` +
+        `👤 Humano junto: ${result.withHuman ? "Sim" : "Não"}\n` +
         `📍 Partida: ${result.pickup}\n` +
         `🎯 Destino: ${result.destination}\n` +
-        `📏 Distância trajeto: ${result.distTrip} km\n` +
+        `📏 Distância trajeto: ${result.distTrip} km (${BRL(result.perKm)}/km)\n` +
         `💰 Valor estimado: ${BRL(result.total)}\n\n` +
         `Podemos confirmar o horário?`,
     );
