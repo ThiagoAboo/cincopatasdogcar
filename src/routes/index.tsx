@@ -1453,6 +1453,104 @@ function Index() {
         </div>
       </section>
 
+      {/* BUSINESS CARD (printable) */}
+      <section id="cartao" className="print-card-section bg-secondary/40 py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center print-hide">
+            <Badge className="bg-gold text-navy hover:bg-gold">Cartão de Visita</Badge>
+            <h2 className="mt-4 font-display text-3xl font-extrabold text-navy sm:text-4xl">
+              Leve a Cinco Patas no bolso
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Cartão de visita virtual — imprima em formato padrão (85 × 55 mm) com o verso de{" "}
+              <strong>fidelidade</strong>.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <Button
+                size="lg"
+                onClick={() => typeof window !== "undefined" && window.print()}
+                className="bg-navy font-semibold text-white hover:bg-navy-deep"
+              >
+                <Printer className="mr-2 h-5 w-5" /> Imprimir Cartão
+              </Button>
+            </div>
+          </div>
+
+          <div className="mx-auto mt-10 flex max-w-4xl flex-col items-center gap-6 print-card-wrapper sm:flex-row sm:justify-center">
+            {/* FRENTE */}
+            <div className="business-card business-card-front relative flex flex-col justify-between overflow-hidden rounded-xl bg-navy p-4 text-white shadow-elegant">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-25"
+                style={{
+                  backgroundImage: `url(${car1.url})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  mixBlendMode: "luminosity",
+                }}
+              />
+              <div className="absolute inset-0 bg-hero-gradient/80" aria-hidden />
+              <div className="relative flex items-center gap-2">
+                <div className="grid h-9 w-9 place-items-center rounded-lg bg-gold-gradient">
+                  <PawPrint className="h-5 w-5 text-navy" />
+                </div>
+                <div className="leading-tight">
+                  <div className="font-display text-[13px] font-extrabold">Cinco Patas</div>
+                  <div className="text-[9px] uppercase tracking-wider text-gold">
+                    Dog Car & Walker
+                  </div>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="font-display text-[11px] font-semibold text-gold">
+                  Thiago · Táxi Dog & Dog Walker
+                </div>
+                <ul className="mt-1.5 space-y-1 text-[10px] leading-tight text-white/85">
+                  <li className="flex items-center gap-1.5">
+                    <Phone className="h-3 w-3 text-gold" /> {PHONE_DISPLAY}
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <MessageCircle className="h-3 w-3 text-gold" /> WhatsApp
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <MapPin className="h-3 w-3 text-gold" /> Alcântara · São Gonçalo (RJ)
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <Instagram className="h-3 w-3 text-gold" /> @cincopatasdogcar
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* VERSO — Fidelidade */}
+            <div className="business-card business-card-back relative flex flex-col justify-between rounded-xl border border-gold/40 bg-white p-4 text-navy shadow-elegant">
+              <div>
+                <div className="font-display text-[12px] font-extrabold text-navy">
+                  Programa Fidelidade
+                </div>
+                <p className="mt-0.5 text-[9px] leading-tight text-muted-foreground">
+                  A cada corrida ou passeio, carimbe uma patinha. Complete 10 e ganhe{" "}
+                  <strong>1 serviço grátis</strong>.
+                </p>
+              </div>
+              <div className="grid grid-cols-5 gap-1.5">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="grid aspect-square place-items-center rounded-md border border-dashed border-gold/60 bg-warm text-gold/60"
+                  >
+                    <PawPrint className="h-3.5 w-3.5" />
+                  </div>
+                ))}
+              </div>
+              <div className="text-center text-[8px] uppercase tracking-wider text-muted-foreground">
+                cincopatasdogcar.lovable.app
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA STRIP */}
       <section className="bg-gold-gradient py-14">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 text-center sm:px-6 md:flex-row md:justify-between md:text-left lg:px-8">
