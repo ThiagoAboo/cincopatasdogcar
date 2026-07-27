@@ -228,7 +228,7 @@ function TaxiCalculator({
   return (
     <Card className="relative overflow-hidden border-0 p-0 shadow-elegant">
       <div className="grid gap-0 md:grid-cols-2">
-        <div className="bg-navy p-8 text-white md:p-10">
+        <div className="bg-navy p-5 text-white sm:p-8 md:p-10">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
             <Sparkles className="h-3.5 w-3.5 text-gold" />
             Calculadora Inteligente
@@ -394,7 +394,7 @@ function TaxiCalculator({
           </div>
         </div>
 
-        <div className="bg-white p-8 md:p-10">
+        <div className="bg-white p-5 sm:p-8 md:p-10">
           {!result ? (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
               <div className="grid h-16 w-16 place-items-center rounded-2xl bg-secondary">
@@ -550,7 +550,7 @@ function WalkerCalculator({
   return (
     <Card className="relative overflow-hidden border-0 p-0 shadow-elegant">
       <div className="grid gap-0 md:grid-cols-2">
-        <div className="bg-gold-gradient p-8 text-navy md:p-10">
+        <div className="bg-gold-gradient p-5 text-navy sm:p-8 md:p-10">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold">
             <Sparkles className="h-3.5 w-3.5" /> Simulador de Passeio
           </div>
@@ -651,7 +651,7 @@ function WalkerCalculator({
           </div>
         </div>
 
-        <div className="bg-white p-8 md:p-10">
+        <div className="bg-white p-5 sm:p-8 md:p-10">
           {!result ? (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
               <div className="grid h-16 w-16 place-items-center rounded-2xl bg-secondary">
