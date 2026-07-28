@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   PawPrint,
   Car,
@@ -43,39 +44,47 @@ import thiago3 from "@/assets/thiago-3.jpg.asset.json";
 import thiago4 from "@/assets/thiago-4.jpg.asset.json";
 import car1 from "@/assets/car-1.jpg.asset.json";
 import car2 from "@/assets/car-2.jpg.asset.json";
+import { settingsQueryOptions, type AppSettings, type PorteId } from "@/lib/settings";
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(settingsQueryOptions),
   component: Index,
 });
-
-const BRAND = "Cinco Patas Dog Car & Walker";
-const WHATSAPP_NUMBER = "5521992244753";
-const PHONE_DISPLAY = "(21) 99224-4753";
-const ALCANTARA_COORDS = { lat: -22.7876, lon: -43.0244 }; // Alcântara, São Gonçalo (RJ)
 
 const BRL = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-const waLink = (msg: string) =>
-  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+const waLink = (number: string, msg: string) =>
+  `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
 
 // --- Geocoding & distance --------------------------------------------------
 type LatLon = { lat: number; lon: number };
+type Suggestion = { label: string; lat: number; lon: number };
+
+async function searchAddresses(q: string): Promise<Suggestion[]> {
+  const query = q.trim();
+  if (query.length < 4) return [];
+  const bias = /rj|rio de janeiro|brasil/i.test(query) ? query : `${query}, Rio de Janeiro, Brasil`;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=br&addressdetails=1&q=${encodeURIComponent(bias)}`;
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) return [];
+    const data: Array<{ display_name: string; lat: string; lon: string }> = await res.json();
+    return data.map((d) => ({
+      label: d.display_name,
+      lat: parseFloat(d.lat),
+      lon: parseFloat(d.lon),
+    }));
+  } catch {
+    return [];
+  }
+}
 
 async function geocodeAddress(address: string): Promise<LatLon | null> {
-  const q = address.trim();
-  if (!q) return null;
-  const bias = /rj|rio de janeiro|brasil/i.test(q) ? q : `${q}, Rio de Janeiro, Brasil`;
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(bias)}`;
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
-    if (!res.ok) return null;
-    const data: Array<{ lat: string; lon: string }> = await res.json();
-    if (!data.length) return null;
-    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-  } catch {
-    return null;
-  }
+  const list = await searchAddresses(address);
+  return list.length ? { lat: list[0].lat, lon: list[0].lon } : null;
 }
 
 function haversineKm(a: LatLon, b: LatLon): number {
@@ -92,24 +101,76 @@ function haversineKm(a: LatLon, b: LatLon): number {
   return Math.round(R * c * 1.25 * 10) / 10;
 }
 
+function validateAddress(v: string): string | null {
+  const s = v.trim();
+  if (s.length < 8) return "Endereço muito curto — informe rua e bairro.";
+  if (!/[A-Za-zÀ-ÿ]{3,}/.test(s))
+    return "Informe o nome da rua com pelo menos 3 letras.";
+  const hasNumber = /\d{1,5}/.test(s);
+  const hasComma = /,/.test(s);
+  if (!hasNumber && !hasComma)
+    return "Inclua o número do imóvel ou o bairro (separado por vírgula).";
+  return null;
+}
+
+// --- Address input with suggestions ---------------------------------------
+function AddressInput({
+  id,
+  value,
+  onChange,
+  invalid,
+  placeholder,
+  className,
+  listId,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  invalid?: boolean;
+  placeholder?: string;
+  className?: string;
+  listId: string;
+}) {
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const debRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debRef.current) clearTimeout(debRef.current);
+    if (value.trim().length < 4) {
+      setSuggestions([]);
+      return;
+    }
+    debRef.current = setTimeout(async () => {
+      const list = await searchAddresses(value);
+      setSuggestions(list);
+    }, 500);
+    return () => {
+      if (debRef.current) clearTimeout(debRef.current);
+    };
+  }, [value]);
+
+  return (
+    <>
+      <Input
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={invalid}
+        placeholder={placeholder}
+        list={listId}
+        autoComplete="off"
+        className={className}
+      />
+      <datalist id={listId}>
+        {suggestions.map((s, i) => (
+          <option key={i} value={s.label} />
+        ))}
+      </datalist>
+    </>
+  );
+}
+
 // --- Types & shared state --------------------------------------------------
-type PorteId = "pequeno" | "medio" | "grande" | "gigante";
-
-const PORTE_OPTIONS: {
-  id: PorteId;
-  label: string;
-  weight: string;
-  base: number; // base do táxi
-  walkerHour: number; // preço por hora do passeio
-}[] = [
-  { id: "pequeno", label: "Pequeno", weight: "Até 10 kg", base: 25, walkerHour: 32.5 },
-  { id: "medio", label: "Médio", weight: "11–25 kg", base: 30, walkerHour: 37.5 },
-  { id: "grande", label: "Grande", weight: "26–45 kg", base: 38, walkerHour: 45 },
-  { id: "gigante", label: "Gigante", weight: "45 kg +", base: 48, walkerHour: 57.5 },
-];
-
-const porteData = (id: PorteId) => PORTE_OPTIONS.find((p) => p.id === id)!;
-
 type TaxiResult = {
   porte: PorteId;
   porteLabel: string;
@@ -117,7 +178,6 @@ type TaxiResult = {
   distTrip: number;
   fuelCost: number;
   tripCost: number;
-  perKm: number;
   withHuman: boolean;
   tripType: "ida" | "ida_volta";
   total: number;
@@ -131,25 +191,16 @@ type WalkerResult = {
   minutes: number;
   local: string;
   hourly: number;
+  travelFee: number;
   total: number;
 };
 
-function validateAddress(v: string): string | null {
-  const s = v.trim();
-  if (s.length < 8) return "Endereço muito curto — informe rua e bairro.";
-  if (!/[A-Za-zÀ-ÿ]{3,}/.test(s))
-    return "Informe o nome da rua com pelo menos 3 letras.";
-  const hasNumber = /\d{1,5}/.test(s);
-  const hasComma = /,/.test(s);
-  if (!hasNumber && !hasComma)
-    return "Inclua o número do imóvel ou o bairro (separado por vírgula).";
-  return null;
-}
-
 // --- Táxi Dog Calculator ---------------------------------------------------
 function TaxiCalculator({
+  settings,
   onResult,
 }: {
+  settings: AppSettings;
   onResult: (r: TaxiResult | null) => void;
 }) {
   const [porte, setPorte] = useState<PorteId>("medio");
@@ -183,14 +234,18 @@ function TaxiCalculator({
       onResult(null);
       return;
     }
-    const distToPickup = haversineKm(ALCANTARA_COORDS, pCoord);
+    const distToPickup = haversineKm(settings.base_coords, pCoord);
     const distTripOneWay = haversineKm(pCoord, dCoord);
-    const pd = porteData(porte);
-    const perKm = withHuman ? 5 : 4;
+    const perKm = withHuman ? settings.taxi_per_km_human : settings.taxi_per_km_pet;
     const distTrip = tripType === "ida_volta" ? distTripOneWay * 2 : distTripOneWay;
-    const fuelCost = Math.round(distToPickup * 0.34 * 100) / 100;
-    const tripCost = Math.round(distTrip * perKm * 100) / 100;
-    const total = Math.round((fuelCost + tripCost) * 100) / 100;
+    const fuelCost = round2(distToPickup * settings.fuel_cost_per_km);
+    const rawTripCost = round2(distTrip * perKm);
+    // Preço mínimo do táxi = min_price + combustível
+    const rawTotal = round2(fuelCost + rawTripCost);
+    const minTotal = round2(settings.taxi_min_price + fuelCost);
+    const total = Math.max(rawTotal, minTotal);
+    const tripCost = round2(total - fuelCost);
+    const pd = settings.porte_options.find((p) => p.id === porte)!;
     const r: TaxiResult = {
       porte,
       porteLabel: pd.label,
@@ -198,7 +253,6 @@ function TaxiCalculator({
       distTrip: Math.round(distTrip * 10) / 10,
       fuelCost,
       tripCost,
-      perKm,
       withHuman,
       tripType,
       total,
@@ -207,23 +261,24 @@ function TaxiCalculator({
     };
     setResult(r);
     onResult(r);
-  }, [porte, tripType, withHuman, pickup, destination, onResult]);
+  }, [porte, tripType, withHuman, pickup, destination, onResult, settings]);
 
   const wa = useMemo(() => {
     if (!result) return "#";
     const tipo = result.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida";
     return waLink(
-      `Olá! Gostaria de agendar um *Táxi Dog* pela ${BRAND}.\n\n` +
+      settings.whatsapp_number,
+      `Olá! Gostaria de agendar um *Táxi Dog* pela ${settings.brand}.\n\n` +
         `🐶 Porte: ${result.porteLabel}\n` +
         `🔁 Modalidade: ${tipo}\n` +
         `👤 Humano junto: ${result.withHuman ? "Sim" : "Não"}\n` +
         `📍 Partida: ${result.pickup}\n` +
         `🎯 Destino: ${result.destination}\n` +
-        `📏 Distância trajeto: ${result.distTrip} km (${BRL(result.perKm)}/km)\n` +
+        `📏 Distância trajeto: ${result.distTrip} km\n` +
         `💰 Valor estimado: ${BRL(result.total)}\n\n` +
         `Podemos confirmar o horário?`,
     );
-  }, [result]);
+  }, [result, settings.brand, settings.whatsapp_number]);
 
   return (
     <Card className="relative overflow-hidden border-0 p-0 shadow-elegant">
@@ -246,7 +301,7 @@ function TaxiCalculator({
                 <PawPrint className="h-4 w-4 text-gold" /> Porte do Pet
               </Label>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {PORTE_OPTIONS.map((p) => {
+                {settings.porte_options.map((p) => {
                   const active = porte === p.id;
                   return (
                     <button
@@ -302,8 +357,8 @@ function TaxiCalculator({
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { v: false, label: "Só o Pet · R$ 4/km" },
-                  { v: true, label: "Pet + Humano · R$ 5/km" },
+                  { v: false, label: "Só o Pet" },
+                  { v: true, label: "Pet + Humano" },
                 ].map((o) => {
                   const active = withHuman === o.v;
                   return (
@@ -313,7 +368,7 @@ function TaxiCalculator({
                       onClick={() => setWithHuman(o.v)}
                       aria-pressed={active}
                       className={
-                        "rounded-xl border px-3 py-2.5 text-xs font-semibold transition sm:text-sm " +
+                        "rounded-xl border px-3 py-2.5 text-sm font-semibold transition " +
                         (active
                           ? "border-gold bg-gold/15 text-white shadow-gold"
                           : "border-white/15 bg-white/5 text-white/80 hover:border-white/30")
@@ -330,14 +385,15 @@ function TaxiCalculator({
               <Label htmlFor="pickup" className="mb-2 flex items-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4 text-gold" /> Endereço de Partida do Pet
               </Label>
-              <Input
+              <AddressInput
                 id="pickup"
+                listId="pickup-list"
                 value={pickup}
-                onChange={(e) => {
-                  setPickup(e.target.value);
+                onChange={(v) => {
+                  setPickup(v);
                   if (errors.pickup) setErrors((s) => ({ ...s, pickup: undefined }));
                 }}
-                aria-invalid={!!errors.pickup}
+                invalid={!!errors.pickup}
                 placeholder="Ex: Rua Coronel Moreira César, 123, Icaraí, Niterói"
                 className={
                   "border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold " +
@@ -352,14 +408,15 @@ function TaxiCalculator({
               <Label htmlFor="destination" className="mb-2 flex items-center gap-2 text-white/90">
                 <RouteIcon className="h-4 w-4 text-gold" /> Endereço de Destino do Pet
               </Label>
-              <Input
+              <AddressInput
                 id="destination"
+                listId="destination-list"
                 value={destination}
-                onChange={(e) => {
-                  setDestination(e.target.value);
+                onChange={(v) => {
+                  setDestination(v);
                   if (errors.destination) setErrors((s) => ({ ...s, destination: undefined }));
                 }}
-                aria-invalid={!!errors.destination}
+                invalid={!!errors.destination}
                 placeholder="Ex: Av. Presidente Kennedy, 500, Centro, São Gonçalo"
                 className={
                   "border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold " +
@@ -433,7 +490,7 @@ function TaxiCalculator({
                   <span className="text-muted-foreground">
                     Combustível até você
                     <span className="mt-0.5 block text-xs text-muted-foreground/70">
-                      Alcântara ➔ Cliente · {result.distToPickup} km
+                      Base ➔ Cliente · {result.distToPickup} km
                     </span>
                   </span>
                   <span className="font-semibold text-navy">{BRL(result.fuelCost)}</span>
@@ -443,7 +500,7 @@ function TaxiCalculator({
                     Trajeto {result.withHuman ? "Pet + Humano" : "do Pet"}
                     <span className="mt-0.5 block text-xs text-muted-foreground/70">
                       {result.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} ·{" "}
-                      {result.distTrip} km × {BRL(result.perKm)}/km
+                      {result.distTrip} km
                     </span>
                   </span>
                   <span className="font-semibold text-navy">{BRL(result.tripCost)}</span>
@@ -461,9 +518,12 @@ function TaxiCalculator({
 
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
                 <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só
-                será cobrada em caso de incidente higiênico (xixi, cocô ou vômito), de R$ 15,00 a
-                R$ 40,00 conforme a limpeza necessária. Os primeiros <strong>30 minutos de espera
-                são grátis</strong>; após isso, R$ 15,00 a cada 30 minutos.
+                será cobrada em caso de incidente higiênico (xixi, cocô ou vômito), de{" "}
+                {BRL(settings.hygiene_fee_min)} a {BRL(settings.hygiene_fee_max)} conforme a
+                limpeza necessária. Os primeiros{" "}
+                <strong>{settings.wait_time_free_min} minutos de espera são grátis</strong>; após
+                isso, {BRL(settings.wait_time_fee)} a cada {settings.wait_time_fee_min_block}{" "}
+                minutos.
               </p>
 
               <a href={wa} target="_blank" rel="noreferrer" className="mt-5">
@@ -480,15 +540,11 @@ function TaxiCalculator({
 }
 
 // --- Walker Calculator -----------------------------------------------------
-const WALK_TIMES = [
-  { min: 30, label: "30 min", factor: 0.6 },
-  { min: 60, label: "1 hora", factor: 1 },
-  { min: 90, label: "1h30", factor: 1.4 },
-];
-
 function WalkerCalculator({
+  settings,
   onResult,
 }: {
+  settings: AppSettings;
   onResult: (r: WalkerResult | null) => void;
 }) {
   const [porte, setPorte] = useState<PorteId>("medio");
@@ -516,36 +572,44 @@ function WalkerCalculator({
       onResult(null);
       return;
     }
-    const dist = haversineKm(ALCANTARA_COORDS, coord);
-    const pd = porteData(porte);
-    const time = WALK_TIMES.find((t) => t.min === minutes)!;
-    const walkPrice = pd.walkerHour * time.factor;
-    // Deslocamento até o pet: pequeno acréscimo se longe de Alcântara
-    const travelFee = dist > 4 ? Math.round((dist - 4) * 0.6 * 100) / 100 : 0;
-    const total = Math.round((walkPrice + travelFee) * 100) / 100;
+    const dist = haversineKm(settings.base_coords, coord);
+    const hourly = settings.walker_price_by_porte[porte];
+    const time = settings.walk_time_options.find((t) => t.min === minutes)!;
+    const walkPrice = hourly * time.factor;
+    const travelFee =
+      dist > settings.walker_travel_fee_km_threshold
+        ? round2((dist - settings.walker_travel_fee_km_threshold) * settings.walker_travel_fee_per_km_over)
+        : 0;
+    const raw = round2(walkPrice + travelFee);
+    // Preço mínimo: min + combustível (travelFee é o combustível até você)
+    const minTotal = round2(settings.walker_min_price + travelFee);
+    const total = Math.max(raw, minTotal);
+    const pd = settings.porte_options.find((p) => p.id === porte)!;
     const r: WalkerResult = {
       porte,
       porteLabel: pd.label,
       minutes,
       local,
-      hourly: pd.walkerHour,
+      hourly,
+      travelFee,
       total,
     };
     setResult(r);
     onResult(r);
-  }, [porte, minutes, local, onResult]);
+  }, [porte, minutes, local, onResult, settings]);
 
   const wa = useMemo(() => {
     if (!result) return "#";
     return waLink(
-      `Olá! Gostaria de agendar um *Passeio Dog Walker* pela ${BRAND}.\n\n` +
+      settings.whatsapp_number,
+      `Olá! Gostaria de agendar um *Passeio Dog Walker* pela ${settings.brand}.\n\n` +
         `🐶 Porte: ${result.porteLabel}\n` +
         `⏱️ Duração: ${result.minutes} min\n` +
         `📍 Local do encontro: ${result.local}\n` +
         `💰 Valor estimado: ${BRL(result.total)}\n\n` +
         `Podemos confirmar dia e horário?`,
     );
-  }, [result]);
+  }, [result, settings.brand, settings.whatsapp_number]);
 
   return (
     <Card className="relative overflow-hidden border-0 p-0 shadow-elegant">
@@ -565,7 +629,7 @@ function WalkerCalculator({
                 <PawPrint className="h-4 w-4" /> Porte do Pet
               </Label>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {PORTE_OPTIONS.map((p) => {
+                {settings.porte_options.map((p) => {
                   const active = porte === p.id;
                   return (
                     <button
@@ -592,7 +656,7 @@ function WalkerCalculator({
                 <Timer className="h-4 w-4" /> Duração
               </Label>
               <div className="grid grid-cols-3 gap-2">
-                {WALK_TIMES.map((t) => {
+                {settings.walk_time_options.map((t) => {
                   const active = minutes === t.min;
                   return (
                     <button
@@ -617,21 +681,22 @@ function WalkerCalculator({
               <Label htmlFor="walk-local" className="mb-2 flex items-center gap-2 text-navy">
                 <MapPin className="h-4 w-4" /> Local do encontro
               </Label>
-              <Input
+              <AddressInput
                 id="walk-local"
+                listId="walk-local-list"
                 value={local}
-                onChange={(e) => {
-                  setLocal(e.target.value);
+                onChange={(v) => {
+                  setLocal(v);
                   if (error) setError(null);
                 }}
-                aria-invalid={!!error}
-                placeholder="Ex: Rua Dr. Feliciano Sodré, 200, Alcântara, SG"
+                invalid={!!error}
+                placeholder="Ex: Rua Coronel Moreira César, 123, Icaraí, Niterói"
                 className={
-                  "border-navy/20 bg-white text-navy placeholder:text-navy/40 focus-visible:ring-navy " +
+                  "border-navy/20 bg-white text-navy placeholder:text-navy/50 focus-visible:ring-navy " +
                   (error ? "border-red-500 focus-visible:ring-red-500" : "")
                 }
               />
-              {error && <p className="mt-1.5 text-xs text-red-700">{error}</p>}
+              {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
             </div>
 
             <Button
@@ -645,7 +710,7 @@ function WalkerCalculator({
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Calculando...
                 </>
               ) : (
-                "Calcular Passeio"
+                "Simular Passeio"
               )}
             </Button>
           </div>
@@ -654,12 +719,11 @@ function WalkerCalculator({
         <div className="bg-white p-5 sm:p-8 md:p-10">
           {!result ? (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
-              <div className="grid h-16 w-16 place-items-center rounded-2xl bg-secondary">
-                <Timer className="h-8 w-8 text-navy" />
+              <div className="grid h-16 w-16 place-items-center rounded-2xl bg-warm">
+                <PawPrint className="h-8 w-8 text-navy" />
               </div>
               <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-                Ao calcular, mostramos o valor do passeio e atualizamos os planos abaixo com base
-                no perfil do seu pet.
+                Escolha porte, duração e local para ver o valor do passeio.
               </p>
             </div>
           ) : (
@@ -668,34 +732,39 @@ function WalkerCalculator({
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Orçamento do passeio
                 </div>
-                <Badge className="bg-navy text-white hover:bg-navy">
-                  <PawPrint className="mr-1 h-3 w-3 text-gold" /> {result.porteLabel} · {result.minutes} min
-                </Badge>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-navy text-white hover:bg-navy">
+                    <PawPrint className="mr-1 h-3 w-3 text-gold" /> Porte {result.porteLabel}
+                  </Badge>
+                  <Badge className="bg-gold text-navy hover:bg-gold">
+                    <Timer className="mr-1 h-3 w-3" /> {result.minutes} min
+                  </Badge>
+                </div>
               </div>
 
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
                   <span className="text-muted-foreground">
-                    Passeio ativo
+                    Valor do passeio
                     <span className="mt-0.5 block text-xs text-muted-foreground/70">
-                      Ritmo e manejo adaptados ao porte
+                      Base: {BRL(result.hourly)}/h
                     </span>
                   </span>
-                  <span className="font-semibold text-navy">{result.minutes} min</span>
-                </li>
-                <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
-                  <span className="text-muted-foreground">Local do encontro</span>
-                  <span className="max-w-[55%] text-right text-sm font-medium text-navy">
-                    {result.local}
+                  <span className="font-semibold text-navy">
+                    {BRL(round2(result.total - result.travelFee))}
                   </span>
                 </li>
+                {result.travelFee > 0 && (
+                  <li className="flex items-start justify-between gap-4 border-b border-border/60 pb-3">
+                    <span className="text-muted-foreground">Combustível até você</span>
+                    <span className="font-semibold text-navy">{BRL(result.travelFee)}</span>
+                  </li>
+                )}
               </ul>
 
-              <div className="mt-5 rounded-2xl bg-navy p-5 text-white">
-                <div className="text-xs uppercase tracking-wider text-white/60">
-                  Valor Total do Passeio
-                </div>
-                <div className="mt-1 font-display text-4xl font-extrabold text-gold sm:text-5xl">
+              <div className="mt-5 rounded-2xl bg-navy p-4 text-white sm:p-5">
+                <div className="text-xs uppercase tracking-wider text-white/60">Valor Total</div>
+                <div className="mt-1 font-display text-3xl font-extrabold text-gold sm:text-4xl md:text-5xl">
                   {BRL(result.total)}
                 </div>
               </div>
@@ -718,7 +787,7 @@ function WalkerCalculator({
   );
 }
 
-// --- Walker cards (por porte, mesmos benefícios) ---------------------------
+// --- Page ------------------------------------------------------------------
 const walkerPerksCommon = [
   "Passeio ativo de 1h",
   "Ritmo e manejo adaptados ao porte",
@@ -726,38 +795,47 @@ const walkerPerksCommon = [
   "Atenção individual ao seu pet",
 ];
 
-const walkerTiers = PORTE_OPTIONS.map((p) => ({
-  id: p.id,
-  label: `Porte ${p.label}`,
-  weight: p.weight,
-  price: BRL(p.walkerHour),
-  perks: walkerPerksCommon,
-}));
-
-// --- Page ------------------------------------------------------------------
 function Index() {
+  const { data: settings } = useSuspenseQuery(settingsQueryOptions);
   const [taxi, setTaxi] = useState<TaxiResult | null>(null);
   const [walker, setWalker] = useState<WalkerResult | null>(null);
 
-  // Preços dinâmicos dos combos e mensais
+  const wa = (msg: string) => waLink(settings.whatsapp_number, msg);
+
+  const walkerTiers = useMemo(
+    () =>
+      settings.porte_options.map((p) => ({
+        id: p.id,
+        label: `Porte ${p.label}`,
+        weight: p.weight,
+        price: BRL(settings.walker_price_by_porte[p.id]),
+        perks: walkerPerksCommon,
+      })),
+    [settings],
+  );
+
+  // Combos — sempre consideram taxi + passeio (usam mínimos quando não simulado)
+  const taxiEstimate = taxi?.total ?? settings.taxi_min_price;
+  const walkerEstimate = walker?.total ?? settings.walker_min_price;
+  const bothSimulated = !!taxi && !!walker;
+
   const aventurinha = useMemo(() => {
-    if (taxi && walker) {
-      const walkerHour = porteData(walker.porte).walkerHour;
-      const total = Math.round((taxi.total + walkerHour) * 0.9 * 100) / 100;
-      return { price: BRL(total), prefix: "Personalizado" as const, total };
-    }
-    return { price: "R$ 80,00", prefix: "A partir de" as const, total: 80 };
-  }, [taxi, walker]);
+    const total = round2((taxiEstimate + walkerEstimate) * (1 - settings.combo_aventurinha_discount));
+    return {
+      price: BRL(total),
+      prefix: bothSimulated ? "Personalizado" : "A partir de",
+    };
+  }, [taxiEstimate, walkerEstimate, bothSimulated, settings.combo_aventurinha_discount]);
 
   const vipMensal = useMemo(() => {
-    if (taxi && walker) {
-      const walkerHour = porteData(walker.porte).walkerHour;
-      const perWeek = taxi.total + walkerHour;
-      const total = Math.round(perWeek * 4 * 0.85 * 100) / 100;
-      return { price: BRL(total), prefix: "Personalizado" as const, total };
-    }
-    return { price: "R$ 280,00", prefix: "A partir de" as const, total: 280 };
-  }, [taxi, walker]);
+    const total = round2(
+      (taxiEstimate + walkerEstimate) * 4 * (1 - settings.combo_vip_discount),
+    );
+    return {
+      price: BRL(total),
+      prefix: bothSimulated ? "Personalizado" : "A partir de",
+    };
+  }, [taxiEstimate, walkerEstimate, bothSimulated, settings.combo_vip_discount]);
 
   const combos = [
     {
@@ -771,9 +849,9 @@ function Index() {
         "Busca com o Táxi Dog",
         "1h de passeio no parque ou destino escolhido",
         "Devolução em casa com segurança",
-        "10% de desconto sobre o valor cheio",
+        `${Math.round(settings.combo_aventurinha_discount * 100)}% de desconto sobre o valor cheio`,
       ],
-      wa: waLink(
+      wa: wa(
         `Olá! Tenho interesse no *Combo Aventurinha* (${aventurinha.price} — ${aventurinha.prefix}).\n\nPodemos combinar os detalhes?`,
       ),
     },
@@ -786,47 +864,39 @@ function Index() {
       highlight: true,
       items: [
         "1 aventura semanal (táxi + passeio)",
-        "Transporte incluso (ida e volta)",
+        "Transporte incluso",
         "Prioridade na agenda",
-        "15% de desconto sobre o valor cheio",
+        `${Math.round(settings.combo_vip_discount * 100)}% de desconto sobre o valor cheio`,
       ],
-      wa: waLink(
+      wa: wa(
         `Olá! Tenho interesse no *Combo VIP Mensal* (${vipMensal.price} — ${vipMensal.prefix}).\n\nPodemos combinar os detalhes?`,
       ),
     },
   ];
 
   const monthlyWalker = useMemo(() => {
-    const tiers = [
-      { tier: "Bronze", freq: 2, label: "2x na semana" },
-      { tier: "Prata", freq: 3, label: "3x na semana" },
-      { tier: "Ouro", freq: 5, label: "5x na semana · Seg a Sex", accent: true },
-    ];
-    return tiers.map((t) => {
-      if (walker) {
-        const total = Math.round(walker.total * t.freq * 4 * 0.9 * 100) / 100;
-        return { ...t, price: BRL(total), prefix: "Personalizado" as const };
-      }
-      const base = 32.5 * t.freq * 4 * 0.9;
-      return { ...t, price: BRL(Math.round(base * 100) / 100), prefix: "A partir de" as const };
+    return settings.monthly_tiers.map((t) => {
+      const unit = walker?.total ?? settings.walker_min_price;
+      const total = round2(unit * t.freq * 4 * (1 - settings.monthly_pkg_discount));
+      return {
+        ...t,
+        price: BRL(total),
+        prefix: walker ? "Personalizado" : "A partir de",
+      };
     });
-  }, [walker]);
+  }, [walker, settings]);
 
   const monthlyTaxi = useMemo(() => {
-    const tiers = [
-      { tier: "Bronze", freq: 2, label: "2x na semana" },
-      { tier: "Prata", freq: 3, label: "3x na semana" },
-      { tier: "Ouro", freq: 5, label: "5x na semana · Seg a Sex", accent: true },
-    ];
-    return tiers.map((t) => {
-      if (taxi) {
-        const total = Math.round(taxi.total * t.freq * 4 * 0.9 * 100) / 100;
-        return { ...t, price: BRL(total), prefix: "Personalizado" as const };
-      }
-      const base = 55 * t.freq * 4 * 0.9;
-      return { ...t, price: BRL(Math.round(base * 100) / 100), prefix: "A partir de" as const };
+    return settings.monthly_tiers.map((t) => {
+      const unit = taxi?.total ?? settings.taxi_min_price;
+      const total = round2(unit * t.freq * 4 * (1 - settings.monthly_pkg_discount));
+      return {
+        ...t,
+        price: BRL(total),
+        prefix: taxi ? "Personalizado" : "A partir de",
+      };
     });
-  }, [taxi]);
+  }, [taxi, settings]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -837,7 +907,7 @@ function Index() {
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-gold-gradient">
               <PawPrint className="h-5 w-5 text-navy" />
             </div>
-            <span className="font-display text-lg font-bold">Cinco Patas</span>
+            <span className="font-display text-lg font-bold">{settings.brand_short}</span>
           </a>
           <nav className="hidden items-center gap-8 text-sm font-medium text-white/80 md:flex">
             <a href="#calculadora" className="hover:text-gold">Táxi Dog</a>
@@ -847,7 +917,7 @@ function Index() {
             <a href="#faq" className="hover:text-gold">FAQ</a>
           </nav>
           <a
-            href={waLink(`Olá! Vim pelo site da ${BRAND} e gostaria de mais informações.`)}
+            href={wa(`Olá! Vim pelo site da ${settings.brand} e gostaria de mais informações.`)}
             target="_blank"
             rel="noreferrer"
             className="hidden md:block"
@@ -865,10 +935,10 @@ function Index() {
       {/* HERO */}
       <section id="top" className="relative overflow-hidden bg-hero-gradient text-white">
         <img
-          src={car2.url}
+          src={thiago4.url}
           alt=""
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20 mix-blend-luminosity"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-luminosity"
         />
         <div className="absolute inset-0 bg-hero-gradient/80" aria-hidden />
         <div className="absolute inset-0 opacity-[0.10]" aria-hidden>
@@ -880,15 +950,15 @@ function Index() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium backdrop-blur">
                 <ShieldCheck className="h-3.5 w-3.5 text-gold" />
-                Base em Alcântara · São Gonçalo (RJ)
+                Base em {settings.city_base}
               </div>
               <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
                 Cuidado de verdade para o seu pet: {" "}
                 <span className="text-gold">transporte tranquilo</span> e passeios felizes
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
-                {BRAND} — Táxi Dog e Dog Walker profissional focados no conforto e bem-estar do seu
-                melhor amigo. Atendemos São Gonçalo, Niterói, Maricá e Itaboraí.
+                {settings.brand} — Táxi Dog e Dog Walker profissional focados no conforto e
+                bem-estar do seu melhor amigo. Atendemos {settings.cities_covered.join(", ")}.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <a href="#calculadora">
@@ -906,19 +976,6 @@ function Index() {
                   </Button>
                 </a>
               </div>
-
-              <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-6 text-left">
-                {[
-                  { k: "500+", v: "Pets transportados" },
-                  { k: "4 cidades", v: "Área de cobertura" },
-                  { k: "100%", v: "Cinto pet certificado" },
-                ].map((s) => (
-                  <div key={s.v}>
-                    <dt className="font-display text-2xl font-bold text-gold">{s.k}</dt>
-                    <dd className="mt-1 text-xs text-white/60">{s.v}</dd>
-                  </div>
-                ))}
-              </dl>
             </div>
 
             <div className="relative hidden lg:block">
@@ -927,7 +984,7 @@ function Index() {
                 <div className="overflow-hidden rounded-2xl">
                   <img
                     src={car1.url}
-                    alt="Nissan Livina da Cinco Patas Dog Car & Walker"
+                    alt={`${settings.brand} - veículo`}
                     className="aspect-[4/3] w-full object-cover"
                     loading="eager"
                   />
@@ -968,7 +1025,7 @@ function Index() {
             </p>
           </div>
           <div className="mt-10">
-            <TaxiCalculator onResult={setTaxi} />
+            <TaxiCalculator settings={settings} onResult={setTaxi} />
           </div>
 
           {/* Regras Importantes */}
@@ -1029,7 +1086,7 @@ function Index() {
             </p>
           </div>
           <div className="mt-10">
-            <WalkerCalculator onResult={setWalker} />
+            <WalkerCalculator settings={settings} onResult={setWalker} />
           </div>
         </div>
       </section>
@@ -1081,7 +1138,7 @@ function Index() {
                     ))}
                     <li className="pt-2">
                       <a
-                        href={waLink(
+                        href={wa(
                           `Olá! Quero agendar um passeio de 1h para meu pet de ${t.label} (${t.price}).`,
                         )}
                         target="_blank"
@@ -1174,12 +1231,12 @@ function Index() {
                 <h3 className="mt-1 font-display text-2xl font-bold">Passeios (Dog Walker)</h3>
                 <p className="mt-1 text-sm text-white/60">
                   {walker
-                    ? "Valores calculados com base no seu último passeio simulado (10% off aplicado)."
+                    ? `Valores calculados com base no seu último passeio simulado (${Math.round(settings.monthly_pkg_discount * 100)}% off).`
                     : "Valores base — use o simulador de passeio para personalizar."}
                 </p>
               </div>
               <div className="rounded-full bg-gold px-4 py-1.5 text-xs font-bold text-navy shadow-gold">
-                🎉 50% OFF no 2º cãozinho da mesma casa!
+                🎉 {Math.round(settings.second_pet_discount * 100)}% OFF no 2º cãozinho da mesma casa!
               </div>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
@@ -1209,7 +1266,7 @@ function Index() {
                     </span>
                   </div>
                   <a
-                    href={waLink(
+                    href={wa(
                       `Olá! Quero o *Plano Mensal de Passeios ${m.tier}* (${m.label}) — ${m.price}/mês (${m.prefix}).`,
                     )}
                     target="_blank"
@@ -1241,7 +1298,7 @@ function Index() {
               <h3 className="mt-1 font-display text-2xl font-bold">Táxi Dog</h3>
               <p className="mt-1 text-sm text-white/60">
                 {taxi
-                  ? "Valores calculados com base na sua última corrida simulada (10% off aplicado)."
+                  ? `Valores calculados com base na sua última corrida simulada (${Math.round(settings.monthly_pkg_discount * 100)}% off).`
                   : "Valores base — use a calculadora de Táxi Dog para personalizar."}
               </p>
             </div>
@@ -1272,7 +1329,7 @@ function Index() {
                     </span>
                   </div>
                   <a
-                    href={waLink(
+                    href={wa(
                       `Olá! Quero o *Plano Mensal de Táxi Dog ${m.tier}* (${m.label}) — ${m.price}/mês (${m.prefix}).`,
                     )}
                     target="_blank"
@@ -1306,12 +1363,12 @@ function Index() {
               Quem vai cuidar do seu melhor amigo?
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Muito prazer, eu sou o Thiago. Conheça a história que deu vida à Cinco Patas.
+              Muito prazer, eu sou o Thiago. Conheça a história que deu vida à{" "}
+              {settings.brand_short}.
             </p>
           </div>
 
           <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            {/* Photo gallery — compact */}
             <div className="relative mx-auto w-full max-w-sm lg:mx-0">
               <div className="absolute -inset-3 rounded-[2rem] bg-gold/20 blur-2xl" aria-hidden />
               <div className="relative grid grid-cols-2 gap-2.5">
@@ -1343,8 +1400,8 @@ function Index() {
                 cresceu rápido. Cuidei de um grupo diverso e cheio de personalidade:{" "}
                 <strong>Jessie</strong>, a Labrador cheia de energia;{" "}
                 <strong>Pretinho e Jhulie</strong>, Pitbulls poderosos mas carinhosos; e{" "}
-                <strong>Amora e BB</strong>, as pequenas Pinschers corajosas. Gerenciar essa mistura
-                me ensinou liderança, paciência e leitura corporal canina na prática.
+                <strong>Amora e BB</strong>, as pequenas Pinschers corajosas. Gerenciar essa
+                mistura me ensinou liderança, paciência e leitura corporal canina na prática.
               </p>
               <p>
                 Além do meu próprio bando, atuei como voluntário em um abrigo local de Papucaia,
@@ -1355,9 +1412,9 @@ function Index() {
               <p>
                 Hoje, morando em Alcântara e dirigindo uma Nissan Livina espaçosa e com
                 ar-condicionado, coloco toda essa experiência prática, paciência e amor no serviço
-                da <strong>{BRAND}</strong>. Seu pet não vai apenas ganhar uma carona ou um
-                passeio; estará sob os cuidados de alguém que dedicou anos da vida a entender e
-                respeitar os animais.
+                da <strong>{settings.brand}</strong>. Seu pet não vai apenas ganhar uma carona ou
+                um passeio; estará sob os cuidados de alguém que dedicou anos da vida a entender
+                e respeitar os animais.
               </p>
 
               <Card className="mt-8 border-l-4 border-l-gold bg-white p-6 shadow-elegant">
@@ -1388,7 +1445,7 @@ function Index() {
               {[
                 { icon: ShieldCheck, t: "Cinto pet certificado" },
                 { icon: Wind, t: "Ar-condicionado sempre ligado" },
-                { icon: Clock, t: "30 min de espera grátis" },
+                { icon: Clock, t: `${settings.wait_time_free_min} min de espera grátis` },
               ].map((i) => (
                 <li key={i.t} className="flex items-center gap-3 text-navy/90">
                   <div className="grid h-9 w-9 place-items-center rounded-lg bg-secondary">
@@ -1421,9 +1478,9 @@ function Index() {
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
                 A higienização padrão do veículo entre corridas já é responsabilidade nossa e não é
-                cobrada. Uma taxa adicional (de R$ 15,00 a R$ 40,00) só é cobrada se ocorrer
-                incidente higiênico durante o trajeto ou passeio (xixi, cocô ou vômito), conforme
-                a limpeza necessária. Tudo comunicado com transparência.
+                cobrada. Uma taxa adicional (de {BRL(settings.hygiene_fee_min)} a{" "}
+                {BRL(settings.hygiene_fee_max)}) só é cobrada se ocorrer incidente higiênico
+                durante o trajeto ou passeio (xixi, cocô ou vômito), conforme a limpeza necessária.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="canc" className="mt-3 rounded-2xl border border-border bg-card px-5">
@@ -1433,8 +1490,8 @@ function Index() {
                 </span>
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
-                Cancelamentos de passeios ou táxi são totalmente gratuitos se realizados com até 2
-                horas de antecedência.
+                Cancelamentos de passeios ou táxi são totalmente gratuitos se realizados com até{" "}
+                {settings.cancel_free_hours} horas de antecedência.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="chuva" className="mt-3 rounded-2xl border border-border bg-card px-5">
@@ -1459,7 +1516,7 @@ function Index() {
           <div className="mx-auto max-w-2xl text-center print-hide">
             <Badge className="bg-gold text-navy hover:bg-gold">Cartão de Visita</Badge>
             <h2 className="mt-4 font-display text-3xl font-extrabold text-navy sm:text-4xl">
-              Leve a Cinco Patas no bolso
+              Leve a {settings.brand_short} no bolso
             </h2>
             <p className="mt-3 text-muted-foreground">
               Cartão de visita virtual — imprima em formato padrão (85 × 55 mm) com o verso de{" "}
@@ -1477,25 +1534,27 @@ function Index() {
           </div>
 
           <div className="mx-auto mt-10 flex max-w-4xl flex-col items-center gap-6 print-card-wrapper sm:flex-row sm:justify-center">
-            {/* FRENTE */}
+            {/* FRENTE — foto do carro */}
             <div className="business-card business-card-front relative flex flex-col justify-between overflow-hidden rounded-xl bg-navy p-4 text-white shadow-elegant">
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-25"
+                className="business-card-bg pointer-events-none absolute inset-0"
                 style={{
                   backgroundImage: `url(${car1.url})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
-                  mixBlendMode: "luminosity",
+                  opacity: 0.35,
                 }}
               />
-              <div className="absolute inset-0 bg-hero-gradient/80" aria-hidden />
+              <div className="absolute inset-0 bg-gradient-to-br from-navy/90 via-navy/70 to-navy/90" aria-hidden />
               <div className="relative flex items-center gap-2">
                 <div className="grid h-9 w-9 place-items-center rounded-lg bg-gold-gradient">
                   <PawPrint className="h-5 w-5 text-navy" />
                 </div>
                 <div className="leading-tight">
-                  <div className="font-display text-[13px] font-extrabold">Cinco Patas</div>
+                  <div className="font-display text-[13px] font-extrabold">
+                    {settings.brand_short}
+                  </div>
                   <div className="text-[9px] uppercase tracking-wider text-gold">
                     Dog Car & Walker
                   </div>
@@ -1507,43 +1566,54 @@ function Index() {
                 </div>
                 <ul className="mt-1.5 space-y-1 text-[10px] leading-tight text-white/85">
                   <li className="flex items-center gap-1.5">
-                    <Phone className="h-3 w-3 text-gold" /> {PHONE_DISPLAY}
+                    <Phone className="h-3 w-3 text-gold" /> {settings.phone_display}
                   </li>
                   <li className="flex items-center gap-1.5">
                     <MessageCircle className="h-3 w-3 text-gold" /> WhatsApp
                   </li>
                   <li className="flex items-center gap-1.5">
-                    <MapPin className="h-3 w-3 text-gold" /> Alcântara · São Gonçalo (RJ)
+                    <MapPin className="h-3 w-3 text-gold" /> {settings.city_base}
                   </li>
                   <li className="flex items-center gap-1.5">
-                    <Instagram className="h-3 w-3 text-gold" /> @cincopatasdogcar
+                    <Instagram className="h-3 w-3 text-gold" /> {settings.instagram_handle}
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* VERSO — Fidelidade */}
-            <div className="business-card business-card-back relative flex flex-col justify-between rounded-xl border border-gold/40 bg-white p-4 text-navy shadow-elegant">
-              <div>
+            {/* VERSO — Fidelidade sobre foto das 3 cachorras */}
+            <div className="business-card business-card-back relative flex flex-col justify-between overflow-hidden rounded-xl border border-gold/40 bg-white p-4 text-navy shadow-elegant">
+              <div
+                aria-hidden
+                className="business-card-bg pointer-events-none absolute inset-0"
+                style={{
+                  backgroundImage: `url(${thiago4.url})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  opacity: 0.28,
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/85 via-white/70 to-white/85" aria-hidden />
+              <div className="relative">
                 <div className="font-display text-[12px] font-extrabold text-navy">
                   Programa Fidelidade
                 </div>
-                <p className="mt-0.5 text-[9px] leading-tight text-muted-foreground">
+                <p className="mt-0.5 text-[9px] leading-tight text-navy/70">
                   A cada corrida ou passeio, carimbe uma patinha. Complete 10 e ganhe{" "}
                   <strong>1 serviço grátis</strong>.
                 </p>
               </div>
-              <div className="grid grid-cols-5 gap-1.5">
+              <div className="relative grid grid-cols-5 gap-1.5">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div
                     key={i}
-                    className="grid aspect-square place-items-center rounded-md border border-dashed border-gold/60 bg-warm text-gold/60"
+                    className="grid aspect-square place-items-center rounded-md border border-dashed border-gold/70 bg-white/70 text-gold/70"
                   >
                     <PawPrint className="h-3.5 w-3.5" />
                   </div>
                 ))}
               </div>
-              <div className="text-center text-[8px] uppercase tracking-wider text-muted-foreground">
+              <div className="relative text-center text-[8px] uppercase tracking-wider text-navy/60">
                 cincopatasdogcar.lovable.app
               </div>
             </div>
@@ -1563,7 +1633,7 @@ function Index() {
             </p>
           </div>
           <a
-            href={waLink(`Olá! Vim pelo site da ${BRAND} e quero agendar um serviço para meu pet.`)}
+            href={wa(`Olá! Vim pelo site da ${settings.brand} e quero agendar um serviço para meu pet.`)}
             target="_blank"
             rel="noreferrer"
           >
@@ -1582,11 +1652,11 @@ function Index() {
               <div className="grid h-9 w-9 place-items-center rounded-xl bg-gold-gradient">
                 <PawPrint className="h-5 w-5 text-navy" />
               </div>
-              <span className="font-display text-lg font-bold">{BRAND}</span>
+              <span className="font-display text-lg font-bold">{settings.brand}</span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-white/60">
-              Base Operacional em Alcântara, São Gonçalo. Atendimento estendido para Niterói,
-              Maricá e Itaboraí.
+              Base Operacional em {settings.city_base}. Atendimento estendido para{" "}
+              {settings.cities_covered.filter((c) => !settings.city_base.includes(c)).join(", ")}.
             </p>
           </div>
           <div>
@@ -1602,29 +1672,29 @@ function Index() {
             <div className="text-xs font-semibold uppercase tracking-wider text-gold">Contato</div>
             <ul className="mt-4 space-y-3 text-sm">
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gold" /> {PHONE_DISPLAY}
+                <Phone className="h-4 w-4 text-gold" /> {settings.phone_display}
               </li>
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gold" /> Alcântara, São Gonçalo · RJ
+                <MapPin className="h-4 w-4 text-gold" /> {settings.city_base}
               </li>
               <li className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-gold" /> Seg a Sáb · 07h – 20h
+                <Clock className="h-4 w-4 text-gold" /> {settings.schedule_display}
               </li>
             </ul>
           </div>
         </div>
         <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 px-4 pt-6 text-xs text-white/50 sm:px-6 lg:px-8">
-          © {new Date().getFullYear()} {BRAND}. Todos os direitos reservados.
+          © {new Date().getFullYear()} {settings.brand}. Todos os direitos reservados.
         </div>
       </footer>
 
       {/* Floating WhatsApp */}
       <a
-        href={waLink(`Olá! Vim pelo site da ${BRAND} e gostaria de mais informações.`)}
+        href={wa(`Olá! Vim pelo site da ${settings.brand} e gostaria de mais informações.`)}
         target="_blank"
         rel="noreferrer"
         aria-label="Falar no WhatsApp"
-        className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-whatsapp text-white shadow-elegant transition-transform hover:scale-105"
+        className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-whatsapp text-white shadow-elegant transition-transform hover:scale-105 print-hide"
       >
         <MessageCircle className="h-7 w-7" />
         <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-whatsapp/60" aria-hidden />
