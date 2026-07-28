@@ -881,7 +881,7 @@ function Index() {
       return {
         ...t,
         price: BRL(total),
-        prefix: (walker ? "Personalizado" : "A partir de") as const,
+        prefix: walker ? "Personalizado" : "A partir de",
       };
     });
   }, [walker, settings]);
@@ -893,7 +893,7 @@ function Index() {
       return {
         ...t,
         price: BRL(total),
-        prefix: (taxi ? "Personalizado" : "A partir de") as const,
+        prefix: taxi ? "Personalizado" : "A partir de",
       };
     });
   }, [taxi, settings]);
