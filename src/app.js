@@ -147,6 +147,13 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAccordion();
 });
 
+function toggleMobileMenu() {
+  const menu = document.getElementById("mobile-menu");
+  if (menu) {
+    menu.classList.toggle("hidden");
+  }
+}
+
 // Setup Address Suggestion Datalists
 function setupAddressDatalists() {
   const setupInput = (inputId, listId) => {

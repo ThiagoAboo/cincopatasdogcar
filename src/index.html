@@ -61,6 +61,27 @@
           Falar no WhatsApp
         </button>
       </a>
+      
+      <!-- Mobile Hamburger Button -->
+      <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="rounded-xl border border-white/20 p-2 text-amber-400 hover:bg-white/10 md:hidden" aria-label="Abrir Menu">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div id="mobile-menu" class="hidden border-b border-white/10 bg-slate-950/95 px-6 py-5 backdrop-blur md:hidden">
+      <nav class="flex flex-col gap-4 text-base font-medium text-white/90">
+        <a href="#calculadora" onclick="toggleMobileMenu()" class="hover:text-amber-400 transition flex items-center gap-2">🚗 Táxi Dog</a>
+        <a href="#simulador-passeio" onclick="toggleMobileMenu()" class="hover:text-amber-400 transition flex items-center gap-2">🐾 Passeios</a>
+        <a href="#planos" onclick="toggleMobileMenu()" class="hover:text-amber-400 transition flex items-center gap-2">🎁 Planos</a>
+        <a href="#sobre" onclick="toggleMobileMenu()" class="hover:text-amber-400 transition flex items-center gap-2">⭐ Sobre</a>
+        <a href="#faq" onclick="toggleMobileMenu()" class="hover:text-amber-400 transition flex items-center gap-2">❓ FAQ</a>
+        <a href="https://wa.me/5521992244753?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Cinco%20Patas%20Dog%20Car%20%26%20Walker." target="_blank" class="mt-2 text-center py-3 rounded-xl bg-gold-gradient text-slate-900 font-bold shadow-md">
+          Falar no WhatsApp
+        </a>
+      </nav>
     </div>
   </header>
 
@@ -265,6 +286,13 @@
           </div>
         </div>
       </div>
+      
+      <!-- Voltar ao Topo -->
+      <div class="mt-12 text-center print-hide">
+        <a href="#top" class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+          <span class="text-amber-500 font-bold">↑</span> Voltar ao topo
+        </a>
+      </div>
     </div>
   </section>
 
@@ -365,6 +393,13 @@
 
       <!-- Container para Mensais do Passeio -->
       <div id="monthly-walker-container"></div>
+      
+      <!-- Voltar ao Topo -->
+      <div class="mt-12 text-center print-hide">
+        <a href="#top" class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+          <span class="text-amber-500 font-bold">↑</span> Voltar ao topo
+        </a>
+      </div>
     </div>
   </section>
 
@@ -437,6 +472,13 @@
           Selecione sua cidade e bairro acima para ver os preços dos Combos calculados para a sua localização.
         </div>
       </div>
+
+      <!-- Voltar ao Topo -->
+      <div class="mt-12 text-center print-hide">
+        <a href="#top" class="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-semibold text-amber-400 backdrop-blur hover:bg-white/10 hover:text-amber-300 transition">
+          <span class="text-amber-400 font-bold">↑</span> Voltar ao topo
+        </a>
+      </div>
     </div>
   </section>
 
@@ -451,11 +493,14 @@
 
       <div class="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div class="relative mx-auto w-full max-w-sm lg:mx-0">
-          <div class="relative grid grid-cols-2 gap-2.5">
-            <img src="assets/thiago-1.jpg" alt="Thiago com seu cãozinho" class="aspect-square w-full rounded-2xl object-cover shadow-lg" />
-            <img src="assets/thiago-2.jpg" alt="Baylie em campo aberto" class="aspect-square w-full rounded-2xl object-cover shadow-lg" />
-            <img src="assets/thiago-3.jpg" alt="Kyra deitada na grama" class="aspect-square w-full rounded-2xl object-cover shadow-lg" />
-            <img src="assets/thiago-4.jpg" alt="A turma observando o horizonte" class="aspect-square w-full rounded-2xl object-cover shadow-lg" />
+          <!-- 6 Photos Grid -->
+          <div class="relative grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <img src="assets/thiago-1.jpg" alt="Thiago com seu cãozinho" class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-2.jpg" alt="Baylie em campo aberto" class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-3.jpg" alt="Kyra deitada na grama" class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-4.jpg" alt="A turma observando o horizonte" class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-5.jpg" alt="Companheira sorridente" class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-6.jpg" alt="Fiel parceira no gramado" class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
           </div>
         </div>
 
@@ -470,6 +515,13 @@
           </div>
         </div>
       </div>
+
+      <!-- Voltar ao Topo -->
+      <div class="mt-12 text-center print-hide">
+        <a href="#top" class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+          <span class="text-amber-500 font-bold">↑</span> Voltar ao topo
+        </a>
+      </div>
     </div>
   </section>
 
@@ -481,17 +533,17 @@
         <h2 class="mt-4 font-display text-3xl font-extrabold text-slate-900 sm:text-4xl">Transparência e carinho em cada trajeto</h2>
         <p class="mt-4 text-slate-600">Um serviço construído em cima de três pilares: cuidado com o pet, flexibilidade para o tutor e comunicação honesta.</p>
         <ul class="mt-6 space-y-4 text-sm font-medium">
-          <li class="flex items-center gap-3 text-slate-900">🛡️ Cinto pet certificado</li>
-          <li class="flex items-center gap-3 text-slate-900">❄️ Ar-condicionado sempre ligado</li>
-          <li class="flex items-center gap-3 text-slate-900">⏱️ 30 min de espera grátis</li>
+          <li class="flex items-center gap-3 text-slate-900"><span class="text-amber-500">🛡️</span> Cinto pet certificado</li>
+          <li class="flex items-center gap-3 text-slate-900"><span class="text-amber-500">❄️</span> Ar-condicionado sempre ligado</li>
+          <li class="flex items-center gap-3 text-slate-900"><span class="text-amber-500">⏱️</span> 30 min de espera grátis</li>
         </ul>
       </div>
 
       <div class="space-y-3">
         <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
           <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
-            <span>🛡️ Cuidado no Transporte</span>
-            <span class="accordion-icon transition">▼</span>
+            <span class="flex items-center gap-2"><span class="text-amber-500">🛡️</span> Cuidado no Transporte</span>
+            <span class="accordion-icon text-amber-500 transition">▼</span>
           </div>
           <div class="accordion-content mt-3 text-sm text-slate-600">
             Todos os pets viajam protegidos por cinto de segurança pet certificado no banco traseiro ou em caixa de transporte higienizada (para gatos). Veículo Nissan Livina espaçoso com ar-condicionado sempre ligado.
@@ -500,8 +552,8 @@
 
         <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
           <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
-            <span>✨ Taxa de Higienização</span>
-            <span class="accordion-icon transition">▼</span>
+            <span class="flex items-center gap-2"><span class="text-amber-500">✨</span> Taxa de Higienização</span>
+            <span class="accordion-icon text-amber-500 transition">▼</span>
           </div>
           <div class="accordion-content mt-3 text-sm text-slate-600">
             A higienização padrão do veículo entre corridas já é responsabilidade nossa e não é cobrada. Uma taxa adicional (de R$ 50 a R$ 150) só é cobrada se ocorrer incidente higiênico durante o trajeto.
@@ -510,8 +562,8 @@
 
         <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
           <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
-            <span>❌ Política de Cancelamento</span>
-            <span class="accordion-icon transition">▼</span>
+            <span class="flex items-center gap-2"><span class="text-amber-500">❌</span> Política de Cancelamento</span>
+            <span class="accordion-icon text-amber-500 transition">▼</span>
           </div>
           <div class="accordion-content mt-3 text-sm text-slate-600">
             Cancelamentos de passeios ou táxi são totalmente gratuitos se realizados com até 24 horas de antecedência.
@@ -520,14 +572,21 @@
 
         <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
           <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
-            <span>🌧️ Dias de Chuva</span>
-            <span class="accordion-icon transition">▼</span>
+            <span class="flex items-center gap-2"><span class="text-amber-500">🌧️</span> Dias de Chuva</span>
+            <span class="accordion-icon text-amber-500 transition">▼</span>
           </div>
           <div class="accordion-content mt-3 text-sm text-slate-600">
             Em caso de chuvas fortes, os passeios externos podem ser remarcados ou convertidos em sessões de enriquecimento ambiental indoor na própria casa do cliente.
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Voltar ao Topo -->
+    <div class="mt-12 text-center print-hide">
+      <a href="#top" class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+        <span class="text-amber-500 font-bold">↑</span> Voltar ao topo
+      </a>
     </div>
   </section>
 
