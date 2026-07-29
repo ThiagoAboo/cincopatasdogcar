@@ -23,5 +23,5 @@
   - Formatação exata: `Combo Especial · {Bairro}` / `Assinatura · {Bairro}`, checklist com busca Táxi Dog 5km inclusos, 1h Dog Walker, parque à escolha até 5km, devolução em casa, desconto e nota de consulta para parques acima de 5km.
 - **Cartão de Visita**: Frente cartoon em proporção exata de 85 x 55 mm com as 5 cachorras reais (Labrador Amarelo, Pitbull B&W, Peluda Dourada, Pinscher e Filhote) + Carro Nissan Livina bronze + Selo dourado 3D + Dados do Thiago.
 - **Links Voltar ao Topo**: Botão "↑ Voltar ao topo" presente em todas as seções direcionadas pelo menu.
-- **Galeria Sobre**: Exibir as 6 fotos dos pets (`thiago-1.jpg` a `thiago-6.jpg`).
+- **Galeria Sobre**: Exibir as 6 fotos dos pets (`thiago-1.jpg` a `thiago-6.jpg`) no formato de 2 colunas × 3 linhas (`grid-cols-2`).
 - **Compatibilidade Estática**: Manter os scripts como código estático sem `type="module"` para evitar erros de CORS via protocolo `file://`.

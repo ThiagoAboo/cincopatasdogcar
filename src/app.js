@@ -145,7 +145,14 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAddressDatalists();
   setupIBGECities();
   setupAccordion();
+  refreshIcons();
 });
+
+function refreshIcons() {
+  if (window.lucide && typeof lucide.createIcons === 'function') {
+    lucide.createIcons();
+  }
+}
 
 function toggleMobileMenu() {
   const menu = document.getElementById("mobile-menu");
@@ -252,45 +259,58 @@ function renderTaxiResult(res) {
   const link = waLink(msg);
 
   container.innerHTML = `
-    <div class="flex flex-col h-full text-left">
+    <div class="flex flex-col h-full text-left w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento detalhado</span>
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Orçamento detalhado</span>
         <div class="flex flex-wrap gap-1.5">
-          <span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium">Porte ${res.porteLabel}</span>
-          <span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-900 text-xs font-bold">${res.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}</span>
-          ${res.withHuman ? `<span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium">+ Humano</span>` : ""}
+          <span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium flex items-center gap-1">
+            <i data-lucide="paw-print" class="h-3 w-3 text-amber-400"></i> Porte ${res.porteLabel}
+          </span>
+          <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-bold flex items-center gap-1 shadow-sm">
+            <i data-lucide="refresh-cw" class="h-3 w-3"></i> ${res.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}
+          </span>
+          ${res.withHuman ? `<span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium flex items-center gap-1"><i data-lucide="users" class="h-3 w-3 text-amber-400"></i> + Humano</span>` : ""}
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
         <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
-          <div class="text-left">
-            <span class="font-semibold text-slate-900 block text-left">Combustível até você</span>
-            <span class="text-xs text-gray-500 block text-left mt-0.5">Base ➔ Cliente ${res.tripType === "ida_volta" ? "(Ida e Volta)" : "(Somente Ida)"} · ${res.distToPickupFuel} km</span>
+          <div class="text-left flex items-start gap-2">
+            <i data-lucide="fuel" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="font-semibold text-slate-900 block text-left">Combustível até você</span>
+              <span class="text-xs text-gray-500 block text-left mt-0.5">Base ➔ Cliente ${res.tripType === "ida_volta" ? "(Ida e Volta)" : "(Somente Ida)"} · ${res.distToPickupFuel} km</span>
+            </div>
           </div>
           <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.fuelCost)}</span>
         </li>
         <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
-          <div class="text-left">
-            <span class="font-semibold text-slate-900 block text-left">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"}</span>
-            <span class="text-xs text-gray-500 block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
+          <div class="text-left flex items-start gap-2">
+            <i data-lucide="navigation" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="font-semibold text-slate-900 block text-left">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"}</span>
+              <span class="text-xs text-gray-500 block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
+            </div>
           </div>
           <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.tripCost)}</span>
         </li>
       </ul>
-      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left">
+      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left shadow-lg">
         <div class="text-xs uppercase tracking-wider text-slate-400">Valor Total Estimado</div>
         <div class="text-4xl font-extrabold text-amber-400 mt-1">${BRL(res.total)}</div>
       </div>
-      <p class="text-xs text-gray-500 mb-4 leading-relaxed text-left">
-        <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada em caso de incidente higiênico. Primeiros 30 min de espera grátis.
+      <p class="text-xs text-gray-500 mb-4 leading-relaxed text-left flex items-start gap-1.5">
+        <i data-lucide="alert-circle" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+        <span><strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada em caso de incidente higiênico (xixi, cocô ou vômito). Primeiros 30 min de espera grátis.</span>
       </p>
       <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
-        <button class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
-          Confirmar e Agendar via WhatsApp
+        <button class="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
+          <i data-lucide="message-square" class="h-4 w-4"></i>
+          <span>Confirmar e Agendar via WhatsApp</span>
         </button>
       </a>
     </div>
   `;
+  refreshIcons();
 }
 
 // --- Walker Calculator Handler ---
@@ -354,34 +374,47 @@ function renderWalkerResult(res) {
   const link = waLink(msg);
 
   container.innerHTML = `
-    <div class="flex flex-col h-full text-left">
+    <div class="flex flex-col h-full text-left w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento do passeio</span>
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Orçamento do passeio</span>
         <div class="flex flex-wrap gap-1.5">
-          <span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium">Porte ${res.porteLabel}</span>
-          <span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-900 text-xs font-bold">${res.minutes} min</span>
+          <span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium flex items-center gap-1">
+            <i data-lucide="paw-print" class="h-3 w-3 text-amber-400"></i> Porte ${res.porteLabel}
+          </span>
+          <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-bold flex items-center gap-1 shadow-sm">
+            <i data-lucide="clock" class="h-3 w-3"></i> ${res.minutes} min
+          </span>
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
         <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
-          <div class="text-left">
-            <span class="font-semibold text-slate-900 block text-left">Valor do passeio</span>
-            <span class="text-xs text-gray-500 block text-left mt-0.5">Duração ${res.minutes} min · Base ${BRL(res.hourly)}/h</span>
+          <div class="text-left flex items-start gap-2">
+            <i data-lucide="footprints" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+            <div>
+              <span class="font-semibold text-slate-900 block text-left">Valor do passeio</span>
+              <span class="text-xs text-gray-500 block text-left mt-0.5">Duração ${res.minutes} min · Base ${BRL(res.hourly)}/h</span>
+            </div>
           </div>
           <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.total)}</span>
         </li>
       </ul>
-      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left">
+      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left shadow-lg">
         <div class="text-xs uppercase tracking-wider text-slate-400">Valor Total Estimado</div>
         <div class="text-4xl font-extrabold text-amber-400 mt-1">${BRL(res.total)}</div>
       </div>
+      <p class="text-xs text-gray-500 mb-4 leading-relaxed text-left flex items-start gap-1.5">
+        <i data-lucide="alert-circle" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+        <span><strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada se houver incidente higiênico durante o passeio.</span>
+      </p>
       <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
-        <button class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
-          Agendar Passeio no WhatsApp
+        <button class="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
+          <i data-lucide="message-square" class="h-4 w-4"></i>
+          <span>Agendar Passeio no WhatsApp</span>
         </button>
       </a>
     </div>
   `;
+  refreshIcons();
 }
 
 // --- Monthly Packages Updates ---
@@ -636,12 +669,27 @@ async function renderCombos() {
             <div class="font-display text-4xl font-extrabold text-white">${aventurinhaPrice}</div>
             <div class="text-sm text-white/80">/ por aventura</div>
           </div>
-          <ul class="mt-6 space-y-2.5 text-sm text-white/90">
-            <li class="flex items-start gap-2"><span>✓</span> <span>Busca com Táxi Dog (até ${taxiKm} km inclusos) partindo de ${neighborhood}</span></li>
-            <li class="flex items-start gap-2"><span>✓</span> <span>1h de passeio Dog Walker para porte ${porteLabel}</span></li>
-            <li class="flex items-start gap-2"><span>✓</span> <span>Parque a sua escolha (com limite de 5km de distância)</span></li>
-            <li class="flex items-start gap-2"><span>✓</span> <span>Devolução em casa com segurança</span></li>
-            <li class="flex items-start gap-2"><span>✓</span> <span>${Math.round(settings.combo_aventurinha_discount * 100)}% de desconto sobre o valor cheio (${BRL(comboSum)})</span></li>
+          <ul class="mt-6 space-y-3 text-sm text-white/90">
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>Busca com Táxi Dog (até ${taxiKm} km inclusos) partindo de ${neighborhood}</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>1h de passeio Dog Walker para porte ${porteLabel}</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>Parque a sua escolha (com limite de 5km de distância)</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>Devolução em casa com segurança</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>${Math.round(settings.combo_aventurinha_discount * 100)}% de desconto sobre o valor cheio (${BRL(comboSum)})</span>
+            </li>
           </ul>
           <div class="mt-4 text-xs text-white/50 italic">* Para um parque acima de 5km será necessário consulta</div>
         </div>
@@ -661,10 +709,19 @@ async function renderCombos() {
             <div class="font-display text-4xl font-extrabold text-slate-900">${vipPrice}</div>
             <div class="text-sm text-slate-800">/ por mês</div>
           </div>
-          <ul class="mt-6 space-y-2.5 text-sm text-slate-900 font-medium">
-            <li class="flex items-start gap-2"><span>✓</span> <span>Todos os benefícios do Combo Aventurinha</span></li>
-            <li class="flex items-start gap-2"><span>✓</span> <span>4 aventurinha mensais</span></li>
-            <li class="flex items-start gap-2"><span>✓</span> <span>${Math.round(settings.combo_vip_discount * 100)}% de desconto mensal (${BRL(round2(comboSum * 4))} sem desconto)</span></li>
+          <ul class="mt-6 space-y-3 text-sm text-slate-900 font-medium">
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-900 text-amber-400 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>Todos os benefícios do Combo Aventurinha</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-900 text-amber-400 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>4 aventurinha mensais</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-900 text-amber-400 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <span>${Math.round(settings.combo_vip_discount * 100)}% de desconto mensal (${BRL(round2(comboSum * 4))} sem desconto)</span>
+            </li>
           </ul>
           <div class="mt-4 text-xs text-slate-800/70 italic">* Para um parque acima de 5km será necessário consulta</div>
         </div>
@@ -672,7 +729,9 @@ async function renderCombos() {
           <button class="w-full py-3.5 rounded-xl bg-slate-900 font-bold text-white hover:bg-slate-800 transition shadow-md">Quero este plano</button>
         </a>
       </div>
+    </div>
   `;
+  refreshIcons();
 }
 
 // Accordion Toggle
@@ -686,3 +745,12 @@ function setupAccordion() {
     });
   });
 }
+
+// Global Initialization
+document.addEventListener("DOMContentLoaded", () => {
+  setupAccordion();
+  initCityCombos();
+  updateMonthlyTaxi();
+  updateMonthlyWalker();
+  refreshIcons();
+});

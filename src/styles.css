@@ -25,10 +25,11 @@
   --whatsapp: #25d366;
   --warm: #fefce8;
 
-  --gradient-hero: linear-gradient(135deg, #090d16 0%, #1e293b 60%, #334155 100%);
-  --gradient-gold: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
-  --shadow-elegant: 0 20px 50px -20px rgba(15, 23, 42, 0.35);
-  --shadow-gold: 0 12px 30px -12px rgba(212, 175, 55, 0.5);
+  --gradient-hero: radial-gradient(circle at 50% 20%, rgba(251, 191, 36, 0.08) 0%, transparent 65%), linear-gradient(135deg, #070a10 0%, #0f172a 60%, #1e293b 100%);
+  --gradient-gold: linear-gradient(135deg, #facc15 0%, #d97706 100%);
+  --shadow-elegant: 0 20px 50px -20px rgba(15, 23, 42, 0.4);
+  --shadow-gold: 0 12px 35px -10px rgba(212, 175, 55, 0.45);
+  --shadow-gold-glow: 0 0 30px rgba(245, 158, 11, 0.25);
 }
 
 * {
@@ -78,6 +79,12 @@ h1, h2, h3, h4, .font-display {
 
 .shadow-elegant { box-shadow: var(--shadow-elegant) !important; }
 .shadow-gold { box-shadow: var(--shadow-gold) !important; }
+.shadow-gold-glow { box-shadow: var(--shadow-gold-glow) !important; }
+
+/* Radial Ambient Illumination */
+.ambient-glow-amber {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.12) 0%, rgba(217, 119, 6, 0.03) 50%, transparent 70%);
+}
 
 /* Business card sizing (screen) */
 .business-card {
