@@ -620,50 +620,51 @@ async function renderCombos() {
   container.innerHTML = `
     <div class="mt-12 grid gap-6 md:grid-cols-2">
       <!-- Combo Aventurinha -->
-      <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-8 text-white backdrop-blur">
-        <div class="text-xs font-semibold uppercase tracking-wider opacity-80">Combo Especial · ${neighborhood}</div>
-        <h3 class="mt-1 font-display text-2xl font-bold">Combo Aventurinha</h3>
-        <div class="mt-4">
-          <div class="text-xs font-semibold uppercase tracking-wider text-amber-400">Calculado para ${neighborhood} · Porte ${porteLabel} (${distBairro} km de combustível)</div>
-          <div class="mt-1 flex items-baseline gap-2">
-            <div class="font-display text-4xl font-extrabold">${aventurinhaPrice}</div>
-            <div class="text-sm opacity-80">/ por aventura</div>
+      <div class="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-8 text-white backdrop-blur shadow-xl">
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-amber-400">Combo Especial · ${neighborhood}</div>
+          <h3 class="mt-1 font-display text-2xl font-bold">Combo Aventurinha</h3>
+          <div class="mt-3 text-xs font-semibold text-white/70">Calculado para ${neighborhood} · Porte ${porteLabel}</div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <div class="font-display text-4xl font-extrabold text-white">${aventurinhaPrice}</div>
+            <div class="text-sm text-white/80">/ por aventura</div>
           </div>
+          <ul class="mt-6 space-y-2.5 text-sm text-white/90">
+            <li class="flex items-start gap-2"><span>✓</span> <span>Busca com Táxi Dog (até ${taxiKm} km inclusos) partindo de ${neighborhood}</span></li>
+            <li class="flex items-start gap-2"><span>✓</span> <span>1h de passeio Dog Walker para porte ${porteLabel}</span></li>
+            <li class="flex items-start gap-2"><span>✓</span> <span>Parque a sua escolha (com limite de 5km de distância)</span></li>
+            <li class="flex items-start gap-2"><span>✓</span> <span>Devolução em casa com segurança</span></li>
+            <li class="flex items-start gap-2"><span>✓</span> <span>${Math.round(settings.combo_aventurinha_discount * 100)}% de desconto sobre o valor cheio (${BRL(comboSum)})</span></li>
+          </ul>
+          <div class="mt-4 text-xs text-white/50 italic">* Para um parque acima de 5km será necessário consulta</div>
         </div>
-        <ul class="mt-6 space-y-2.5 text-sm">
-          <li class="flex items-center gap-2">✓ Busca com Táxi Dog (${taxiKm} km inclusos) até ${neighborhood}</li>
-          <li class="flex items-center gap-2">✓ 1h de passeio Dog Walker para porte ${porteLabel}</li>
-          <li class="flex items-center gap-2">✓ Devolução em casa com segurança</li>
-          <li class="flex items-center gap-2">✓ ${Math.round(settings.combo_aventurinha_discount * 100)}% de desconto sobre o valor cheio (${BRL(comboSum)})</li>
-        </ul>
         <a href="${waLink(`Olá! Tenho interesse no *Combo Aventurinha* (${aventurinhaPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel}).`)}" target="_blank" class="mt-6 inline-block w-full">
-          <button class="w-full py-3 rounded-xl bg-amber-400 font-semibold text-slate-900 hover:bg-amber-500 transition">Quero este plano</button>
+          <button class="w-full py-3.5 rounded-xl bg-amber-400 font-bold text-slate-900 hover:bg-amber-500 transition shadow-md">Quero este plano</button>
         </a>
       </div>
 
       <!-- Combo VIP Mensal -->
-      <div class="relative overflow-hidden rounded-2xl bg-amber-400 p-8 text-slate-900 shadow-xl">
-        <span class="absolute right-4 top-4 rounded-full bg-slate-900 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400">Mais escolhido</span>
-        <div class="text-xs font-semibold uppercase tracking-wider opacity-80">Assinatura · ${neighborhood}</div>
-        <h3 class="mt-1 font-display text-2xl font-bold">Combo VIP Mensal</h3>
-        <div class="mt-4">
-          <div class="text-xs font-semibold uppercase tracking-wider text-slate-700">Calculado para ${neighborhood} · Porte ${porteLabel} (${distBairro} km de combustível)</div>
-          <div class="mt-1 flex items-baseline gap-2">
-            <div class="font-display text-4xl font-extrabold">${vipPrice}</div>
-            <div class="text-sm opacity-80">/ por mês</div>
+      <div class="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-amber-400 p-8 text-slate-900 shadow-xl">
+        <span class="absolute right-4 top-4 rounded-full bg-slate-900 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400 shadow">Mais escolhido</span>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-800">Assinatura · ${neighborhood}</div>
+          <h3 class="mt-1 font-display text-2xl font-bold text-slate-900">Combo VIP Mensal</h3>
+          <div class="mt-3 text-xs font-semibold text-slate-800">Calculado para ${neighborhood} · Porte ${porteLabel}</div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <div class="font-display text-4xl font-extrabold text-slate-900">${vipPrice}</div>
+            <div class="text-sm text-slate-800">/ por mês</div>
           </div>
+          <ul class="mt-6 space-y-2.5 text-sm text-slate-900 font-medium">
+            <li class="flex items-start gap-2"><span>✓</span> <span>Todos os benefícios do Combo Aventurinha</span></li>
+            <li class="flex items-start gap-2"><span>✓</span> <span>4 aventurinha mensais</span></li>
+            <li class="flex items-start gap-2"><span>✓</span> <span>${Math.round(settings.combo_vip_discount * 100)}% de desconto mensal (${BRL(round2(comboSum * 4))} sem desconto)</span></li>
+          </ul>
+          <div class="mt-4 text-xs text-slate-800/70 italic">* Para um parque acima de 5km será necessário consulta</div>
         </div>
-        <ul class="mt-6 space-y-2.5 text-sm font-medium">
-          <li class="flex items-center gap-2">✓ 4 aventuras mensais (táxi ${taxiKm}km + passeio porte ${porteLabel})</li>
-          <li class="flex items-center gap-2">✓ Transporte incluso até ${neighborhood}</li>
-          <li class="flex items-center gap-2">✓ Prioridade total na agenda</li>
-          <li class="flex items-center gap-2">✓ ${Math.round(settings.combo_vip_discount * 100)}% de desconto mensal (${BRL(round2(comboSum * 4))} sem desconto)</li>
-        </ul>
         <a href="${waLink(`Olá! Tenho interesse no *Combo VIP Mensal* (${vipPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel}).`)}" target="_blank" class="mt-6 inline-block w-full">
-          <button class="w-full py-3 rounded-xl bg-slate-900 font-semibold text-white hover:bg-slate-800 transition">Quero este plano</button>
+          <button class="w-full py-3.5 rounded-xl bg-slate-900 font-bold text-white hover:bg-slate-800 transition shadow-md">Quero este plano</button>
         </a>
       </div>
-    </div>
   `;
 }
 
