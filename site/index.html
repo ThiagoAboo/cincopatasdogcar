@@ -15,6 +15,23 @@
     };
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Map utility aliases to brand tokens (gold / whatsapp)
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            amber: { 400: '#d4af37', 500: '#b8952e' },
+            emerald: { 500: '#25d366', 600: '#1fb457' }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
   
   <!-- Google Fonts & Styles -->
   <link rel="icon" type="image/png" href="assets/favicon.png" />
@@ -466,7 +483,7 @@
         <ul class="mt-6 space-y-4 text-sm font-medium">
           <li class="flex items-center gap-3 text-slate-900">🛡️ Cinto pet certificado</li>
           <li class="flex items-center gap-3 text-slate-900">❄️ Ar-condicionado sempre ligado</li>
-          <li class="flex items-center gap-3 text-slate-900">⏱️ 15 min de espera grátis</li>
+          <li class="flex items-center gap-3 text-slate-900">⏱️ 30 min de espera grátis</li>
         </ul>
       </div>
 
@@ -579,7 +596,7 @@
         <ul class="mt-4 space-y-3 text-sm">
           <li>📞 (21) 99224-4753</li>
           <li>📍 Alcântara, São Gonçalo</li>
-          <li>⏱️ Seg a Sáb, 7h às 19h</li>
+          <li>⏱️ Todos os dias, 7h às 19h</li>
         </ul>
       </div>
     </div>
