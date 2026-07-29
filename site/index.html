@@ -531,46 +531,13 @@
 
       <div class="mx-auto mt-10 flex max-w-4xl flex-col items-center gap-6 print-card-wrapper sm:flex-row sm:justify-center">
         <!-- Frente -->
-        <div class="business-card business-card-front relative flex flex-col justify-between overflow-hidden rounded-2xl bg-slate-900 p-4 text-white shadow-xl">
-          <div class="absolute inset-0 bg-cover bg-center opacity-30 pointer-events-none" style="background-image: url('assets/car-1.jpg');"></div>
-          <div class="relative flex items-center gap-2">
-            <div class="grid h-9 w-9 place-items-center rounded-lg bg-amber-400 text-slate-900 font-bold">🐾</div>
-            <div>
-              <div class="font-display text-xs font-extrabold">Cinco Patas</div>
-              <div class="text-[9px] uppercase tracking-wider text-amber-400">Dog Car & Walker</div>
-            </div>
-          </div>
-          <div class="relative">
-            <div class="font-display text-[11px] font-semibold text-amber-400">Thiago · Táxi Dog & Dog Walker</div>
-            <ul class="mt-1 space-y-0.5 text-[10px] text-white/85">
-              <li>📞 (21) 99224-4753</li>
-              <li>💬 WhatsApp</li>
-              <li>📍 Alcântara, São Gonçalo</li>
-              <li>📷 @cincopatasdogcar</li>
-            </ul>
-          </div>
+        <div class="business-card business-card-front overflow-hidden rounded-2xl shadow-xl transition hover:shadow-2xl w-full max-w-[380px] aspect-[85/55]">
+          <img src="assets/card-front.png" alt="Cartão Cinco Patas - Frente" class="h-full w-full object-cover" />
         </div>
 
         <!-- Verso (Fidelidade) -->
-        <div class="business-card business-card-back relative flex flex-col justify-between overflow-hidden rounded-2xl border border-amber-400/40 bg-white p-4 text-slate-900 shadow-xl">
-          <div class="absolute inset-0 bg-cover bg-center opacity-25 pointer-events-none" style="background-image: url('assets/thiago-4.jpg');"></div>
-          <div class="relative">
-            <div class="font-display text-xs font-extrabold">Programa Fidelidade</div>
-            <p class="mt-0.5 text-[9px] text-slate-600">A cada corrida ou passeio, carimbe uma patinha. Complete 10 e ganhe 1 serviço grátis.</p>
-          </div>
-          <div class="relative grid grid-cols-5 gap-1.5">
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-            <div class="grid aspect-square place-items-center rounded-md border border-dashed border-amber-400 bg-white/80 text-amber-500 text-xs">🐾</div>
-          </div>
-          <div class="relative text-center text-[8px] uppercase tracking-wider text-slate-500">cincopatasdogcar.com</div>
+        <div class="business-card business-card-back overflow-hidden rounded-2xl shadow-xl transition hover:shadow-2xl w-full max-w-[380px] aspect-[85/55]">
+          <img src="assets/card-back.png" alt="Cartão Cinco Patas - Verso Fidelidade" class="h-full w-full object-cover" />
         </div>
       </div>
     </div>
@@ -628,6 +595,6 @@
   </a>
 
   <!-- Application Logic -->
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

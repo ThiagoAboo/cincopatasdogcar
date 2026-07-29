@@ -245,7 +245,7 @@ function renderTaxiResult(res) {
   const link = waLink(msg);
 
   container.innerHTML = `
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col h-full text-left">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
         <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento detalhado</span>
         <div class="flex flex-wrap gap-1.5">
@@ -255,23 +255,29 @@ function renderTaxiResult(res) {
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
-        <li class="flex justify-between border-b pb-2">
-          <span class="text-gray-600">Combustível até você <br><small class="text-xs text-gray-400">Base ➔ Cliente ${res.tripType === "ida_volta" ? "(Ida e Volta)" : "(Somente Ida)"} · ${res.distToPickupFuel} km</small></span>
-          <span class="font-semibold text-slate-900">${BRL(res.fuelCost)}</span>
+        <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
+          <div class="text-left">
+            <span class="font-semibold text-slate-900 block text-left">Combustível até você</span>
+            <span class="text-xs text-gray-500 block text-left mt-0.5">Base ➔ Cliente ${res.tripType === "ida_volta" ? "(Ida e Volta)" : "(Somente Ida)"} · ${res.distToPickupFuel} km</span>
+          </div>
+          <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.fuelCost)}</span>
         </li>
-        <li class="flex justify-between border-b pb-2">
-          <span class="text-gray-600">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"} <br><small class="text-xs text-gray-400">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</small></span>
-          <span class="font-semibold text-slate-900">${BRL(res.tripCost)}</span>
+        <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
+          <div class="text-left">
+            <span class="font-semibold text-slate-900 block text-left">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"}</span>
+            <span class="text-xs text-gray-500 block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
+          </div>
+          <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.tripCost)}</span>
         </li>
       </ul>
-      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4">
+      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left">
         <div class="text-xs uppercase tracking-wider text-slate-400">Valor Total Estimado</div>
         <div class="text-4xl font-extrabold text-amber-400 mt-1">${BRL(res.total)}</div>
       </div>
-      <p class="text-xs text-gray-500 mb-4 leading-relaxed">
+      <p class="text-xs text-gray-500 mb-4 leading-relaxed text-left">
         <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada em caso de incidente higiênico. Primeiros 15 min de espera grátis.
       </p>
-      <a href="${link}" target="_blank" rel="noreferrer" className="w-full">
+      <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
         <button class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
           Confirmar e Agendar via WhatsApp
         </button>
@@ -341,7 +347,7 @@ function renderWalkerResult(res) {
   const link = waLink(msg);
 
   container.innerHTML = `
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col h-full text-left">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
         <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento do passeio</span>
         <div class="flex flex-wrap gap-1.5">
@@ -350,23 +356,18 @@ function renderWalkerResult(res) {
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
-        <li class="flex justify-between border-b pb-2">
-          <span class="text-gray-600">Valor do passeio <br><small class="text-xs text-gray-400">Base: ${BRL(res.hourly)}/h</small></span>
-          <span class="font-semibold text-slate-900">${BRL(round2(res.total - res.travelFee))}</span>
+        <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
+          <div class="text-left">
+            <span class="font-semibold text-slate-900 block text-left">Valor do passeio</span>
+            <span class="text-xs text-gray-500 block text-left mt-0.5">Duração ${res.minutes} min · Base ${BRL(res.hourly)}/h</span>
+          </div>
+          <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.total)}</span>
         </li>
-        ${res.travelFee > 0 ? `
-        <li class="flex justify-between border-b pb-2">
-          <span class="text-gray-600">Combustível até você <br><small class="text-xs text-gray-400">Base ➔ Cliente (Somente Ida) · ${res.distOneWay} km</small></span>
-          <span class="font-semibold text-slate-900">${BRL(res.travelFee)}</span>
-        </li>` : ""}
       </ul>
-      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4">
-        <div class="text-xs uppercase tracking-wider text-slate-400">Valor Total</div>
+      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left">
+        <div class="text-xs uppercase tracking-wider text-slate-400">Valor Total Estimado</div>
         <div class="text-4xl font-extrabold text-amber-400 mt-1">${BRL(res.total)}</div>
       </div>
-      <p class="text-xs text-gray-500 mb-4 leading-relaxed">
-        <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong>. Só será cobrada se houver incidente durante o passeio.
-      </p>
       <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
         <button class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
           Agendar Passeio no WhatsApp
@@ -516,17 +517,11 @@ async function setupIBGECities() {
   const citySelect = document.getElementById("combo-city");
   if (!citySelect) return;
 
-  try {
-    const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados/RJ/municipios");
-    if (res.ok) {
-      rjCities = await res.json();
-      rjCities.sort((a, b) => a.nome.localeCompare(b.nome));
-    }
-  } catch (e) { }
+  const covered = (settings.cities_covered && settings.cities_covered.length)
+    ? settings.cities_covered
+    : ["São Gonçalo", "Niterói", "Maricá", "Itaboraí"];
 
-  if (!rjCities || !rjCities.length) {
-    rjCities = Object.keys(RJ_BAIRROS_MAP).map((nome, id) => ({ id, nome }));
-  }
+  rjCities = covered.map((nome, id) => ({ id, nome }));
 
   citySelect.innerHTML = `<option value="" class="text-slate-900 bg-white">Selecione uma cidade...</option>` +
     rjCities.map(c => `<option value="${c.nome}" class="text-slate-900 bg-white">${c.nome}</option>`).join("");

@@ -73,13 +73,28 @@
 
       <!-- Settings Tab -->
       <div id="tab-content-settings" class="rounded-2xl bg-white p-6 shadow-md border border-slate-200">
-        <h2 class="text-xl font-bold text-slate-900">Configurações Globais</h2>
-        <p class="text-sm text-slate-500 mb-6">Altere os valores do sistema. Tenha cuidado ao editar objetos ou arrays.</p>
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Configurações Globais (JSON)</h2>
+            <p class="text-sm text-slate-500">Edite o JSON completo das configurações do sistema.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="formatJsonSettings()" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">
+              ✨ Formatar JSON
+            </button>
+            <button type="button" onclick="resetDefaultSettings()" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition">
+              🔄 Restaurar Padrões
+            </button>
+          </div>
+        </div>
 
-        <form id="form-settings" onsubmit="handleSaveSettings(event)" class="space-y-6">
-          <div id="settings-fields-grid" class="grid grid-cols-1 gap-6 md:grid-cols-2"></div>
+        <form id="form-settings" onsubmit="handleSaveSettings(event)" class="space-y-4">
+          <div>
+            <textarea id="json-settings-input" rows="22" class="w-full rounded-xl border border-slate-700 bg-slate-900 p-4 font-mono text-sm text-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400 leading-relaxed shadow-inner" spellcheck="false"></textarea>
+            <div id="json-error" class="mt-2 text-xs font-semibold text-red-500"></div>
+          </div>
           
-          <div class="flex items-center gap-4 border-t pt-6">
+          <div class="flex items-center gap-4 border-t pt-4">
             <button type="submit" class="px-6 py-3 rounded-xl bg-gold-gradient font-bold text-slate-900 shadow hover:opacity-95 transition">
               💾 Salvar Alterações
             </button>
@@ -111,36 +126,8 @@
     </main>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
   <script>
-    const DICTIONARY = {
-      brand: "Nome da Marca",
-      brand_short: "Nome Curto",
-      whatsapp_number: "Número do WhatsApp",
-      phone_display: "Telefone de Exibição",
-      instagram_handle: "Instagram (@)",
-      city_base: "Cidade Base",
-      fuel_cost_per_km: "Custo de Combustível por KM (R$)",
-      fuel_cost_markup_percent: "Acréscimo de Combustível por KM (%)",
-      taxi_per_km_pet: "Táxi: KM Pet (R$)",
-      taxi_per_km_human: "Táxi: KM Humano (R$)",
-      taxi_min_price: "Táxi: Preço Mínimo (R$)",
-      walker_min_price: "Passeio: Preço Mínimo (R$)",
-      walker_travel_fee_per_km_over: "Passeio: Custo de Viagem por KM Excedente (R$)",
-      walker_travel_fee_km_threshold: "Passeio: Distância Isenta de Combustível (KM)",
-      wait_time_free_min: "Tempo de Espera Grátis (min)",
-      wait_time_fee: "Taxa de Espera",
-      wait_time_fee_min_block: "Bloco de Espera (min)",
-      hygiene_fee_min: "Taxa Higiene Mínima (R$)",
-      hygiene_fee_max: "Taxa Higiene Máxima (R$)",
-      combo_taxi_base_km: "Combos: Distância Padrão do Táxi (KM)",
-      combo_aventurinha_discount: "Desconto Combo Aventurinha",
-      combo_vip_discount: "Desconto Combo VIP",
-      monthly_pkg_discount: "Desconto Pacote Mensal",
-      second_pet_discount: "Desconto Segundo Pet",
-      cancel_free_hours: "Horas Grátis para Cancelamento"
-    };
-
     let currentConfig = getSettings();
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -180,53 +167,56 @@
     }
 
     function renderSettingsFields() {
-      const grid = document.getElementById("settings-fields-grid");
-      if (!grid) return;
+      const input = document.getElementById("json-settings-input");
+      if (!input) return;
+      input.value = JSON.stringify(currentConfig, null, 2);
+    }
 
-      grid.innerHTML = Object.entries(currentConfig).map(([key, val]) => {
-        const isComplex = typeof val === "object" && val !== null;
-        const label = DICTIONARY[key] || key;
+    function formatJsonSettings() {
+      const input = document.getElementById("json-settings-input");
+      const err = document.getElementById("json-error");
+      if (!input) return;
+      try {
+        const parsed = JSON.parse(input.value);
+        input.value = JSON.stringify(parsed, null, 2);
+        if (err) err.innerText = "";
+      } catch (e) {
+        if (err) err.innerText = "❌ JSON inválido: " + e.message;
+      }
+    }
 
-        if (isComplex) {
-          return `
-            <div class="col-span-1 md:col-span-2 space-y-1">
-              <label class="block text-xs font-semibold text-slate-700">${label}</label>
-              <textarea id="field-${key}" class="w-full min-h-[100px] rounded-xl border border-slate-300 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-900">${JSON.stringify(val, null, 2)}</textarea>
-            </div>
-          `;
-        } else {
-          const type = typeof val === "number" ? "number" : "text";
-          return `
-            <div class="space-y-1">
-              <label class="block text-xs font-semibold text-slate-700">${label}</label>
-              <input id="field-${key}" type="${type}" step="any" value="${val}" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
-            </div>
-          `;
-        }
-      }).join("");
+    function resetDefaultSettings() {
+      if (confirm("Tem certeza que deseja restaurar as configurações padrão?")) {
+        currentConfig = Object.assign({}, DEFAULT_SETTINGS);
+        renderSettingsFields();
+        localStorage.removeItem("app_settings");
+        const status = document.getElementById("save-status");
+        status.innerText = "🔄 Padrões restaurados!";
+        setTimeout(() => { status.innerText = ""; }, 3000);
+      }
     }
 
     function handleSaveSettings(e) {
       e.preventDefault();
-      const updated = {};
-      Object.keys(currentConfig).forEach(key => {
-        const el = document.getElementById(`field-${key}`);
-        if (!el) return;
-        const origVal = currentConfig[key];
-        if (typeof origVal === "object" && origVal !== null) {
-          try { updated[key] = JSON.parse(el.value); } catch (err) { updated[key] = origVal; }
-        } else if (typeof origVal === "number") {
-          updated[key] = parseFloat(el.value);
-        } else {
-          updated[key] = el.value;
-        }
-      });
-
-      localStorage.setItem("app_settings", JSON.stringify(updated));
-      currentConfig = updated;
+      const input = document.getElementById("json-settings-input");
+      const err = document.getElementById("json-error");
       const status = document.getElementById("save-status");
-      status.innerText = "✅ Configurações salvas com sucesso!";
-      setTimeout(() => { status.innerText = ""; }, 3000);
+      if (!input) return;
+
+      try {
+        const updated = JSON.parse(input.value);
+        localStorage.setItem("app_settings", JSON.stringify(updated));
+        currentConfig = updated;
+        if (typeof settings !== "undefined") {
+          Object.assign(settings, updated);
+        }
+        if (err) err.innerText = "";
+        status.innerText = "✅ Configurações salvas com sucesso!";
+        setTimeout(() => { status.innerText = ""; }, 3000);
+      } catch (e) {
+        if (err) err.innerText = "❌ Erro ao salvar: JSON inválido - " + e.message;
+        status.innerText = "";
+      }
     }
 
     function switchTab(tab) {
