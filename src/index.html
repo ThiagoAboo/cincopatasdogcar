@@ -21,7 +21,7 @@
       theme: {
         extend: {
           colors: {
-            amber: { 400: '#d4af37', 500: '#b8952e' },
+            amber: { 400: '#f59e0b', 500: '#d97706' },
             emerald: { 500: '#25d366', 600: '#1fb457' }
           },
           fontFamily: {
@@ -44,7 +44,7 @@
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
   <!-- NAVIGATION BAR -->
-  <header class="fixed top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
+  <header class="fixed top-0 z-50 w-full border-b border-white/10 bg-[#0b172a]/85 backdrop-blur-md shadow-md">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
       <a href="#top" class="flex items-center gap-3 text-white">
         <img src="assets/logo.png" alt="Cinco Patas Dog Car & Walker" class="h-10 w-10 object-contain drop-shadow" />
@@ -103,8 +103,8 @@
 
   <!-- HERO SECTION -->
   <section id="top" class="relative overflow-hidden bg-hero-gradient text-white">
-    <img src="assets/thiago-4.jpg" alt="" class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-luminosity" />
-    <div class="absolute inset-0 bg-slate-950/80"></div>
+    <img src="assets/thiago-4.jpg" alt="" class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35 mix-blend-overlay" />
+    <div class="absolute inset-0 bg-[#0d1c33]/70"></div>
     
     <div class="relative mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 sm:pb-32 sm:pt-40 lg:px-8 lg:pt-44">
       <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
@@ -775,11 +775,6 @@
       © 2026 Cinco Patas Dog Car & Walker. Todos os direitos reservados.
     </div>
   </footer>
-
-  <!-- FLOATING WHATSAPP BUTTON -->
-  <a href="https://wa.me/5521992244753?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Cinco%20Patas%20Dog%20Car%20%26%20Walker." target="_blank" rel="noreferrer" class="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-emerald-500 text-white text-2xl shadow-2xl hover:scale-105 transition print-hide">
-    💬
-  </a>
 
   <!-- Application Logic -->
   <script src="app.js"></script>

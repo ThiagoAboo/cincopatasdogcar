@@ -58,4 +58,5 @@ description: Regras de negócio e especificações de design do projeto Cinco Pa
 ## 6. Navegação & Rodapé
 - **Links de Navegação**: Toda seção direcionada pelo menu (`#calculadora`, `#simulador-passeio`, `#planos`, `#sobre`, `#faq`) deve conter o botão "↑ Voltar ao topo" apontando para `#top`.
 - **Galeria Sobre**: Exibir as 6 fotos dos pets (`thiago-1.jpg` a `thiago-6.jpg`) no formato de 2 colunas × 3 linhas (`grid-cols-2`).
+- **Sem Botão Flutuante**: O botão flutuante do WhatsApp no canto inferior direito foi removido.
 - **Arquivos Estáticos**: Manter a aplicação estática e autônoma na pasta `src/` usando scripts clássicos sem `type="module"` para evitar erros de CORS ao abrir via `file://`.

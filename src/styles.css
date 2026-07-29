@@ -19,13 +19,13 @@
 
   /* Brand Tokens */
   --navy: #0f172a;
-  --navy-deep: #090d16;
-  --gold: #d4af37;
+  --navy-deep: #0b1526;
+  --gold: #f59e0b;
   --gold-soft: #fef08a;
   --whatsapp: #25d366;
   --warm: #fefce8;
 
-  --gradient-hero: radial-gradient(circle at 50% 20%, rgba(251, 191, 36, 0.08) 0%, transparent 65%), linear-gradient(135deg, #070a10 0%, #0f172a 60%, #1e293b 100%);
+  --gradient-hero: radial-gradient(circle at 50% 20%, rgba(251, 191, 36, 0.1) 0%, transparent 70%), linear-gradient(135deg, #0a1424 0%, #0f213d 50%, #162d4e 100%);
   --gradient-gold: linear-gradient(135deg, #facc15 0%, #d97706 100%);
   --shadow-elegant: 0 20px 50px -20px rgba(15, 23, 42, 0.4);
   --shadow-gold: 0 12px 35px -10px rgba(212, 175, 55, 0.45);
