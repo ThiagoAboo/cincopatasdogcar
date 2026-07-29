@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS = {
   phone_display: "(21) 99224-4753",
   instagram_handle: "@cincopatasdogcar",
   city_base: "Alcântara, São Gonçalo (RJ)",
-  base_coords: { lat: -22.7876, lon: -43.0244 },
+  base_coords: { lat: -22.8160, lon: -43.0080 }, // Alcântara, São Gonçalo
   cities_covered: ["São Gonçalo", "Niterói", "Maricá", "Itaboraí"],
   schedule_display: "Todos os dias, 7h às 19h",
   fuel_cost_per_km: 0.30,
@@ -61,11 +61,9 @@ const DEFAULT_SETTINGS = {
 };
 
 function getSettings() {
-  const stored = localStorage.getItem("app_settings");
-  if (stored) {
-    try { return JSON.parse(stored); } catch (e) { }
-  }
-  return DEFAULT_SETTINGS;
+  const s = { ...DEFAULT_SETTINGS };
+  s.base_coords = { lat: -22.8160, lon: -43.0080 }; // Enforce Alcântara Center
+  return s;
 }
 
 const settings = getSettings();
@@ -78,7 +76,7 @@ const waLink = (msg) => `https://wa.me/${settings.whatsapp_number}?text=${encode
 // --- Nominatim & OSRM Geocoding ---
 async function searchAddresses(q) {
   const query = q.trim();
-  if (query.length < 4) return [];
+  if (query.length < 3) return [];
   const bias = /rj|rio de janeiro|brasil/i.test(query) ? query : `${query}, Rio de Janeiro, Brasil`;
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=br&addressdetails=1&q=${encodeURIComponent(bias)}`;
@@ -126,11 +124,8 @@ async function getRoadDistance(a, b) {
 
 function validateAddress(v) {
   const s = v.trim();
-  if (s.length < 8) return "Endereço muito curto — informe rua e bairro.";
+  if (s.length < 4) return "Endereço muito curto — informe rua e bairro.";
   if (!/[A-Za-zÀ-ÿ]{3,}/.test(s)) return "Informe o nome da rua com pelo menos 3 letras.";
-  const hasNumber = /\d{1,5}/.test(s);
-  const hasComma = /,/.test(s);
-  if (!hasNumber && !hasComma) return "Inclua o número do imóvel ou o bairro (separado por vírgula).";
   return null;
 }
 
@@ -140,13 +135,61 @@ let currentWalkerResult = null;
 let rjCities = [];
 let cityDistricts = [];
 
-// Dynamic Setup on DOM Loaded
-document.addEventListener("DOMContentLoaded", () => {
-  setupAddressDatalists();
-  setupIBGECities();
-  setupAccordion();
-  refreshIcons();
-});
+// Setup Custom Autocomplete Dropdowns
+function setupCustomAutocompletes() {
+  const setupInput = (inputId, dropdownId) => {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    if (!input || !dropdown) return;
+    let timer = null;
+
+    input.addEventListener("input", () => {
+      if (timer) clearTimeout(timer);
+      const val = input.value.trim();
+      if (val.length < 3) {
+        dropdown.innerHTML = "";
+        dropdown.classList.add("hidden");
+        return;
+      }
+      timer = setTimeout(async () => {
+        const suggestions = await searchAddresses(val);
+        if (!suggestions.length) {
+          dropdown.innerHTML = "";
+          dropdown.classList.add("hidden");
+          return;
+        }
+        dropdown.innerHTML = suggestions.map(s => {
+          const cleanAddr = s.label.replace(/"/g, '&quot;');
+          return `<div class="cursor-pointer px-3.5 py-2.5 text-xs text-white bg-navy hover:bg-navy-deep hover:text-gold transition flex items-center gap-2 border-b border-white/10 last:border-0" data-address="${cleanAddr}">
+            <i data-lucide="map-pin" class="h-3.5 w-3.5 text-gold shrink-0"></i>
+            <span class="truncate text-white font-medium">${s.label}</span>
+          </div>`;
+        }).join("");
+        dropdown.classList.remove("hidden");
+        refreshIcons();
+
+        dropdown.querySelectorAll("[data-address]").forEach(item => {
+          item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            input.value = item.getAttribute("data-address");
+            dropdown.innerHTML = "";
+            dropdown.classList.add("hidden");
+          });
+        });
+      }, 350);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add("hidden");
+      }
+    });
+  };
+
+  setupInput("taxi-pickup", "taxi-pickup-dropdown");
+  setupInput("taxi-destination", "taxi-destination-dropdown");
+  setupInput("walk-local", "walk-local-dropdown");
+}
 
 function refreshIcons() {
   if (window.lucide && typeof lucide.createIcons === 'function') {
@@ -159,28 +202,6 @@ function toggleMobileMenu() {
   if (menu) {
     menu.classList.toggle("hidden");
   }
-}
-
-// Setup Address Suggestion Datalists
-function setupAddressDatalists() {
-  const setupInput = (inputId, listId) => {
-    const input = document.getElementById(inputId);
-    const list = document.getElementById(listId);
-    if (!input || !list) return;
-    let timer = null;
-    input.addEventListener("input", () => {
-      if (timer) clearTimeout(timer);
-      const val = input.value.trim();
-      if (val.length < 4) { list.innerHTML = ""; return; }
-      timer = setTimeout(async () => {
-        const suggestions = await searchAddresses(val);
-        list.innerHTML = suggestions.map(s => `<option value="${s.label}"></option>`).join("");
-      }, 500);
-    });
-  };
-  setupInput("taxi-pickup", "pickup-list");
-  setupInput("taxi-destination", "destination-list");
-  setupInput("walk-local", "walk-local-list");
 }
 
 // --- Taxi Calculator Handler ---
@@ -261,49 +282,49 @@ function renderTaxiResult(res) {
   container.innerHTML = `
     <div class="flex flex-col h-full text-left w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Orçamento detalhado</span>
+        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orçamento detalhado</span>
         <div class="flex flex-wrap gap-1.5">
-          <span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium flex items-center gap-1">
-            <i data-lucide="paw-print" class="h-3 w-3 text-amber-400"></i> Porte ${res.porteLabel}
+          <span class="px-2.5 py-1 rounded-full bg-navy text-white text-xs font-medium flex items-center gap-1">
+            <i data-lucide="paw-print" class="h-3 w-3 text-gold"></i> Porte ${res.porteLabel}
           </span>
-          <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-bold flex items-center gap-1 shadow-sm">
+          <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-navy text-xs font-bold flex items-center gap-1 shadow-sm">
             <i data-lucide="refresh-cw" class="h-3 w-3"></i> ${res.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}
           </span>
-          ${res.withHuman ? `<span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium flex items-center gap-1"><i data-lucide="users" class="h-3 w-3 text-amber-400"></i> + Humano</span>` : ""}
+          ${res.withHuman ? `<span class="px-2.5 py-1 rounded-full bg-navy text-white text-xs font-medium flex items-center gap-1"><i data-lucide="users" class="h-3 w-3 text-gold"></i> + Humano</span>` : ""}
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
-        <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
+        <li class="flex justify-between items-start border-b border-border pb-3 text-left">
           <div class="text-left flex items-start gap-2">
-            <i data-lucide="fuel" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+            <i data-lucide="fuel" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
             <div>
-              <span class="font-semibold text-slate-900 block text-left">Combustível até você</span>
-              <span class="text-xs text-gray-500 block text-left mt-0.5">Base ➔ Cliente ${res.tripType === "ida_volta" ? "(Ida e Volta)" : "(Somente Ida)"} · ${res.distToPickupFuel} km</span>
+              <span class="font-semibold text-navy block text-left">Combustível até você</span>
+              <span class="text-xs text-muted-foreground block text-left mt-0.5">Base ➔ Cliente ${res.tripType === "ida_volta" ? "(Ida e Volta)" : "(Somente Ida)"} · ${res.distToPickupFuel} km</span>
             </div>
           </div>
-          <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.fuelCost)}</span>
+          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.fuelCost)}</span>
         </li>
-        <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
+        <li class="flex justify-between items-start border-b border-border pb-3 text-left">
           <div class="text-left flex items-start gap-2">
-            <i data-lucide="navigation" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+            <i data-lucide="navigation" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
             <div>
-              <span class="font-semibold text-slate-900 block text-left">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"}</span>
-              <span class="text-xs text-gray-500 block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
+              <span class="font-semibold text-navy block text-left">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"}</span>
+              <span class="text-xs text-muted-foreground block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
             </div>
           </div>
-          <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.tripCost)}</span>
+          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.tripCost)}</span>
         </li>
       </ul>
-      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left shadow-lg">
-        <div class="text-xs uppercase tracking-wider text-slate-400">Valor Total Estimado</div>
-        <div class="text-4xl font-extrabold text-amber-400 mt-1">${BRL(res.total)}</div>
+      <div class="rounded-xl bg-navy p-5 text-white mb-4 text-left shadow-elegant">
+        <div class="text-xs uppercase tracking-wider text-white/70">Valor Total Estimado</div>
+        <div class="font-display text-4xl font-extrabold text-gold mt-1">${BRL(res.total)}</div>
       </div>
-      <p class="text-xs text-gray-500 mb-4 leading-relaxed text-left flex items-start gap-1.5">
-        <i data-lucide="alert-circle" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+      <p class="text-xs text-muted-foreground mb-4 leading-relaxed text-left flex items-start gap-1.5">
+        <i data-lucide="alert-circle" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
         <span><strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada em caso de incidente higiênico (xixi, cocô ou vômito). Primeiros 30 min de espera grátis.</span>
       </p>
       <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
-        <button class="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
+        <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 px-8 w-full bg-whatsapp hover:opacity-90 text-white font-semibold shadow-md">
           <i data-lucide="message-square" class="h-4 w-4"></i>
           <span>Confirmar e Agendar via WhatsApp</span>
         </button>
@@ -376,38 +397,34 @@ function renderWalkerResult(res) {
   container.innerHTML = `
     <div class="flex flex-col h-full text-left w-full">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Orçamento do passeio</span>
+        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orçamento do passeio</span>
         <div class="flex flex-wrap gap-1.5">
-          <span class="px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-medium flex items-center gap-1">
-            <i data-lucide="paw-print" class="h-3 w-3 text-amber-400"></i> Porte ${res.porteLabel}
+          <span class="px-2.5 py-1 rounded-full bg-navy text-white text-xs font-medium flex items-center gap-1">
+            <i data-lucide="paw-print" class="h-3 w-3 text-gold"></i> Porte ${res.porteLabel}
           </span>
-          <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-bold flex items-center gap-1 shadow-sm">
+          <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-navy text-xs font-bold flex items-center gap-1 shadow-sm">
             <i data-lucide="clock" class="h-3 w-3"></i> ${res.minutes} min
           </span>
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
-        <li class="flex justify-between items-start border-b border-gray-200 pb-3 text-left">
+        <li class="flex justify-between items-start border-b border-border pb-3 text-left">
           <div class="text-left flex items-start gap-2">
-            <i data-lucide="footprints" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+            <i data-lucide="footprints" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
             <div>
-              <span class="font-semibold text-slate-900 block text-left">Valor do passeio</span>
-              <span class="text-xs text-gray-500 block text-left mt-0.5">Duração ${res.minutes} min · Base ${BRL(res.hourly)}/h</span>
+              <span class="font-semibold text-navy block text-left">Valor do passeio</span>
+              <span class="text-xs text-muted-foreground block text-left mt-0.5">Duração ${res.minutes} min · Base ${BRL(res.hourly)}/h</span>
             </div>
           </div>
-          <span class="font-semibold text-slate-900 shrink-0 ml-2">${BRL(res.total)}</span>
+          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.total)}</span>
         </li>
       </ul>
-      <div class="rounded-2xl bg-slate-900 p-5 text-white mb-4 text-left shadow-lg">
-        <div class="text-xs uppercase tracking-wider text-slate-400">Valor Total Estimado</div>
-        <div class="text-4xl font-extrabold text-amber-400 mt-1">${BRL(res.total)}</div>
+      <div class="rounded-xl bg-navy p-5 text-white mb-4 text-left shadow-elegant">
+        <div class="text-xs uppercase tracking-wider text-white/70">Valor Total Estimado</div>
+        <div class="font-display text-4xl font-extrabold text-gold mt-1">${BRL(res.total)}</div>
       </div>
-      <p class="text-xs text-gray-500 mb-4 leading-relaxed text-left flex items-start gap-1.5">
-        <i data-lucide="alert-circle" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
-        <span><strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada se houver incidente higiênico durante o passeio.</span>
-      </p>
       <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
-        <button class="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
+        <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 px-8 w-full bg-whatsapp hover:opacity-90 text-white font-semibold shadow-md">
           <i data-lucide="message-square" class="h-4 w-4"></i>
           <span>Agendar Passeio no WhatsApp</span>
         </button>
@@ -426,9 +443,9 @@ function updateMonthlyTaxi() {
   container.innerHTML = `
     <div class="mt-10">
       <div class="mb-6">
-        <div class="text-xs font-semibold uppercase tracking-wider text-amber-500">Pacotes mensais recorrentes</div>
-        <h3 class="font-display text-2xl font-bold text-slate-900">Táxi Dog</h3>
-        <p class="text-sm text-gray-500 mt-1">
+        <div class="text-xs font-semibold uppercase tracking-wider text-gold">Pacotes mensais recorrentes</div>
+        <h3 class="font-display text-2xl font-bold text-navy">Táxi Dog</h3>
+        <p class="text-sm text-muted-foreground mt-1">
           ${currentTaxiResult ? `Valores calculados com base na sua última corrida simulada (${Math.round(settings.monthly_pkg_discount * 100)}% off).` : "Valores base — use a calculadora de Táxi Dog para personalizar."}
         </p>
       </div>
@@ -438,13 +455,13 @@ function updateMonthlyTaxi() {
     const priceStr = BRL(total);
     const msg = `Olá! Quero o *Plano Mensal de Táxi Dog ${m.tier}* (${m.label}) — ${priceStr}/mês.`;
     return `
-            <div class="rounded-2xl border p-6 bg-white shadow-lg ${m.accent ? 'ring-2 ring-amber-400' : ''}">
+            <div class="rounded-xl border p-6 bg-white shadow-elegant ${m.accent ? 'border-2 border-gold ring-1 ring-gold' : ''}">
               <div class="flex items-center gap-2 mb-2">
-                <span class="font-display text-lg font-bold text-slate-900">${m.tier}</span>
+                <span class="font-display text-lg font-bold text-navy">${m.tier}</span>
               </div>
-              <p class="text-xs text-gray-500 mb-3">${m.label}</p>
-              <div class="text-3xl font-extrabold text-slate-900 mb-4">${priceStr}<span class="text-xs text-gray-400 font-normal"> /mês</span></div>
-              <a href="${waLink(msg)}" target="_blank" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm ${m.accent ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-amber-400 text-slate-900 hover:bg-amber-500'}">
+              <p class="text-xs text-muted-foreground mb-3">${m.label}</p>
+              <div class="text-3xl font-extrabold text-navy mb-4">${priceStr}<span class="text-xs text-muted-foreground font-normal"> /mês</span></div>
+              <a href="${waLink(msg)}" target="_blank" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 px-8 w-full rounded-md font-semibold ${m.accent ? 'bg-navy text-white hover:bg-navy-deep' : 'bg-gold-gradient text-navy hover:opacity-95'}">
                 Assinar ${m.tier}
               </a>
             </div>
@@ -464,13 +481,13 @@ function updateMonthlyWalker() {
     <div class="mt-10">
       <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div class="text-xs font-semibold uppercase tracking-wider text-amber-500">Pacotes mensais recorrentes</div>
-          <h3 class="font-display text-2xl font-bold text-slate-900">Passeios (Dog Walker)</h3>
-          <p class="text-sm text-gray-500 mt-1">
+          <div class="text-xs font-semibold uppercase tracking-wider text-gold">Pacotes mensais recorrentes</div>
+          <h3 class="font-display text-2xl font-bold text-navy">Passeios (Dog Walker)</h3>
+          <p class="text-sm text-muted-foreground mt-1">
             ${currentWalkerResult ? `Valores calculados com base no seu último passeio simulado (${Math.round(settings.monthly_pkg_discount * 100)}% off).` : "Valores base — use o simulador de passeio para personalizar."}
           </p>
         </div>
-        <div class="rounded-full bg-amber-400 px-4 py-1.5 text-xs font-bold text-slate-900 shadow">
+        <div class="rounded-full bg-gold-gradient px-4 py-1.5 text-xs font-bold text-navy shadow-sm">
           🎉 50% OFF no 2º cãozinho da mesma casa!
         </div>
       </div>
@@ -480,13 +497,13 @@ function updateMonthlyWalker() {
     const priceStr = BRL(total);
     const msg = `Olá! Quero o *Plano Mensal de Passeios ${m.tier}* (${m.label}) — ${priceStr}/mês.`;
     return `
-            <div class="rounded-2xl border p-6 bg-white shadow-lg ${m.accent ? 'ring-2 ring-amber-400' : ''}">
+            <div class="rounded-xl border p-6 bg-white shadow-elegant ${m.accent ? 'border-2 border-gold ring-1 ring-gold' : ''}">
               <div class="flex items-center gap-2 mb-2">
-                <span class="font-display text-lg font-bold text-slate-900">${m.tier}</span>
+                <span class="font-display text-lg font-bold text-navy">${m.tier}</span>
               </div>
-              <p class="text-xs text-gray-500 mb-3">${m.label}</p>
-              <div class="text-3xl font-extrabold text-slate-900 mb-4">${priceStr}<span class="text-xs text-gray-400 font-normal"> /mês</span></div>
-              <a href="${waLink(msg)}" target="_blank" class="block w-full text-center py-2.5 rounded-xl font-semibold text-sm ${m.accent ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-amber-400 text-slate-900 hover:bg-amber-500'}">
+              <p class="text-xs text-muted-foreground mb-3">${m.label}</p>
+              <div class="text-3xl font-extrabold text-navy mb-4">${priceStr}<span class="text-xs text-muted-foreground font-normal"> /mês</span></div>
+              <a href="${waLink(msg)}" target="_blank" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 px-8 w-full rounded-md font-semibold ${m.accent ? 'bg-navy text-white hover:bg-navy-deep' : 'bg-gold-gradient text-navy hover:opacity-95'}">
                 Assinar ${m.tier}
               </a>
             </div>
@@ -660,9 +677,9 @@ async function renderCombos() {
   container.innerHTML = `
     <div class="mt-12 grid gap-6 md:grid-cols-2">
       <!-- Combo Aventurinha -->
-      <div class="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-8 text-white backdrop-blur shadow-xl">
+      <div class="rounded-xl shadow relative overflow-hidden border-0 p-8 bg-white/[0.06] text-white backdrop-blur flex flex-col justify-between">
         <div>
-          <div class="text-xs font-semibold uppercase tracking-wider text-amber-400">Combo Especial · ${neighborhood}</div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-gold">Combo Especial · ${neighborhood}</div>
           <h3 class="mt-1 font-display text-2xl font-bold">Combo Aventurinha</h3>
           <div class="mt-3 text-xs font-semibold text-white/70">Calculado para ${neighborhood} · Porte ${porteLabel}</div>
           <div class="mt-3 flex items-baseline gap-2">
@@ -671,62 +688,62 @@ async function renderCombos() {
           </div>
           <ul class="mt-6 space-y-3 text-sm text-white/90">
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>Busca com Táxi Dog (até ${taxiKm} km inclusos) partindo de ${neighborhood}</span>
             </li>
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>1h de passeio Dog Walker para porte ${porteLabel}</span>
             </li>
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>Parque a sua escolha (com limite de 5km de distância)</span>
             </li>
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>Devolução em casa com segurança</span>
             </li>
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-400 text-slate-900 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>${Math.round(settings.combo_aventurinha_discount * 100)}% de desconto sobre o valor cheio (${BRL(comboSum)})</span>
             </li>
           </ul>
           <div class="mt-4 text-xs text-white/50 italic">* Para um parque acima de 5km será necessário consulta</div>
         </div>
         <a href="${waLink(`Olá! Tenho interesse no *Combo Aventurinha* (${aventurinhaPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel}).`)}" target="_blank" class="mt-6 inline-block w-full">
-          <button class="w-full py-3.5 rounded-xl bg-amber-400 font-bold text-slate-900 hover:bg-amber-500 transition shadow-md">Quero este plano</button>
+          <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-9 px-4 py-2 w-full bg-gold-gradient font-semibold text-navy hover:opacity-95">Quero este plano</button>
         </a>
       </div>
 
       <!-- Combo VIP Mensal -->
-      <div class="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-amber-400 p-8 text-slate-900 shadow-xl">
-        <span class="absolute right-4 top-4 rounded-full bg-slate-900 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400 shadow">Mais escolhido</span>
+      <div class="rounded-xl shadow relative overflow-hidden border-0 p-8 bg-gold-gradient text-navy shadow-gold flex flex-col justify-between">
+        <span class="absolute right-4 top-4 rounded-full bg-navy px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gold">Mais escolhido</span>
         <div>
-          <div class="text-xs font-semibold uppercase tracking-wider text-slate-800">Assinatura · ${neighborhood}</div>
-          <h3 class="mt-1 font-display text-2xl font-bold text-slate-900">Combo VIP Mensal</h3>
-          <div class="mt-3 text-xs font-semibold text-slate-800">Calculado para ${neighborhood} · Porte ${porteLabel}</div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-navy/80">Assinatura · ${neighborhood}</div>
+          <h3 class="mt-1 font-display text-2xl font-bold text-navy">Combo VIP Mensal</h3>
+          <div class="mt-3 text-xs font-semibold text-navy/80">Calculado para ${neighborhood} · Porte ${porteLabel}</div>
           <div class="mt-3 flex items-baseline gap-2">
-            <div class="font-display text-4xl font-extrabold text-slate-900">${vipPrice}</div>
-            <div class="text-sm text-slate-800">/ por mês</div>
+            <div class="font-display text-4xl font-extrabold text-navy">${vipPrice}</div>
+            <div class="text-sm text-navy/80">/ por mês</div>
           </div>
-          <ul class="mt-6 space-y-3 text-sm text-slate-900 font-medium">
+          <ul class="mt-6 space-y-3 text-sm text-navy font-medium">
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-900 text-amber-400 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-navy text-gold shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>Todos os benefícios do Combo Aventurinha</span>
             </li>
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-900 text-amber-400 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-navy text-gold shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>4 aventurinha mensais</span>
             </li>
             <li class="flex items-start gap-2.5">
-              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-900 text-amber-400 shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
+              <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-navy text-gold shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>${Math.round(settings.combo_vip_discount * 100)}% de desconto mensal (${BRL(round2(comboSum * 4))} sem desconto)</span>
             </li>
           </ul>
-          <div class="mt-4 text-xs text-slate-800/70 italic">* Para um parque acima de 5km será necessário consulta</div>
+          <div class="mt-4 text-xs text-navy/70 italic">* Para um parque acima de 5km será necessário consulta</div>
         </div>
         <a href="${waLink(`Olá! Tenho interesse no *Combo VIP Mensal* (${vipPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel}).`)}" target="_blank" class="mt-6 inline-block w-full">
-          <button class="w-full py-3.5 rounded-xl bg-slate-900 font-bold text-white hover:bg-slate-800 transition shadow-md">Quero este plano</button>
+          <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-9 px-4 py-2 w-full bg-navy font-semibold text-white hover:bg-navy-deep">Quero este plano</button>
         </a>
       </div>
     </div>
@@ -748,8 +765,9 @@ function setupAccordion() {
 
 // Global Initialization
 document.addEventListener("DOMContentLoaded", () => {
+  setupCustomAutocompletes();
   setupAccordion();
-  initCityCombos();
+  setupIBGECities();
   updateMonthlyTaxi();
   updateMonthlyWalker();
   refreshIcons();
