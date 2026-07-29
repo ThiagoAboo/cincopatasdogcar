@@ -1,0 +1,4 @@
+[run]
+dev = "cd site && python3 -m http.server 8080"
+build:dev = "echo 'Static site, no build.'"
+build = "echo 'Static site, no build.'"
