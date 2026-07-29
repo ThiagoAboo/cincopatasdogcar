@@ -10,7 +10,7 @@ const DEFAULT_SETTINGS = {
   city_base: "Alcântara, São Gonçalo (RJ)",
   base_coords: { lat: -22.7876, lon: -43.0244 },
   cities_covered: ["São Gonçalo", "Niterói", "Maricá", "Itaboraí"],
-  schedule_display: "Seg a Sáb, 7h às 19h",
+  schedule_display: "Todos os dias, 7h às 19h",
   fuel_cost_per_km: 0.30,
   fuel_cost_markup_percent: 0.50,
   taxi_per_km_pet: 2.50,
@@ -19,7 +19,7 @@ const DEFAULT_SETTINGS = {
   walker_min_price: 30,
   walker_travel_fee_per_km_over: 1.50,
   walker_travel_fee_km_threshold: 5,
-  wait_time_free_min: 15,
+  wait_time_free_min: 30,
   wait_time_fee: 10,
   wait_time_fee_min_block: 15,
   hygiene_fee_min: 50,
@@ -275,7 +275,7 @@ function renderTaxiResult(res) {
         <div class="text-4xl font-extrabold text-amber-400 mt-1">${BRL(res.total)}</div>
       </div>
       <p class="text-xs text-gray-500 mb-4 leading-relaxed text-left">
-        <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada em caso de incidente higiênico. Primeiros 15 min de espera grátis.
+        <strong>Nota:</strong> Taxa de higienização <strong>não está inclusa</strong> — só será cobrada em caso de incidente higiênico. Primeiros 30 min de espera grátis.
       </p>
       <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
         <button class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg transition">
