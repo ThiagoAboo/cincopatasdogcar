@@ -406,14 +406,14 @@
               <div class="grid h-16 w-16 place-items-center rounded-2xl bg-secondary">
                 <i data-lucide="dollar-sign" class="h-8 w-8 text-navy"></i>
               </div>
-              <p class="mt-4 max-w-xs text-sm text-muted-foreground">Preencha os endereços e clique em <span
-                  class="font-semibold text-navy">Calcular</span> para ver o orçamento detalhado da corrida.</p>
+              <p class="mt-4 max-w-xs text-sm text-muted-foreground">Preencha os endereços e clique em <span class="font-semibold text-navy">Calcular</span> para ver o orçamento detalhado da corrida.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Regras Importantes -->
+      <!-- Container para Mensais do Táxi Dog -->
+      <div id="monthly-taxi-container"></div>
       <div class="mt-8">
         <div class="mb-5 text-center">
           <div class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent shadow bg-navy text-white hover:bg-navy">Boas práticas</div>
@@ -614,9 +614,9 @@
 
       <!-- Filter Section -->
       <div id="combo-filter-section" class="mt-8 flex flex-col items-center gap-6">
-        <!-- Cidade e Bairro em 2 colunas -->
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 w-full max-w-xl">
-          <div class="w-full sm:w-1/2 text-left">
+        <!-- Cidade, Bairro e Parque em 3 colunas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+          <div class="w-full text-left">
             <label class="text-xs text-white/80 font-medium flex items-center gap-1.5 mb-1">
               <i data-lucide="map-pin" class="h-3.5 w-3.5 text-gold"></i>
               <span>Cidade</span>
@@ -626,7 +626,7 @@
               <option value="" class="text-slate-900 bg-white">Carregando cidades...</option>
             </select>
           </div>
-          <div class="w-full sm:w-1/2 text-left">
+          <div class="w-full text-left">
             <label class="text-xs text-white/80 font-medium flex items-center gap-1.5 mb-1">
               <i data-lucide="navigation" class="h-3.5 w-3.5 text-gold"></i>
               <span>Bairro</span>
@@ -634,6 +634,16 @@
             <select id="combo-neighborhood" disabled
               class="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm text-white backdrop-blur focus:outline-none focus:ring-2 focus:ring-gold disabled:opacity-50">
               <option value="" class="text-slate-900 bg-white">Selecione a cidade primeiro</option>
+            </select>
+          </div>
+          <div class="w-full text-left">
+            <label class="text-xs text-white/80 font-medium flex items-center gap-1.5 mb-1">
+              <i data-lucide="trees" class="h-3.5 w-3.5 text-gold"></i>
+              <span>Parque de Destino (Opcional)</span>
+            </label>
+            <select id="combo-park"
+              class="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm text-white backdrop-blur focus:outline-none focus:ring-2 focus:ring-gold">
+              <option value="" class="text-slate-900 bg-white">Nenhum parque (Passeio local no bairro)</option>
             </select>
           </div>
         </div>

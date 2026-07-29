@@ -30,18 +30,6 @@ const DEFAULT_SETTINGS = {
   monthly_pkg_discount: 0.20,
   second_pet_discount: 0.50,
   cancel_free_hours: 24,
-  walker_price_by_porte: {
-    pequeno: 32.5,
-    medio: 37.5,
-    grande: 45,
-    gigante: 57.5
-  },
-  taxi_multiplier_by_porte: {
-    pequeno: 1,
-    medio: 1.1,
-    grande: 1.25,
-    gigante: 1.5
-  },
   porte_options: [
     { id: "pequeno", label: "Pequeno", weight: "Até 10 kg" },
     { id: "medio", label: "Médio", weight: "11–25 kg" },
@@ -57,11 +45,68 @@ const DEFAULT_SETTINGS = {
     { min: 30, label: "30 min", factor: 0.6 },
     { min: 60, label: "1 hora", factor: 1.0 },
     { min: 90, label: "1h30", factor: 1.4 }
+  ],
+  cidades: [
+    {
+      nome: "Niterói",
+      walker_price_by_porte: { pequeno: 32.5, medio: 37.5, grande: 45, gigante: 57.5 },
+      taxi_multiplier_by_porte: { pequeno: 1, medio: 1.1, grande: 1.25, gigante: 1.5 },
+      parques: [
+        { nome: "Campo de São Bento", latitude: -22.9011, longitude: -43.1097 },
+        { nome: "Horto do Fonseca", latitude: -22.8808, longitude: -43.0903 },
+        { nome: "Horto de Itaipu", latitude: -22.9405, longitude: -43.0321 },
+        { nome: "Horto do Barreto", latitude: -22.8753, longitude: -43.1058 },
+        { nome: "Parque da Cidade de Niterói", latitude: -22.9234, longitude: -43.0852 }
+      ]
+    },
+    {
+      nome: "Maricá",
+      walker_price_by_porte: { pequeno: 32.5, medio: 37.5, grande: 45, gigante: 57.5 },
+      taxi_multiplier_by_porte: { pequeno: 1, medio: 1.1, grande: 1.25, gigante: 1.5 },
+      parques: [
+        { nome: "Orla da Lagoa de Araçatiba", latitude: -22.9239, longitude: -42.8256 },
+        { nome: "Orla de Itaipuaçu", latitude: -22.9722, longitude: -42.9247 },
+        { nome: "Praça Orlando de Barros Pimentel", latitude: -22.9192, longitude: -42.8183 },
+        { nome: "Parque Linear de Inoã", latitude: -22.9272, longitude: -42.9103 }
+      ]
+    },
+    {
+      nome: "São Gonçalo",
+      walker_price_by_porte: { pequeno: 32.5, medio: 37.5, grande: 45, gigante: 57.5 },
+      taxi_multiplier_by_porte: { pequeno: 1, medio: 1.1, grande: 1.25, gigante: 1.5 },
+      parques: [
+        { nome: "Praça dos Ex-Combatentes", latitude: -22.8153, longitude: -43.0536 },
+        { nome: "Praça do Gradim", latitude: -22.8092, longitude: -43.0728 },
+        { nome: "Praça de Neves", latitude: -22.8317, longitude: -43.0894 },
+        { nome: "Praça da Trindade", latitude: -22.8114, longitude: -43.0353 }
+      ]
+    },
+    {
+      nome: "Itaboraí",
+      walker_price_by_porte: { pequeno: 32.5, medio: 37.5, grande: 45, gigante: 57.5 },
+      taxi_multiplier_by_porte: { pequeno: 1, medio: 1.1, grande: 1.25, gigante: 1.5 },
+      parques: [
+        { nome: "Praça Marechal Floriano Peixoto", latitude: -22.7444, longitude: -42.8594 }
+      ]
+    }
   ]
 };
 
 function getSettings() {
-  const s = { ...DEFAULT_SETTINGS };
+  const stored = localStorage.getItem("app_settings");
+  let s = { ...DEFAULT_SETTINGS };
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      delete parsed.walker_price_by_porte;
+      delete parsed.taxi_multiplier_by_porte;
+      s = { ...DEFAULT_SETTINGS, ...parsed };
+      // Save cleaned settings back if old root keys existed
+      localStorage.setItem("app_settings", JSON.stringify(s));
+    } catch (e) { }
+  }
+  delete s.walker_price_by_porte;
+  delete s.taxi_multiplier_by_porte;
   s.base_coords = { lat: -22.8160, lon: -43.0080 }; // Enforce Alcântara Center
   return s;
 }
@@ -240,9 +285,15 @@ async function handleTaxiCalc() {
 
   if (btn) btn.innerHTML = "Calcular Valor Estimado";
 
+  const matchedCityTaxi = getCityDataFromAddress(pickup) || getCityDataFromAddress(destination);
+  const cityObjTaxi = matchedCityTaxi || (getCidadesData()[0] || {});
+  const taxiMultipliers = (cityObjTaxi && cityObjTaxi.taxi_multiplier_by_porte)
+    ? cityObjTaxi.taxi_multiplier_by_porte
+    : { pequeno: 1, medio: 1.1, grande: 1.25, gigante: 1.5 };
+
   const basePerKm = withHuman ? settings.taxi_per_km_human : settings.taxi_per_km_pet;
   const petFuelRate = settings.fuel_cost_per_km * (1 + (settings.fuel_cost_markup_percent || 0.50));
-  const perKm = (basePerKm + petFuelRate) * (settings.taxi_multiplier_by_porte[porte] || 1);
+  const perKm = (basePerKm + petFuelRate) * (taxiMultipliers[porte] || 1);
   const distTrip = tripType === "ida_volta" ? distTripOneWay * 2 : distTripOneWay;
   const fuelCost = round2(distToPickupFuel * settings.fuel_cost_per_km);
   const rawTripCost = round2(distTrip * perKm);
@@ -296,23 +347,13 @@ function renderTaxiResult(res) {
       <ul class="space-y-3 text-sm mb-4">
         <li class="flex justify-between items-start border-b border-border pb-3 text-left">
           <div class="text-left flex items-start gap-2">
-            <i data-lucide="fuel" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
-            <div>
-              <span class="font-semibold text-navy block text-left">Combustível até você</span>
-              <span class="text-xs text-muted-foreground block text-left mt-0.5">Base ➔ Cliente ${res.tripType === "ida_volta" ? "(Ida e Volta)" : "(Somente Ida)"} · ${res.distToPickupFuel} km</span>
-            </div>
-          </div>
-          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.fuelCost)}</span>
-        </li>
-        <li class="flex justify-between items-start border-b border-border pb-3 text-left">
-          <div class="text-left flex items-start gap-2">
             <i data-lucide="navigation" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
             <div>
               <span class="font-semibold text-navy block text-left">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"}</span>
               <span class="text-xs text-muted-foreground block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
             </div>
           </div>
-          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.tripCost)}</span>
+          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.total)}</span>
         </li>
       </ul>
       <div class="rounded-xl bg-navy p-5 text-white mb-4 text-left shadow-elegant">
@@ -362,7 +403,12 @@ async function handleWalkerCalc() {
   const distOneWay = await getRoadDistance(settings.base_coords, coord);
   if (btn) btn.innerHTML = "Simular Passeio";
 
-  const hourly = settings.walker_price_by_porte[porte] || 35;
+  const matchedCityWalker = getCityDataFromAddress(local);
+  const cityObjWalker = matchedCityWalker || (getCidadesData()[0] || {});
+  const walkerPrices = (cityObjWalker && cityObjWalker.walker_price_by_porte)
+    ? cityObjWalker.walker_price_by_porte
+    : { pequeno: 32.5, medio: 37.5, grande: 45, gigante: 57.5 };
+  const hourly = walkerPrices[porte] || 32.5;
   const timeOpt = settings.walk_time_options.find(t => t.min === minutes) || { factor: 1 };
   const walkPrice = hourly * timeOpt.factor;
   const travelFee = round2(distOneWay * settings.fuel_cost_per_km);
@@ -413,7 +459,7 @@ function renderWalkerResult(res) {
             <i data-lucide="footprints" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
             <div>
               <span class="font-semibold text-navy block text-left">Valor do passeio</span>
-              <span class="text-xs text-muted-foreground block text-left mt-0.5">Duração ${res.minutes} min · Base ${BRL(res.hourly)}/h</span>
+              <span class="text-xs text-muted-foreground block text-left mt-0.5">Duração ${res.minutes} min</span>
             </div>
           </div>
           <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.total)}</span>
@@ -438,22 +484,35 @@ function renderWalkerResult(res) {
 function updateMonthlyTaxi() {
   const container = document.getElementById("monthly-taxi-container");
   if (!container) return;
-  const unit = currentTaxiResult ? currentTaxiResult.total : settings.taxi_min_price;
+  if (!currentTaxiResult) {
+    container.innerHTML = "";
+    return;
+  }
+  const unit = currentTaxiResult.total;
 
   container.innerHTML = `
     <div class="mt-10">
-      <div class="mb-6">
-        <div class="text-xs font-semibold uppercase tracking-wider text-gold">Pacotes mensais recorrentes</div>
-        <h3 class="font-display text-2xl font-bold text-navy">Táxi Dog</h3>
-        <p class="text-sm text-muted-foreground mt-1">
-          ${currentTaxiResult ? `Valores calculados com base na sua última corrida simulada (${Math.round(settings.monthly_pkg_discount * 100)}% off).` : "Valores base — use a calculadora de Táxi Dog para personalizar."}
-        </p>
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-gold">Pacotes mensais recorrentes</div>
+          <h3 class="font-display text-2xl font-bold text-navy">Táxi Dog</h3>
+          <p class="text-sm text-muted-foreground mt-1">
+            Valores calculados com base na sua corrida simulada (${Math.round(settings.monthly_pkg_discount * 100)}% off).
+          </p>
+        </div>
+        <div class="rounded-full bg-gold-gradient px-4 py-1.5 text-xs font-bold text-navy shadow-sm">
+          🎉 ${Math.round((settings.second_pet_discount || 0.50) * 100)}% OFF no 2º cãozinho da mesma casa!
+        </div>
       </div>
       <div class="grid gap-5 md:grid-cols-3">
         ${settings.monthly_tiers.map(m => {
     const total = round2(unit * m.freq * 4 * (1 - settings.monthly_pkg_discount));
     const priceStr = BRL(total);
-    const msg = `Olá! Quero o *Plano Mensal de Táxi Dog ${m.tier}* (${m.label}) — ${priceStr}/mês.`;
+    const msg = `Olá! Quero assinar o *Plano Mensal de Táxi Dog ${m.tier}* (${m.label}) — ${priceStr}/mês.\n\n` +
+      `🐶 Porte: ${currentTaxiResult.porteLabel}\n` +
+      `📍 Partida: ${currentTaxiResult.pickup}\n` +
+      `🎯 Destino: ${currentTaxiResult.destination}\n` +
+      `🔁 Modalidade: ${currentTaxiResult.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}`;
     return `
             <div class="rounded-xl border p-6 bg-white shadow-elegant ${m.accent ? 'border-2 border-gold ring-1 ring-gold' : ''}">
               <div class="flex items-center gap-2 mb-2">
@@ -475,7 +534,11 @@ function updateMonthlyTaxi() {
 function updateMonthlyWalker() {
   const container = document.getElementById("monthly-walker-container");
   if (!container) return;
-  const unit = currentWalkerResult ? currentWalkerResult.total : settings.walker_min_price;
+  if (!currentWalkerResult) {
+    container.innerHTML = "";
+    return;
+  }
+  const unit = currentWalkerResult.total;
 
   container.innerHTML = `
     <div class="mt-10">
@@ -484,18 +547,21 @@ function updateMonthlyWalker() {
           <div class="text-xs font-semibold uppercase tracking-wider text-gold">Pacotes mensais recorrentes</div>
           <h3 class="font-display text-2xl font-bold text-navy">Passeios (Dog Walker)</h3>
           <p class="text-sm text-muted-foreground mt-1">
-            ${currentWalkerResult ? `Valores calculados com base no seu último passeio simulado (${Math.round(settings.monthly_pkg_discount * 100)}% off).` : "Valores base — use o simulador de passeio para personalizar."}
+            Valores calculados com base no seu passeio simulado (${Math.round(settings.monthly_pkg_discount * 100)}% off).
           </p>
         </div>
         <div class="rounded-full bg-gold-gradient px-4 py-1.5 text-xs font-bold text-navy shadow-sm">
-          🎉 50% OFF no 2º cãozinho da mesma casa!
+          🎉 ${Math.round((settings.second_pet_discount || 0.50) * 100)}% OFF no 2º cãozinho da mesma casa!
         </div>
       </div>
       <div class="grid gap-5 md:grid-cols-3">
         ${settings.monthly_tiers.map(m => {
     const total = round2(unit * m.freq * 4 * (1 - settings.monthly_pkg_discount));
     const priceStr = BRL(total);
-    const msg = `Olá! Quero o *Plano Mensal de Passeios ${m.tier}* (${m.label}) — ${priceStr}/mês.`;
+    const msg = `Olá! Quero assinar o *Plano Mensal de Passeios ${m.tier}* (${m.label}) — ${priceStr}/mês.\n\n` +
+      `🐶 Porte: ${currentWalkerResult.porteLabel}\n` +
+      `📍 Local: ${currentWalkerResult.local}\n` +
+      `⏱ Duração: ${currentWalkerResult.minutes} min`;
     return `
             <div class="rounded-xl border p-6 bg-white shadow-elegant ${m.accent ? 'border-2 border-gold ring-1 ring-gold' : ''}">
               <div class="flex items-center gap-2 mb-2">
@@ -553,6 +619,46 @@ const RJ_BAIRROS_MAP = {
   ]
 };
 
+// --- Cidades, Multiplicadores e Parques ---
+function getCidadesData() {
+  const s = getSettings();
+  return (s && s.cidades && s.cidades.length) ? s.cidades : DEFAULT_SETTINGS.cidades;
+}
+
+function getCityDataFromAddress(addr) {
+  if (!addr) return null;
+  const list = getCidadesData();
+  for (const c of list) {
+    if (new RegExp(`\\b${c.nome}\\b`, "i").test(addr)) return c;
+  }
+  return null;
+}
+
+function updateParkSelect() {
+  const parkSelect = document.getElementById("combo-park");
+  if (!parkSelect) return;
+  const currentVal = parkSelect.value;
+  const list = getCidadesData();
+
+  let parquesToDisplay = [];
+  list.forEach(c => {
+    if (c.parques) {
+      c.parques.forEach(p => parquesToDisplay.push({ ...p, cidade: c.nome }));
+    }
+  });
+
+  let html = `<option value="" class="text-slate-900 bg-white">Nenhum parque (Passeio local no bairro)</option>`;
+  parquesToDisplay.forEach(p => {
+    const lat = p.latitude || p.lat;
+    const lon = p.longitude || p.lon;
+    const key = `${p.cidade}||${p.nome}||${lat}||${lon}`;
+    const selected = currentVal === key ? "selected" : "";
+    html += `<option value="${key}" ${selected} class="text-slate-900 bg-white">${p.nome} (${p.cidade})</option>`;
+  });
+
+  parkSelect.innerHTML = html;
+}
+
 async function fetchNeighborhoodsForCity(cityName) {
   let list = RJ_BAIRROS_MAP[cityName] || [];
   try {
@@ -583,9 +689,12 @@ async function setupIBGECities() {
   citySelect.innerHTML = `<option value="" class="text-slate-900 bg-white">Selecione uma cidade...</option>` +
     rjCities.map(c => `<option value="${c.nome}" class="text-slate-900 bg-white">${c.nome}</option>`).join("");
 
+  updateParkSelect();
+
   citySelect.addEventListener("change", async (e) => {
     const cityName = e.target.value;
     const neighborhoodSelect = document.getElementById("combo-neighborhood");
+
     if (!neighborhoodSelect) return;
 
     if (!cityName) {
@@ -609,6 +718,10 @@ async function setupIBGECities() {
   if (neighborhoodSelect) {
     neighborhoodSelect.addEventListener("change", renderCombos);
   }
+  const parkSelect = document.getElementById("combo-park");
+  if (parkSelect) {
+    parkSelect.addEventListener("change", renderCombos);
+  }
   document.querySelectorAll('input[name="combo-porte"]').forEach(r => {
     r.addEventListener("change", renderCombos);
   });
@@ -624,6 +737,7 @@ async function renderCombos() {
 
   const city = document.getElementById("combo-city")?.value;
   const neighborhood = document.getElementById("combo-neighborhood")?.value;
+  const parkValue = document.getElementById("combo-park")?.value;
   const porte = document.querySelector('input[name="combo-porte"]:checked')?.value || "pequeno";
   const porteLabel = settings.porte_options.find(p => p.id === porte)?.label || porte;
 
@@ -642,37 +756,90 @@ async function renderCombos() {
     </div>
   `;
 
-  // Item 2: Geocode selected neighborhood and calculate distToPickup
+  // Matched City Data for multipliers
+  const allCitiesData = getCidadesData();
+  const cityData = allCitiesData.find(c => c.nome.toLowerCase() === city.trim().toLowerCase()) || (allCitiesData[0] || {});
+  const taxiMultipliers = (cityData && cityData.taxi_multiplier_by_porte)
+    ? cityData.taxi_multiplier_by_porte
+    : { pequeno: 1, medio: 1.1, grande: 1.25, gigante: 1.5 };
+  const walkerPrices = (cityData && cityData.walker_price_by_porte)
+    ? cityData.walker_price_by_porte
+    : { pequeno: 32.5, medio: 37.5, grande: 45, gigante: 57.5 };
+
+  // Geocode neighborhood
   const searchAddress = `${neighborhood}, ${city}, Rio de Janeiro, Brasil`;
   const coord = await geocodeAddress(searchAddress);
-  let distBairro = 5; // fallback
+  let distBairro = 5;
   if (coord) {
     const roadDist = await getRoadDistance(settings.base_coords, coord);
     if (roadDist !== null) distBairro = roadDist;
   }
 
-  // Item 2: Fuel fee to neighborhood (single leg)
   const fuelFee = round2(distBairro * settings.fuel_cost_per_km);
   const petFuelRate = settings.fuel_cost_per_km * (1 + (settings.fuel_cost_markup_percent || 0.50));
 
-  // Item 3: Calculate Taxi Dog for configured base km (default 5km) and pet size
-  const taxiKm = settings.combo_taxi_base_km || 5;
-  const perKmTaxi = (settings.taxi_per_km_pet + petFuelRate) * (settings.taxi_multiplier_by_porte[porte] || 1);
+  // Check selected park
+  let selectedPark = null;
+  let distParque = 0;
+  if (parkValue) {
+    const parts = parkValue.split("||");
+    if (parts.length === 4) {
+      selectedPark = {
+        cidade: parts[0],
+        nome: parts[1],
+        lat: parseFloat(parts[2]),
+        lon: parseFloat(parts[3])
+      };
+      if (coord) {
+        distParque = await getRoadDistance(coord, { lat: selectedPark.lat, lon: selectedPark.lon });
+      } else {
+        distParque = haversineKm({ lat: -22.816, lon: -43.008 }, { lat: selectedPark.lat, lon: selectedPark.lon });
+      }
+    }
+  }
+
+  // Taxi Dog cost calculation
+  const taxiKm = selectedPark ? Math.max(5, Math.ceil(distParque)) : (settings.combo_taxi_base_km || 5);
+  const perKmTaxi = (settings.taxi_per_km_pet + petFuelRate) * (taxiMultipliers[porte] || 1);
   const rawTaxiTrip = round2(taxiKm * perKmTaxi);
   const taxiPrice = Math.max(round2(settings.taxi_min_price + fuelFee), round2(fuelFee + rawTaxiTrip));
 
-  // Item 4: Calculate Walker for pet size
-  const walkBasePrice = settings.walker_price_by_porte[porte] || 32.5;
+  // Dog Walker cost calculation
+  const walkBasePrice = walkerPrices[porte] || 32.5;
   const rawWalker = round2(walkBasePrice + fuelFee);
   const walkerPrice = Math.max(round2(settings.walker_min_price + fuelFee), rawWalker);
 
-  // Item 5: Apply discounts
+  // Apply combo discounts
   const comboSum = round2(taxiPrice + walkerPrice);
   const aventurinhaTotal = round2(comboSum * (1 - settings.combo_aventurinha_discount));
   const vipTotal = round2(comboSum * 4 * (1 - settings.combo_vip_discount));
 
   const aventurinhaPrice = BRL(aventurinhaTotal);
   const vipPrice = BRL(vipTotal);
+
+  // Checklist Item texts (Requirement 5: remove 5km text when park is selected)
+  let itemTaxiText = "";
+  let itemWalkerText = "";
+  let itemParkText = "";
+  let noteText = "";
+
+  if (selectedPark) {
+    itemTaxiText = `Busca com Táxi Dog partindo de ${neighborhood}`;
+    itemWalkerText = `1h de passeio Dog Walker no ${selectedPark.nome}`;
+    itemParkText = `Destino: ${selectedPark.nome} (${distParque} km de distância)`;
+    if (distParque > 5) {
+      noteText = `* Distância de ${distParque} km de ${neighborhood} até o ${selectedPark.nome} (acima de 5km sob consulta)`;
+    } else {
+      noteText = `* Inclui deslocamento de ${distParque} km de ${neighborhood} até o ${selectedPark.nome}`;
+    }
+  } else {
+    itemTaxiText = `Busca com Táxi Dog (até ${taxiKm} km inclusos) partindo de ${neighborhood}`;
+    itemWalkerText = `1h de passeio Dog Walker para porte ${porteLabel}`;
+    itemParkText = `Parque a sua escolha (com limite de 5km de distância)`;
+    noteText = `* Para um parque acima de 5km será necessário consulta`;
+  }
+
+  const parkParam = selectedPark ? ` no *${selectedPark.nome}* (${distParque} km)` : "";
 
   container.innerHTML = `
     <div class="mt-12 grid gap-6 md:grid-cols-2">
@@ -681,7 +848,7 @@ async function renderCombos() {
         <div>
           <div class="text-xs font-semibold uppercase tracking-wider text-gold">Combo Especial · ${neighborhood}</div>
           <h3 class="mt-1 font-display text-2xl font-bold">Combo Aventurinha</h3>
-          <div class="mt-3 text-xs font-semibold text-white/70">Calculado para ${neighborhood} · Porte ${porteLabel}</div>
+          <div class="mt-3 text-xs font-semibold text-white/70">Calculado para ${neighborhood} · Porte ${porteLabel}${selectedPark ? ` · ${selectedPark.nome}` : ""}</div>
           <div class="mt-3 flex items-baseline gap-2">
             <div class="font-display text-4xl font-extrabold text-white">${aventurinhaPrice}</div>
             <div class="text-sm text-white/80">/ por aventura</div>
@@ -689,15 +856,15 @@ async function renderCombos() {
           <ul class="mt-6 space-y-3 text-sm text-white/90">
             <li class="flex items-start gap-2.5">
               <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
-              <span>Busca com Táxi Dog (até ${taxiKm} km inclusos) partindo de ${neighborhood}</span>
+              <span>${itemTaxiText}</span>
             </li>
             <li class="flex items-start gap-2.5">
               <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
-              <span>1h de passeio Dog Walker para porte ${porteLabel}</span>
+              <span>${itemWalkerText}</span>
             </li>
             <li class="flex items-start gap-2.5">
               <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
-              <span>Parque a sua escolha (com limite de 5km de distância)</span>
+              <span>${itemParkText}</span>
             </li>
             <li class="flex items-start gap-2.5">
               <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
@@ -708,9 +875,9 @@ async function renderCombos() {
               <span>${Math.round(settings.combo_aventurinha_discount * 100)}% de desconto sobre o valor cheio (${BRL(comboSum)})</span>
             </li>
           </ul>
-          <div class="mt-4 text-xs text-white/50 italic">* Para um parque acima de 5km será necessário consulta</div>
+          <div class="mt-4 text-xs text-white/50 italic">${noteText}</div>
         </div>
-        <a href="${waLink(`Olá! Tenho interesse no *Combo Aventurinha* (${aventurinhaPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel}).`)}" target="_blank" class="mt-6 inline-block w-full">
+        <a href="${waLink(`Olá! Tenho interesse no *Combo Aventurinha* (${aventurinhaPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel})${parkParam}.`)}" target="_blank" class="mt-6 inline-block w-full">
           <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-9 px-4 py-2 w-full bg-gold-gradient font-semibold text-navy hover:opacity-95">Quero este plano</button>
         </a>
       </div>
@@ -721,7 +888,7 @@ async function renderCombos() {
         <div>
           <div class="text-xs font-semibold uppercase tracking-wider text-navy/80">Assinatura · ${neighborhood}</div>
           <h3 class="mt-1 font-display text-2xl font-bold text-navy">Combo VIP Mensal</h3>
-          <div class="mt-3 text-xs font-semibold text-navy/80">Calculado para ${neighborhood} · Porte ${porteLabel}</div>
+          <div class="mt-3 text-xs font-semibold text-navy/80">Calculado para ${neighborhood} · Porte ${porteLabel}${selectedPark ? ` · ${selectedPark.nome}` : ""}</div>
           <div class="mt-3 flex items-baseline gap-2">
             <div class="font-display text-4xl font-extrabold text-navy">${vipPrice}</div>
             <div class="text-sm text-navy/80">/ por mês</div>
@@ -733,16 +900,16 @@ async function renderCombos() {
             </li>
             <li class="flex items-start gap-2.5">
               <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-navy text-gold shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
-              <span>4 aventurinha mensais</span>
+              <span>4 aventurinha mensais${selectedPark ? ` com parque (${selectedPark.nome})` : ""}</span>
             </li>
             <li class="flex items-start gap-2.5">
               <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-navy text-gold shadow-sm mt-0.5"><i data-lucide="check" class="h-3 w-3 stroke-[3]"></i></div>
               <span>${Math.round(settings.combo_vip_discount * 100)}% de desconto mensal (${BRL(round2(comboSum * 4))} sem desconto)</span>
             </li>
           </ul>
-          <div class="mt-4 text-xs text-navy/70 italic">* Para um parque acima de 5km será necessário consulta</div>
+          <div class="mt-4 text-xs text-navy/70 italic">${noteText}</div>
         </div>
-        <a href="${waLink(`Olá! Tenho interesse no *Combo VIP Mensal* (${vipPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel}).`)}" target="_blank" class="mt-6 inline-block w-full">
+        <a href="${waLink(`Olá! Tenho interesse no *Combo VIP Mensal* (${vipPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel})${parkParam}.`)}" target="_blank" class="mt-6 inline-block w-full">
           <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-9 px-4 py-2 w-full bg-navy font-semibold text-white hover:bg-navy-deep">Quero este plano</button>
         </a>
       </div>
