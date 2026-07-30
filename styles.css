@@ -1,0 +1,264 @@
+/* site/styles.css - Design System & Custom Styles with Tailwind CSS & OKLCH */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+:root {
+  --radius: 0.875rem;
+  /* Brand: deep navy based on oklch(0.28 0.07 260), warm gold, pure white */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.28 0.07 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.28 0.07 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.28 0.07 260);
+  /* navy based on oklch(0.28 0.07 260) */
+  --primary: oklch(0.28 0.07 260);
+  --primary-foreground: oklch(0.985 0.005 260);
+  /* soft navy tint */
+  --secondary: oklch(0.96 0.015 260);
+  --secondary-foreground: oklch(0.28 0.07 260);
+  --muted: oklch(0.965 0.01 260);
+  --muted-foreground: oklch(0.45 0.04 260);
+  /* warm gold */
+  --accent: oklch(0.82 0.14 82);
+  --accent-foreground: oklch(0.28 0.07 260);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.985 0.005 260);
+  --border: oklch(0.92 0.015 260);
+  --input: oklch(0.92 0.015 260);
+  --ring: oklch(0.82 0.14 82);
+
+  /* Brand tokens */
+  --navy: oklch(0.28 0.07 260);
+  --navy-deep: oklch(0.20 0.06 260);
+  --gold: oklch(0.82 0.14 82);
+  --gold-soft: oklch(0.9 0.09 88);
+  --whatsapp: oklch(0.7 0.17 148);
+  --warm: oklch(0.97 0.02 82);
+  --warm-foreground: oklch(0.28 0.07 260);
+
+  --gradient-hero: linear-gradient(135deg, oklch(0.20 0.06 260) 0%, oklch(0.28 0.07 260) 65%, oklch(0.35 0.075 260) 100%);
+  --gradient-gold: linear-gradient(135deg, oklch(0.86 0.13 88) 0%, oklch(0.78 0.15 78) 100%);
+  --shadow-elegant: 0 20px 50px -20px oklch(0.28 0.07 260 / 0.35);
+  --shadow-gold: 0 12px 30px -12px oklch(0.82 0.14 82 / 0.5);
+
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.129 0.042 264.695);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+.dark {
+  --background: oklch(0.15 0.04 260);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.20 0.05 260);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.20 0.05 260);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: oklch(0.20 0.05 260);
+  --secondary: oklch(0.28 0.06 260);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.28 0.06 260);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.28 0.06 260);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.82 0.14 82);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --warm: oklch(0.25 0.03 82);
+  --warm-foreground: oklch(0.984 0.003 247.858);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+select option {
+  background-color: #ffffff !important;
+  color: oklch(0.28 0.07 260) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Custom Utilities */
+.bg-background { background-color: var(--background); }
+.bg-navy { background-color: oklch(0.28 0.07 260) !important; }
+.bg-navy-deep { background-color: oklch(0.20 0.06 260) !important; }
+.bg-navbar { background-color: oklch(0.28 0.07 260 / 0.88) !important; }
+.bg-gold { background-color: var(--gold) !important; }
+.bg-warm { background-color: var(--warm) !important; }
+.bg-whatsapp { background-color: var(--whatsapp) !important; }
+.bg-hero-gradient { background: var(--gradient-hero) !important; }
+.bg-gold-gradient { background: var(--gradient-gold) !important; }
+
+.text-navy { color: oklch(0.28 0.07 260) !important; }
+.text-navy-deep { color: oklch(0.20 0.06 260) !important; }
+.text-gold { color: var(--gold) !important; }
+.text-whatsapp { color: var(--whatsapp) !important; }
+
+.border-gold { border-color: var(--gold) !important; }
+.border-navy { border-color: oklch(0.28 0.07 260) !important; }
+.border-l-gold { border-left: 4px solid var(--gold) !important; }
+
+.shadow-elegant { box-shadow: var(--shadow-elegant) !important; }
+.shadow-gold { box-shadow: var(--shadow-gold) !important; }
+.shadow-gold-glow { box-shadow: 0 0 30px oklch(0.82 0.14 82 / 0.25) !important; }
+
+/* Radial Ambient Illumination */
+.ambient-glow-amber {
+  background: radial-gradient(circle, oklch(0.82 0.14 82 / 0.12) 0%, oklch(0.78 0.15 78 / 0.03) 50%, transparent 70%);
+}
+
+/* Business card sizing (screen) */
+.business-card {
+  width: 340px;
+  height: 220px;
+}
+
+/* Accordion Transitions */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease, margin 0.3s ease;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 400px;
+  opacity: 1;
+  margin-top: 0.75rem;
+}
+
+.accordion-icon {
+  transition: transform 0.3s ease;
+}
+
+.accordion-item.active .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* Print CSS */
+@media print {
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Completely remove non-card sections from document layout flow to enforce 1 page */
+  body > *:not(#cartao) {
+    display: none !important;
+  }
+
+  header, nav, footer, section:not(#cartao) {
+    display: none !important;
+  }
+
+  .print-hide {
+    display: none !important;
+  }
+
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+
+  #cartao, .print-card-section {
+    display: flex !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .print-card-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+
+  .business-card {
+    width: 85mm !important;
+    height: 55mm !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    border: none !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .business-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+  }
+
+  .business-card-back {
+    display: none !important;
+  }
+}
