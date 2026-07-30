@@ -44,9 +44,14 @@ jobs:
             -keypass android \
             -dname "CN=CincoPatas, OU=Dev, O=CincoPatas, L=SaoGoncalo, ST=RJ, C=BR"
 
+      - name: Configure Bubblewrap CLI (Non-interactive)
+        run: |
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"${JAVA_HOME}\",\"androidSdkPath\":\"${ANDROID_HOME}\"}" > ~/.bubblewrap/config.json
+
       - name: Build Android App (APK & AAB)
         run: |
-          bubblewrap build --manifest=twa-manifest.json --signingKeyPath=./android.keystore --signingKeyAlias=android --keypass=android --storepass=android
+          bubblewrap build --manifest=twa-manifest.json --signingKeyPath=./android.keystore --signingKeyAlias=android --keypass=android --storepass=android --skipPwaValidation
 
       - name: Upload APK & AAB Artifacts
         uses: actions/upload-artifact@v4
