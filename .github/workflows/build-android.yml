@@ -51,7 +51,7 @@ jobs:
 
       - name: Build Android App (APK & AAB)
         run: |
-          bubblewrap build --manifest=twa-manifest.json --signingKeyPath=./android.keystore --signingKeyAlias=android --keypass=android --storepass=android --skipPwaValidation
+          yes | bubblewrap build --manifest=twa-manifest.json --signingKeyPath=./android.keystore --signingKeyAlias=android --keypass=android --storepass=android --skipPwaValidation
 
       - name: Upload APK & AAB Artifacts
         uses: actions/upload-artifact@v4
