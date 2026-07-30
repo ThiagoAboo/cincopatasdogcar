@@ -284,10 +284,16 @@
               <div class="mt-8 space-y-5">
                 <!-- Porte -->
                 <div>
-                  <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-white/90">
-                    <i data-lucide="paw-print" class="h-4 w-4 text-gold"></i>
-                    <span>Porte do Pet</span>
-                  </label>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-medium leading-none flex items-center gap-2 text-white/90">
+                      <i data-lucide="paw-print" class="h-4 w-4 text-gold"></i>
+                      <span>Porte do Pet</span>
+                    </label>
+                    <button type="button" id="btn-add-taxi-pet" onclick="addTaxiPet()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gold-gradient text-navy font-bold text-xs shadow hover:opacity-95 transition cursor-pointer">
+                      <i data-lucide="plus" class="h-3.5 w-3.5 stroke-[3]"></i>
+                      <span>Adicionar Pet</span>
+                    </button>
+                  </div>
                   <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <label class="cursor-pointer">
                       <input type="radio" name="taxi-porte" value="pequeno" class="peer hidden" />
@@ -322,6 +328,7 @@
                       </div>
                     </label>
                   </div>
+                  <div id="taxi-pets-list" class="mt-3 space-y-2"></div>
                 </div>
 
                 <!-- Modalidade -->
@@ -481,10 +488,16 @@
               <div class="mt-8 space-y-5">
                 <!-- Porte -->
                 <div>
-                  <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-navy">
-                    <i data-lucide="paw-print" class="h-4 w-4"></i>
-                    <span>Porte do Pet</span>
-                  </label>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-medium leading-none flex items-center gap-2 text-navy">
+                      <i data-lucide="paw-print" class="h-4 w-4"></i>
+                      <span>Porte do Pet</span>
+                    </label>
+                    <button type="button" id="btn-add-walker-pet" onclick="addWalkerPet()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-navy text-white font-bold text-xs shadow hover:bg-navy-deep transition cursor-pointer">
+                      <i data-lucide="plus" class="h-3.5 w-3.5 stroke-[3]"></i>
+                      <span>Adicionar Pet</span>
+                    </button>
+                  </div>
                   <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <label class="cursor-pointer">
                       <input type="radio" name="walker-porte" value="pequeno" class="peer hidden" />
@@ -519,6 +532,7 @@
                       </div>
                     </label>
                   </div>
+                  <div id="walker-pets-list" class="mt-3 space-y-2"></div>
                 </div>
 
                 <!-- Duração -->
@@ -650,10 +664,16 @@
 
         <!-- Porte do Pet (Radio Cards matching Calculators) -->
         <div class="w-full max-w-2xl text-center">
-          <label class="text-xs text-white/80 font-medium flex items-center justify-center gap-1.5 mb-2">
-            <i data-lucide="paw-print" class="h-3.5 w-3.5 text-gold"></i>
-            <span>Porte do Pet</span>
-          </label>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs text-white/80 font-medium flex items-center gap-1.5">
+              <i data-lucide="paw-print" class="h-3.5 w-3.5 text-gold"></i>
+              <span>Porte do Pet</span>
+            </label>
+            <button type="button" id="btn-add-combo-pet" onclick="addComboPet()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gold-gradient text-navy font-bold text-xs shadow hover:opacity-95 transition cursor-pointer">
+              <i data-lucide="plus" class="h-3.5 w-3.5 stroke-[3]"></i>
+              <span>Adicionar Pet</span>
+            </button>
+          </div>
           <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             <label class="cursor-pointer">
               <input type="radio" name="combo-porte" value="pequeno" checked class="peer hidden" />
@@ -688,6 +708,7 @@
               </div>
             </label>
           </div>
+          <div id="combo-pets-list" class="mt-3 space-y-2"></div>
         </div>
       </div>
 

@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS = {
   fuel_cost_per_km: 0.30,
   fuel_cost_markup_percent: 0.50,
   taxi_per_km_pet: 2.50,
-  taxi_per_km_human: 3.00,
+  taxi_per_km_human: 0.50,
   taxi_min_price: 25,
   walker_min_price: 30,
   walker_travel_fee_per_km_over: 1.50,
@@ -28,7 +28,9 @@ const DEFAULT_SETTINGS = {
   combo_aventurinha_discount: 0.15,
   combo_vip_discount: 0.25,
   monthly_pkg_discount: 0.20,
-  second_pet_discount: 0.50,
+  taxi_second_pet_discount: 0.50,
+  walker_second_pet_discount: 0.50,
+  max_pets: 3,
   cancel_free_hours: 24,
   porte_options: [
     { id: "pequeno", label: "Pequeno", weight: "Até 10 kg" },
@@ -100,6 +102,9 @@ function getSettings() {
       const parsed = JSON.parse(stored);
       delete parsed.walker_price_by_porte;
       delete parsed.taxi_multiplier_by_porte;
+      if (parsed.taxi_per_km_human === 3 || parsed.taxi_per_km_human === 3.00) {
+        parsed.taxi_per_km_human = 0.50;
+      }
       s = { ...DEFAULT_SETTINGS, ...parsed };
       // Save cleaned settings back if old root keys existed
       localStorage.setItem("app_settings", JSON.stringify(s));
@@ -249,9 +254,192 @@ function toggleMobileMenu() {
   }
 }
 
+// --- Multi-Pet Management State ---
+let taxiPetsList = [];
+let walkerPetsList = [];
+let comboPetsList = [];
+
+function addTaxiPet() {
+  const maxPets = settings.max_pets || 3;
+  const currentCount = taxiPetsList.length > 0 ? taxiPetsList.length : 1;
+  if (currentCount >= maxPets && taxiPetsList.length >= maxPets) return;
+
+  const selectedPorte = document.querySelector('input[name="taxi-porte"]:checked')?.value || "medio";
+  if (taxiPetsList.length === 0) {
+    taxiPetsList.push({ porte: selectedPorte });
+  } else {
+    taxiPetsList.push({ porte: selectedPorte });
+  }
+  renderTaxiPetsList();
+}
+
+function removeTaxiPet(index) {
+  taxiPetsList.splice(index, 1);
+  renderTaxiPetsList();
+}
+
+function renderTaxiPetsList() {
+  const container = document.getElementById("taxi-pets-list");
+  const addBtn = document.getElementById("btn-add-taxi-pet");
+  const maxPets = settings.max_pets || 3;
+  const currentCount = taxiPetsList.length > 0 ? taxiPetsList.length : 1;
+
+  if (addBtn) {
+    if (currentCount >= maxPets) {
+      addBtn.classList.add("hidden");
+    } else {
+      addBtn.classList.remove("hidden");
+    }
+  }
+
+  if (!container) return;
+  if (taxiPetsList.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
+  const secondPetDisc = settings.taxi_second_pet_discount || 0.50;
+  container.innerHTML = taxiPetsList.map((pet, idx) => {
+    const label = settings.porte_options.find(p => p.id === pet.porte)?.label || pet.porte;
+    const petNum = idx + 1;
+    const badgeText = idx === 0 ? "Pet #1 (Valor cheio)" : `Pet #${petNum} (${Math.round(secondPetDisc * 100)}% OFF)`;
+    return `
+      <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/10 border border-white/15 text-xs text-white">
+        <div class="flex items-center gap-2">
+          <i data-lucide="paw-print" class="h-3.5 w-3.5 text-gold"></i>
+          <span class="font-semibold">Porte ${label}</span>
+          <span class="px-2 py-0.5 rounded-full ${idx === 0 ? 'bg-gold/20 text-gold' : 'bg-emerald-500/20 text-emerald-300'} text-[10px] font-bold">${badgeText}</span>
+        </div>
+        <button type="button" onclick="removeTaxiPet(${idx})" class="text-white/60 hover:text-red-400 p-1 transition cursor-pointer" title="Remover Pet">
+          <i data-lucide="trash-2" class="h-4 w-4"></i>
+        </button>
+      </div>
+    `;
+  }).join("");
+  refreshIcons();
+}
+
+function addWalkerPet() {
+  const maxPets = settings.max_pets || 3;
+  const currentCount = walkerPetsList.length > 0 ? walkerPetsList.length : 1;
+  if (currentCount >= maxPets && walkerPetsList.length >= maxPets) return;
+
+  const selectedPorte = document.querySelector('input[name="walker-porte"]:checked')?.value || "medio";
+  if (walkerPetsList.length === 0) {
+    walkerPetsList.push({ porte: selectedPorte });
+  } else {
+    walkerPetsList.push({ porte: selectedPorte });
+  }
+  renderWalkerPetsList();
+}
+
+function removeWalkerPet(index) {
+  walkerPetsList.splice(index, 1);
+  renderWalkerPetsList();
+}
+
+function renderWalkerPetsList() {
+  const container = document.getElementById("walker-pets-list");
+  const addBtn = document.getElementById("btn-add-walker-pet");
+  const maxPets = settings.max_pets || 3;
+  const currentCount = walkerPetsList.length > 0 ? walkerPetsList.length : 1;
+
+  if (addBtn) {
+    if (currentCount >= maxPets) {
+      addBtn.classList.add("hidden");
+    } else {
+      addBtn.classList.remove("hidden");
+    }
+  }
+
+  if (!container) return;
+  if (walkerPetsList.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
+  const secondPetDisc = settings.walker_second_pet_discount || 0.50;
+  container.innerHTML = walkerPetsList.map((pet, idx) => {
+    const label = settings.porte_options.find(p => p.id === pet.porte)?.label || pet.porte;
+    const petNum = idx + 1;
+    const badgeText = idx === 0 ? "Pet #1 (Valor cheio)" : `Pet #${petNum} (${Math.round(secondPetDisc * 100)}% OFF)`;
+    return `
+      <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-navy/10 border border-navy/20 text-xs text-navy">
+        <div class="flex items-center gap-2">
+          <i data-lucide="paw-print" class="h-3.5 w-3.5 text-navy"></i>
+          <span class="font-semibold">Porte ${label}</span>
+          <span class="px-2 py-0.5 rounded-full ${idx === 0 ? 'bg-navy/20 text-navy' : 'bg-emerald-600/20 text-emerald-700'} text-[10px] font-bold">${badgeText}</span>
+        </div>
+        <button type="button" onclick="removeWalkerPet(${idx})" class="text-navy/60 hover:text-red-600 p-1 transition cursor-pointer" title="Remover Pet">
+          <i data-lucide="trash-2" class="h-4 w-4"></i>
+        </button>
+      </div>
+    `;
+  }).join("");
+  refreshIcons();
+}
+
+function addComboPet() {
+  const maxPets = settings.max_pets || 3;
+  const currentCount = comboPetsList.length > 0 ? comboPetsList.length : 1;
+  if (currentCount >= maxPets && comboPetsList.length >= maxPets) return;
+
+  const selectedPorte = document.querySelector('input[name="combo-porte"]:checked')?.value || "pequeno";
+  if (comboPetsList.length === 0) {
+    comboPetsList.push({ porte: selectedPorte });
+  } else {
+    comboPetsList.push({ porte: selectedPorte });
+  }
+  renderComboPetsList();
+  renderCombos();
+}
+
+function removeComboPet(index) {
+  comboPetsList.splice(index, 1);
+  renderComboPetsList();
+  renderCombos();
+}
+
+function renderComboPetsList() {
+  const container = document.getElementById("combo-pets-list");
+  const addBtn = document.getElementById("btn-add-combo-pet");
+  const maxPets = settings.max_pets || 3;
+  const currentCount = comboPetsList.length > 0 ? comboPetsList.length : 1;
+
+  if (addBtn) {
+    if (currentCount >= maxPets) {
+      addBtn.classList.add("hidden");
+    } else {
+      addBtn.classList.remove("hidden");
+    }
+  }
+
+  if (!container) return;
+  if (comboPetsList.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
+  const secondPetDisc = settings.taxi_second_pet_discount || 0.50;
+  container.innerHTML = comboPetsList.map((pet, idx) => {
+    const label = settings.porte_options.find(p => p.id === pet.porte)?.label || pet.porte;
+    const petNum = idx + 1;
+    const badgeText = idx === 0 ? "Pet #1 (Valor cheio)" : `Pet #${petNum} (${Math.round(secondPetDisc * 100)}% OFF)`;
+    return `
+      <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/10 border border-white/15 text-xs text-white">
+        <div class="flex items-center gap-2">
+          <i data-lucide="paw-print" class="h-3.5 w-3.5 text-gold"></i>
+          <span class="font-semibold">Porte ${label}</span>
+          <span class="px-2 py-0.5 rounded-full ${idx === 0 ? 'bg-gold/20 text-gold' : 'bg-emerald-500/20 text-emerald-300'} text-[10px] font-bold">${badgeText}</span>
+        </div>
+        <button type="button" onclick="removeComboPet(${idx})" class="text-white/60 hover:text-red-400 p-1 transition cursor-pointer" title="Remover Pet">
+          <i data-lucide="trash-2" class="h-4 w-4"></i>
+        </button>
+      </div>
+    `;
+  }).join("");
+  refreshIcons();
+}
+
 // --- Taxi Calculator Handler ---
 async function handleTaxiCalc() {
-  const porte = document.querySelector('input[name="taxi-porte"]:checked')?.value || "medio";
   const tripType = document.querySelector('input[name="taxi-trip"]:checked')?.value || "ida";
   const withHuman = document.querySelector('input[name="taxi-human"]:checked')?.value === "true";
   const pickup = document.getElementById("taxi-pickup")?.value || "";
@@ -291,22 +479,67 @@ async function handleTaxiCalc() {
     ? cityObjTaxi.taxi_multiplier_by_porte
     : { pequeno: 1, medio: 1.1, grande: 1.25, gigante: 1.5 };
 
-  const basePerKm = withHuman ? settings.taxi_per_km_human : settings.taxi_per_km_pet;
+  // Determine list of pets to calculate
+  const selectedRadioPorte = document.querySelector('input[name="taxi-porte"]:checked')?.value || "medio";
+  const petsToCalc = taxiPetsList.length > 0 ? taxiPetsList : [{ porte: selectedRadioPorte }];
+
+  const secondPetDisc = settings.taxi_second_pet_discount || 0.50;
+  const basePerKm = settings.taxi_per_km_pet;
   const petFuelRate = settings.fuel_cost_per_km * (1 + (settings.fuel_cost_markup_percent || 0.50));
-  const perKm = (basePerKm + petFuelRate) * (taxiMultipliers[porte] || 1);
   const distTrip = tripType === "ida_volta" ? distTripOneWay * 2 : distTripOneWay;
   const fuelCost = round2(distToPickupFuel * settings.fuel_cost_per_km);
-  const rawTripCost = round2(distTrip * perKm);
-  const rawTotal = round2(fuelCost + rawTripCost);
-  const minTotal = round2(settings.taxi_min_price + fuelCost);
-  const total = Math.max(rawTotal, minTotal);
-  const tripCost = round2(total - fuelCost);
+  const humanRate = settings.taxi_per_km_human ?? 0.50;
+  const humanFee = withHuman ? round2(distTrip * humanRate) : 0;
 
-  const porteLabel = settings.porte_options.find(p => p.id === porte)?.label || porte;
+  let petsDetailed = [];
+  let sumFullPetsTripCost = 0;
+  let totalSecondPetDiscount = 0;
+
+  petsToCalc.forEach((p, idx) => {
+    const pLabel = settings.porte_options.find(opt => opt.id === p.porte)?.label || p.porte;
+    const porteMult = taxiMultipliers[p.porte] || 1;
+    const perKmPet = (basePerKm + petFuelRate) * porteMult;
+    const fullPetTripCost = round2(distTrip * perKmPet);
+    const isSecondPet = idx > 0;
+
+    let disc = 0;
+    if (isSecondPet) {
+      disc = round2(fullPetTripCost * secondPetDisc);
+      totalSecondPetDiscount = round2(totalSecondPetDiscount + disc);
+    }
+    sumFullPetsTripCost = round2(sumFullPetsTripCost + fullPetTripCost);
+    petsDetailed.push({
+      porte: p.porte,
+      porteLabel: pLabel,
+      fullCost: fullPetTripCost,
+      discount: disc,
+      finalCost: round2(fullPetTripCost - disc),
+      isSecondPet
+    });
+  });
+
+  const netPetsTripCost = round2(sumFullPetsTripCost - totalSecondPetDiscount);
+  const minTotal = round2(settings.taxi_min_price + fuelCost);
+  const total = Math.max(round2(fuelCost + netPetsTripCost + humanFee), minTotal);
+
+  const primaryPorteLabel = petsDetailed.map(p => p.porteLabel).join(", ");
 
   currentTaxiResult = {
-    porte, porteLabel, distToPickup: distToPickupOneWay, distToPickupFuel, distTrip: Math.round(distTrip * 10) / 10,
-    fuelCost, tripCost, withHuman, tripType, total, pickup, destination
+    pets: petsDetailed,
+    porteLabel: primaryPorteLabel,
+    distToPickup: distToPickupOneWay,
+    distToPickupFuel,
+    distTrip: Math.round(distTrip * 10) / 10,
+    fuelCost,
+    humanFee,
+    sumFullPetsTripCost,
+    totalSecondPetDiscount,
+    netPetsTripCost,
+    withHuman,
+    tripType,
+    total,
+    pickup,
+    destination
   };
 
   renderTaxiResult(currentTaxiResult);
@@ -318,8 +551,9 @@ function renderTaxiResult(res) {
   const container = document.getElementById("taxi-result-container");
   if (!container) return;
 
+  const petsStr = res.pets.map((p, i) => `Pet #${i + 1} (${p.porteLabel})`).join(", ");
   const msg = `Olá! Gostaria de agendar um *Táxi Dog* pela ${settings.brand}.\n\n` +
-    `🐶 Porte: ${res.porteLabel}\n` +
+    `🐶 Pets: ${petsStr}\n` +
     `🔁 Modalidade: ${res.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}\n` +
     `👤 Humano junto: ${res.withHuman ? "Sim" : "Não"}\n` +
     `📍 Partida: ${res.pickup}\n` +
@@ -336,7 +570,7 @@ function renderTaxiResult(res) {
         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orçamento detalhado</span>
         <div class="flex flex-wrap gap-1.5">
           <span class="px-2.5 py-1 rounded-full bg-navy text-white text-xs font-medium flex items-center gap-1">
-            <i data-lucide="paw-print" class="h-3 w-3 text-gold"></i> Porte ${res.porteLabel}
+            <i data-lucide="paw-print" class="h-3 w-3 text-gold"></i> ${res.pets.length} ${res.pets.length > 1 ? "Pets" : "Pet"}
           </span>
           <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-navy text-xs font-bold flex items-center gap-1 shadow-sm">
             <i data-lucide="refresh-cw" class="h-3 w-3"></i> ${res.tripType === "ida_volta" ? "Ida e Volta" : "Somente Ida"}
@@ -345,20 +579,63 @@ function renderTaxiResult(res) {
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
-        <li class="flex justify-between items-start border-b border-border pb-3 text-left">
+        <li class="flex justify-between items-center border-b border-border pb-3 text-left">
           <div class="text-left flex items-start gap-2">
             <i data-lucide="navigation" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
             <div>
-              <span class="font-semibold text-navy block text-left">Trajeto ${res.withHuman ? "Pet + Humano" : "do Pet"}</span>
-              <span class="text-xs text-muted-foreground block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
+              <span class="font-semibold text-navy block text-left">Taxa de chegada até o Pet</span>
+              <span class="text-xs text-muted-foreground block text-left mt-0.5">Deslocamento inicial até o local de partida</span>
             </div>
           </div>
-          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.total)}</span>
+          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.fuelCost)}</span>
         </li>
+        ${res.withHuman ? `
+          <li class="flex justify-between items-center border-b border-border pb-3 text-left">
+            <div class="text-left flex items-start gap-2">
+              <i data-lucide="user" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
+              <div>
+                <span class="font-semibold text-navy block text-left">Carona do humano</span>
+                <span class="text-xs text-muted-foreground block text-left mt-0.5">Acompanhamento do tutor no trajeto · ${res.distTrip} km</span>
+              </div>
+            </div>
+            <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.humanFee)}</span>
+          </li>
+        ` : ""}
+        ${res.pets.map((p, idx) => `
+          <li class="flex justify-between items-center border-b border-border pb-3 text-left">
+            <div class="text-left flex items-start gap-2">
+              <i data-lucide="paw-print" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
+              <div>
+                <span class="font-semibold text-navy block text-left">Pet #${idx + 1} (${p.porteLabel})</span>
+                <span class="text-xs text-muted-foreground block text-left mt-0.5">${res.tripType === "ida_volta" ? "Ida + Volta" : "Cliente ➔ Destino"} · ${res.distTrip} km</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0 ml-2">
+              ${p.isSecondPet ? `
+                <div class="text-xs text-navy/70 line-through decoration-emerald-500 font-semibold mb-0.5">${BRL(p.fullCost)}</div>
+                <div class="flex items-center justify-end gap-1.5">
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-extrabold text-[11px]">(${Math.round((settings.taxi_second_pet_discount || 0.50) * 100)}% OFF)</span>
+                  <span class="font-bold text-emerald-700 text-sm">${BRL(p.finalCost)}</span>
+                </div>
+              ` : `
+                <span class="font-semibold text-navy">${BRL(p.fullCost)}</span>
+              `}
+            </div>
+          </li>
+        `).join("")}
       </ul>
       <div class="rounded-xl bg-navy p-5 text-white mb-4 text-left shadow-elegant">
-        <div class="text-xs uppercase tracking-wider text-white/70">Valor Total Estimado</div>
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-xs uppercase tracking-wider text-white/70">Valor Total Estimado</div>
+          ${res.totalSecondPetDiscount > 0 ? `<div class="text-sm text-white/70 line-through decoration-emerald-400 font-bold">${BRL(res.total + res.totalSecondPetDiscount)}</div>` : ""}
+        </div>
         <div class="font-display text-4xl font-extrabold text-gold mt-1">${BRL(res.total)}</div>
+        ${res.totalSecondPetDiscount > 0 ? `
+          <div class="mt-2 text-xs text-emerald-400 font-medium flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="h-3.5 w-3.5 text-emerald-400"></i>
+            <span>Desconto concedido para mais de um cãozinho da mesma casa</span>
+          </div>
+        ` : ""}
       </div>
       <p class="text-xs text-muted-foreground mb-4 leading-relaxed text-left flex items-start gap-1.5">
         <i data-lucide="alert-circle" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
@@ -377,7 +654,6 @@ function renderTaxiResult(res) {
 
 // --- Walker Calculator Handler ---
 async function handleWalkerCalc() {
-  const porte = document.querySelector('input[name="walker-porte"]:checked')?.value || "medio";
   const minutes = parseInt(document.querySelector('input[name="walker-minutes"]:checked')?.value || "60");
   const local = document.getElementById("walk-local")?.value || "";
 
@@ -408,18 +684,56 @@ async function handleWalkerCalc() {
   const walkerPrices = (cityObjWalker && cityObjWalker.walker_price_by_porte)
     ? cityObjWalker.walker_price_by_porte
     : { pequeno: 32.5, medio: 37.5, grande: 45, gigante: 57.5 };
-  const hourly = walkerPrices[porte] || 32.5;
+
+  const secondPetDisc = settings.walker_second_pet_discount || 0.50;
   const timeOpt = settings.walk_time_options.find(t => t.min === minutes) || { factor: 1 };
-  const walkPrice = hourly * timeOpt.factor;
   const travelFee = round2(distOneWay * settings.fuel_cost_per_km);
 
-  const raw = round2(walkPrice + travelFee);
+  const selectedRadioPorte = document.querySelector('input[name="walker-porte"]:checked')?.value || "medio";
+  const petsToCalc = walkerPetsList.length > 0 ? walkerPetsList : [{ porte: selectedRadioPorte }];
+
+  let petsDetailed = [];
+  let sumFullPetsWalkCost = 0;
+  let totalSecondPetDiscount = 0;
+
+  petsToCalc.forEach((p, idx) => {
+    const pLabel = settings.porte_options.find(opt => opt.id === p.porte)?.label || p.porte;
+    const hourlyRate = walkerPrices[p.porte] || 32.5;
+    const fullWalkPrice = round2(hourlyRate * timeOpt.factor);
+    const isSecondPet = idx > 0;
+
+    let disc = 0;
+    if (isSecondPet) {
+      disc = round2(fullWalkPrice * secondPetDisc);
+      totalSecondPetDiscount = round2(totalSecondPetDiscount + disc);
+    }
+    sumFullPetsWalkCost = round2(sumFullPetsWalkCost + fullWalkPrice);
+    petsDetailed.push({
+      porte: p.porte,
+      porteLabel: pLabel,
+      fullCost: fullWalkPrice,
+      discount: disc,
+      finalCost: round2(fullWalkPrice - disc),
+      isSecondPet
+    });
+  });
+
+  const netPetsWalkCost = round2(sumFullPetsWalkCost - totalSecondPetDiscount);
   const minTotal = round2(settings.walker_min_price + travelFee);
-  const total = Math.max(raw, minTotal);
-  const porteLabel = settings.porte_options.find(p => p.id === porte)?.label || porte;
+  const total = Math.max(round2(travelFee + netPetsWalkCost), minTotal);
+  const primaryPorteLabel = petsDetailed.map(p => p.porteLabel).join(", ");
 
   currentWalkerResult = {
-    porte, porteLabel, minutes, local, hourly, distOneWay, travelFee, total
+    pets: petsDetailed,
+    porteLabel: primaryPorteLabel,
+    minutes,
+    local,
+    distOneWay,
+    travelFee,
+    sumFullPetsWalkCost,
+    totalSecondPetDiscount,
+    netPetsWalkCost,
+    total
   };
 
   renderWalkerResult(currentWalkerResult);
@@ -431,8 +745,9 @@ function renderWalkerResult(res) {
   const container = document.getElementById("walker-result-container");
   if (!container) return;
 
+  const petsStr = res.pets.map((p, i) => `Pet #${i + 1} (${p.porteLabel})`).join(", ");
   const msg = `Olá! Gostaria de agendar um *Passeio Dog Walker* pela ${settings.brand}.\n\n` +
-    `🐶 Porte: ${res.porteLabel}\n` +
+    `🐶 Pets: ${petsStr}\n` +
     `⏱️ Duração: ${res.minutes} min\n` +
     `📍 Local do encontro: ${res.local}\n` +
     `💰 Valor estimado: ${BRL(res.total)}\n\n` +
@@ -446,7 +761,7 @@ function renderWalkerResult(res) {
         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orçamento do passeio</span>
         <div class="flex flex-wrap gap-1.5">
           <span class="px-2.5 py-1 rounded-full bg-navy text-white text-xs font-medium flex items-center gap-1">
-            <i data-lucide="paw-print" class="h-3 w-3 text-gold"></i> Porte ${res.porteLabel}
+            <i data-lucide="paw-print" class="h-3 w-3 text-gold"></i> ${res.pets.length} ${res.pets.length > 1 ? "Pets" : "Pet"}
           </span>
           <span class="px-2.5 py-1 rounded-full bg-gold-gradient text-navy text-xs font-bold flex items-center gap-1 shadow-sm">
             <i data-lucide="clock" class="h-3 w-3"></i> ${res.minutes} min
@@ -454,20 +769,51 @@ function renderWalkerResult(res) {
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
-        <li class="flex justify-between items-start border-b border-border pb-3 text-left">
+        <li class="flex justify-between items-center border-b border-border pb-3 text-left">
           <div class="text-left flex items-start gap-2">
-            <i data-lucide="footprints" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
+            <i data-lucide="navigation" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
             <div>
-              <span class="font-semibold text-navy block text-left">Valor do passeio</span>
-              <span class="text-xs text-muted-foreground block text-left mt-0.5">Duração ${res.minutes} min</span>
+              <span class="font-semibold text-navy block text-left">Taxa de chegada até o Pet</span>
+              <span class="text-xs text-muted-foreground block text-left mt-0.5">Deslocamento inicial até o local do passeio</span>
             </div>
           </div>
-          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.total)}</span>
+          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.travelFee)}</span>
         </li>
+        ${res.pets.map((p, idx) => `
+          <li class="flex justify-between items-center border-b border-border pb-3 text-left">
+            <div class="text-left flex items-start gap-2">
+              <i data-lucide="paw-print" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
+              <div>
+                <span class="font-semibold text-navy block text-left">Pet #${idx + 1} (${p.porteLabel})</span>
+                <span class="text-xs text-muted-foreground block text-left mt-0.5">Duração ${res.minutes} min</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0 ml-2">
+              ${p.isSecondPet ? `
+                <div class="text-xs text-navy/70 line-through decoration-emerald-500 font-semibold mb-0.5">${BRL(p.fullCost)}</div>
+                <div class="flex items-center justify-end gap-1.5">
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-extrabold text-[11px]">(${Math.round((settings.walker_second_pet_discount || 0.50) * 100)}% OFF)</span>
+                  <span class="font-bold text-emerald-700 text-sm">${BRL(p.finalCost)}</span>
+                </div>
+              ` : `
+                <span class="font-semibold text-navy">${BRL(p.fullCost)}</span>
+              `}
+            </div>
+          </li>
+        `).join("")}
       </ul>
       <div class="rounded-xl bg-navy p-5 text-white mb-4 text-left shadow-elegant">
-        <div class="text-xs uppercase tracking-wider text-white/70">Valor Total Estimado</div>
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-xs uppercase tracking-wider text-white/70">Valor Total Estimado</div>
+          ${res.totalSecondPetDiscount > 0 ? `<div class="text-sm text-white/70 line-through decoration-emerald-400 font-bold">${BRL(res.total + res.totalSecondPetDiscount)}</div>` : ""}
+        </div>
         <div class="font-display text-4xl font-extrabold text-gold mt-1">${BRL(res.total)}</div>
+        ${res.totalSecondPetDiscount > 0 ? `
+          <div class="mt-2 text-xs text-emerald-400 font-medium flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="h-3.5 w-3.5 text-emerald-400"></i>
+            <span>Desconto concedido para mais de um cãozinho da mesma casa</span>
+          </div>
+        ` : ""}
       </div>
       <a href="${link}" target="_blank" rel="noreferrer" class="w-full">
         <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 px-8 w-full bg-whatsapp hover:opacity-90 text-white font-semibold shadow-md">
@@ -501,7 +847,7 @@ function updateMonthlyTaxi() {
           </p>
         </div>
         <div class="rounded-full bg-gold-gradient px-4 py-1.5 text-xs font-bold text-navy shadow-sm">
-          🎉 ${Math.round((settings.second_pet_discount || 0.50) * 100)}% OFF no 2º cãozinho da mesma casa!
+          🎉 ${Math.round((settings.taxi_second_pet_discount || 0.50) * 100)}% OFF no 2º cãozinho da mesma casa!
         </div>
       </div>
       <div class="grid gap-5 md:grid-cols-3">
@@ -551,7 +897,7 @@ function updateMonthlyWalker() {
           </p>
         </div>
         <div class="rounded-full bg-gold-gradient px-4 py-1.5 text-xs font-bold text-navy shadow-sm">
-          🎉 ${Math.round((settings.second_pet_discount || 0.50) * 100)}% OFF no 2º cãozinho da mesma casa!
+          🎉 ${Math.round((settings.walker_second_pet_discount || 0.50) * 100)}% OFF no 2º cãozinho da mesma casa!
         </div>
       </div>
       <div class="grid gap-5 md:grid-cols-3">
@@ -798,24 +1144,55 @@ async function renderCombos() {
     }
   }
 
-  // Taxi Dog cost calculation
+  // Multi-Pet calculation in Combos
+  const selectedRadioPorteCombo = document.querySelector('input[name="combo-porte"]:checked')?.value || "pequeno";
+  const comboPetsToCalc = comboPetsList.length > 0 ? comboPetsList : [{ porte: selectedRadioPorteCombo }];
+  const taxiSecondDiscCombo = settings.taxi_second_pet_discount || 0.50;
+  const walkerSecondDiscCombo = settings.walker_second_pet_discount || 0.50;
+
   const taxiKm = selectedPark ? Math.max(5, Math.ceil(distParque)) : (settings.combo_taxi_base_km || 5);
-  const perKmTaxi = (settings.taxi_per_km_pet + petFuelRate) * (taxiMultipliers[porte] || 1);
-  const rawTaxiTrip = round2(taxiKm * perKmTaxi);
-  const taxiPrice = Math.max(round2(settings.taxi_min_price + fuelFee), round2(fuelFee + rawTaxiTrip));
 
-  // Dog Walker cost calculation
-  const walkBasePrice = walkerPrices[porte] || 32.5;
-  const rawWalker = round2(walkBasePrice + fuelFee);
-  const walkerPrice = Math.max(round2(settings.walker_min_price + fuelFee), rawWalker);
+  let sumFullTaxi = 0;
+  let sumFullWalker = 0;
+  let secondaryPetTaxiDisc = 0;
+  let secondaryPetWalkerDisc = 0;
+  let comboPetLabels = [];
 
-  // Apply combo discounts
+  comboPetsToCalc.forEach((p, idx) => {
+    const pLabel = settings.porte_options.find(opt => opt.id === p.porte)?.label || p.porte;
+    comboPetLabels.push(pLabel);
+
+    const perKmTaxi = (settings.taxi_per_km_pet + petFuelRate) * (taxiMultipliers[p.porte] || 1);
+    const fullPetTaxiTrip = round2(taxiKm * perKmTaxi);
+
+    const walkBasePrice = walkerPrices[p.porte] || 32.5;
+    const fullPetWalkerPrice = round2(walkBasePrice + fuelFee);
+
+    if (idx > 0) {
+      secondaryPetTaxiDisc = round2(secondaryPetTaxiDisc + (fullPetTaxiTrip * taxiSecondDiscCombo));
+      secondaryPetWalkerDisc = round2(secondaryPetWalkerDisc + (fullPetWalkerPrice * walkerSecondDiscCombo));
+    }
+
+    sumFullTaxi = round2(sumFullTaxi + fullPetTaxiTrip);
+    sumFullWalker = round2(sumFullWalker + fullPetWalkerPrice);
+  });
+
+  const netTaxiTrip = round2(sumFullTaxi - secondaryPetTaxiDisc);
+  const netWalkerPrice = round2(sumFullWalker - secondaryPetWalkerDisc);
+
+  const taxiPrice = Math.max(round2(settings.taxi_min_price + fuelFee), round2(fuelFee + netTaxiTrip));
+  const walkerPrice = Math.max(round2(settings.walker_min_price + fuelFee), netWalkerPrice);
+
   const comboSum = round2(taxiPrice + walkerPrice);
   const aventurinhaTotal = round2(comboSum * (1 - settings.combo_aventurinha_discount));
   const vipTotal = round2(comboSum * 4 * (1 - settings.combo_vip_discount));
 
   const aventurinhaPrice = BRL(aventurinhaTotal);
   const vipPrice = BRL(vipTotal);
+
+  const petsSubtitle = comboPetsToCalc.length > 1
+    ? `${comboPetsToCalc.length} Pets (${comboPetLabels.join(" + ")})`
+    : `Porte ${comboPetLabels[0]}`;
 
   // Checklist Item texts (Requirement 5: remove 5km text when park is selected)
   let itemTaxiText = "";
@@ -834,7 +1211,7 @@ async function renderCombos() {
     }
   } else {
     itemTaxiText = `Busca com Táxi Dog (até ${taxiKm} km inclusos) partindo de ${neighborhood}`;
-    itemWalkerText = `1h de passeio Dog Walker para porte ${porteLabel}`;
+    itemWalkerText = `1h de passeio Dog Walker para ${petsSubtitle}`;
     itemParkText = `Parque a sua escolha (com limite de 5km de distância)`;
     noteText = `* Para um parque acima de 5km será necessário consulta`;
   }
@@ -848,7 +1225,7 @@ async function renderCombos() {
         <div>
           <div class="text-xs font-semibold uppercase tracking-wider text-gold">Combo Especial · ${neighborhood}</div>
           <h3 class="mt-1 font-display text-2xl font-bold">Combo Aventurinha</h3>
-          <div class="mt-3 text-xs font-semibold text-white/70">Calculado para ${neighborhood} · Porte ${porteLabel}${selectedPark ? ` · ${selectedPark.nome}` : ""}</div>
+          <div class="mt-3 text-xs font-semibold text-white/70">Calculado para ${neighborhood} · ${petsSubtitle}${selectedPark ? ` · ${selectedPark.nome}` : ""}</div>
           <div class="mt-3 flex items-baseline gap-2">
             <div class="font-display text-4xl font-extrabold text-white">${aventurinhaPrice}</div>
             <div class="text-sm text-white/80">/ por aventura</div>
@@ -877,7 +1254,7 @@ async function renderCombos() {
           </ul>
           <div class="mt-4 text-xs text-white/50 italic">${noteText}</div>
         </div>
-        <a href="${waLink(`Olá! Tenho interesse no *Combo Aventurinha* (${aventurinhaPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel})${parkParam}.`)}" target="_blank" class="mt-6 inline-block w-full">
+        <a href="${waLink(`Olá! Tenho interesse no *Combo Aventurinha* (${aventurinhaPrice}) para ${city} - ${neighborhood} (${petsSubtitle})${parkParam}.`)}" target="_blank" class="mt-6 inline-block w-full">
           <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-9 px-4 py-2 w-full bg-gold-gradient font-semibold text-navy hover:opacity-95">Quero este plano</button>
         </a>
       </div>
@@ -888,7 +1265,7 @@ async function renderCombos() {
         <div>
           <div class="text-xs font-semibold uppercase tracking-wider text-navy/80">Assinatura · ${neighborhood}</div>
           <h3 class="mt-1 font-display text-2xl font-bold text-navy">Combo VIP Mensal</h3>
-          <div class="mt-3 text-xs font-semibold text-navy/80">Calculado para ${neighborhood} · Porte ${porteLabel}${selectedPark ? ` · ${selectedPark.nome}` : ""}</div>
+          <div class="mt-3 text-xs font-semibold text-navy/80">Calculado para ${neighborhood} · ${petsSubtitle}${selectedPark ? ` · ${selectedPark.nome}` : ""}</div>
           <div class="mt-3 flex items-baseline gap-2">
             <div class="font-display text-4xl font-extrabold text-navy">${vipPrice}</div>
             <div class="text-sm text-navy/80">/ por mês</div>
@@ -909,7 +1286,7 @@ async function renderCombos() {
           </ul>
           <div class="mt-4 text-xs text-navy/70 italic">${noteText}</div>
         </div>
-        <a href="${waLink(`Olá! Tenho interesse no *Combo VIP Mensal* (${vipPrice}) para ${city} - ${neighborhood} (Porte ${porteLabel})${parkParam}.`)}" target="_blank" class="mt-6 inline-block w-full">
+        <a href="${waLink(`Olá! Tenho interesse no *Combo VIP Mensal* (${vipPrice}) para ${city} - ${neighborhood} (${petsSubtitle})${parkParam}.`)}" target="_blank" class="mt-6 inline-block w-full">
           <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-9 px-4 py-2 w-full bg-navy font-semibold text-white hover:bg-navy-deep">Quero este plano</button>
         </a>
       </div>
