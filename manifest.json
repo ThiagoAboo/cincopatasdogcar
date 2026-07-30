@@ -1,0 +1,19 @@
+{
+  "name": "Cinco Patas Dog Car & Walker",
+  "short_name": "Cinco Patas",
+  "description": "Táxi Dog e Dog Walker profissional em Alcântara, São Gonçalo, Niterói, Maricá e Itaboraí.",
+  "start_url": "https://thiagoaboo.github.io/cincopatasdogcar/",
+  "scope": "https://thiagoaboo.github.io/cincopatasdogcar/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "assets/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

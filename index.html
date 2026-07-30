@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cinco Patas Dog Car & Walker | Transporte e Passeios Pet</title>
+  <meta name="description"
+    content="Táxi Dog e Dog Walker profissional em Alcântara, São Gonçalo. Atendemos Niterói, Maricá e Itaboraí com segurança, conforto e preços justos." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <meta name="theme-color" content="#111827" />
+
+  <!-- Tailwind CSS CDN -->
+  <script>
+    const _warn = console.warn;
+    console.warn = function (...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+      _warn.apply(console, args);
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Map Lovable theme tokens and brand utilities
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "var(--background)",
+            foreground: "var(--foreground)",
+            card: {
+              DEFAULT: "var(--card)",
+              foreground: "var(--card-foreground)"
+            },
+            popover: {
+              DEFAULT: "var(--popover)",
+              foreground: "var(--popover-foreground)"
+            },
+            primary: {
+              DEFAULT: "var(--primary)",
+              foreground: "var(--primary-foreground)"
+            },
+            secondary: {
+              DEFAULT: "var(--secondary)",
+              foreground: "var(--secondary-foreground)"
+            },
+            muted: {
+              DEFAULT: "var(--muted)",
+              foreground: "var(--muted-foreground)"
+            },
+            accent: {
+              DEFAULT: "var(--accent)",
+              foreground: "var(--accent-foreground)"
+            },
+            border: "var(--border)",
+            input: "var(--input)",
+            ring: "var(--ring)",
+            navy: {
+              DEFAULT: "oklch(0.28 0.07 260)",
+              deep: "oklch(0.20 0.06 260)"
+            },
+            slate: {
+              900: "oklch(0.28 0.07 260)",
+              800: "oklch(0.22 0.06 260)",
+              700: "oklch(0.30 0.07 260)",
+              600: "oklch(0.40 0.06 260)",
+              500: "oklch(0.50 0.05 260)",
+              100: "oklch(0.96 0.015 260)",
+              50: "oklch(0.98 0.008 260)"
+            },
+            gold: {
+              DEFAULT: "var(--gold)",
+              soft: "var(--gold-soft)"
+            },
+            whatsapp: "var(--whatsapp)",
+            warm: {
+              DEFAULT: "var(--warm)",
+              foreground: "var(--warm-foreground)"
+            },
+            amber: { 400: '#f59e0b', 500: '#d97706' },
+            emerald: { 500: '#25d366', 600: '#1fb457' }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts, Lucide Icons & Styles -->
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="min-h-screen bg-background text-foreground font-sans">
+
+  <!-- NAVIGATION BAR -->
+  <header class="fixed top-0 z-50 w-full border-b border-white/10 bg-navbar backdrop-blur-md shadow-md">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
+      <a href="#top" class="flex items-center gap-3 text-white">
+        <img src="assets/favicon.png" alt="Cinco Patas Dog Car & Walker" class="h-10 w-10 object-contain drop-shadow" />
+        <span class="font-display text-base sm:text-lg font-extrabold tracking-tight">Cinco Patas Dog Car &
+          Walker</span>
+      </a>
+      <nav class="hidden items-center gap-8 text-sm font-medium text-white/80 md:flex">
+        <a href="#calculadora" class="hover:text-gold transition">Táxi Dog</a>
+        <a href="#simulador-passeio" class="hover:text-gold transition">Passeios</a>
+        <a href="#planos" class="hover:text-gold transition">Planos</a>
+        <a href="#sobre" class="hover:text-gold transition">Sobre</a>
+        <a href="#faq" class="hover:text-gold transition">FAQ</a>
+      </nav>
+      <a href="https://wa.me/5521992244753?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Cinco%20Patas%20Dog%20Car%20%26%20Walker%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es."
+        target="_blank" rel="noreferrer" class="hidden md:block">
+        <button
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-9 px-4 py-2 bg-gold-gradient font-semibold text-navy hover:opacity-95 rounded-md">
+          Falar no WhatsApp
+        </button>
+      </a>
+
+      <!-- Mobile Hamburger Button -->
+      <button id="mobile-menu-btn" onclick="toggleMobileMenu()"
+        class="grid h-10 w-10 place-items-center rounded-lg bg-white/10 text-white md:hidden" aria-label="Menu">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div id="mobile-menu" class="hidden border-b border-white/10 bg-navy/95 px-6 py-5 backdrop-blur md:hidden">
+      <nav class="flex flex-col gap-4 text-base font-medium text-white/90">
+        <a href="#calculadora" onclick="toggleMobileMenu()" class="hover:text-gold transition flex items-center gap-3">
+          <div class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-navy shadow-sm">
+            <i data-lucide="car" class="h-4 w-4 stroke-[2.5]"></i>
+          </div>
+          <span>Táxi Dog</span>
+        </a>
+        <a href="#simulador-passeio" onclick="toggleMobileMenu()"
+          class="hover:text-gold transition flex items-center gap-3">
+          <div class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-navy shadow-sm">
+            <i data-lucide="footprints" class="h-4 w-4 stroke-[2.5]"></i>
+          </div>
+          <span>Passeios</span>
+        </a>
+        <a href="#planos" onclick="toggleMobileMenu()" class="hover:text-gold transition flex items-center gap-3">
+          <div class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-navy shadow-sm">
+            <i data-lucide="sparkles" class="h-4 w-4 stroke-[2.5]"></i>
+          </div>
+          <span>Planos</span>
+        </a>
+        <a href="#sobre" onclick="toggleMobileMenu()" class="hover:text-gold transition flex items-center gap-3">
+          <div class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-navy shadow-sm">
+            <i data-lucide="user" class="h-4 w-4 stroke-[2.5]"></i>
+          </div>
+          <span>Sobre</span>
+        </a>
+        <a href="#faq" onclick="toggleMobileMenu()" class="hover:text-gold transition flex items-center gap-3">
+          <div class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-navy shadow-sm">
+            <i data-lucide="help-circle" class="h-4 w-4 stroke-[2.5]"></i>
+          </div>
+          <span>FAQ</span>
+        </a>
+        <a href="https://wa.me/5521992244753?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Cinco%20Patas%20Dog%20Car%20%26%20Walker."
+          target="_blank" class="mt-2 text-center py-3 rounded-xl bg-gold-gradient text-navy font-bold shadow-md">
+          Falar no WhatsApp
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section id="top" class="relative overflow-hidden bg-hero-gradient text-white">
+    <img src="assets/thiago-4.jpg" alt="" aria-hidden="true"
+      class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-luminosity" />
+    <div class="absolute inset-0 bg-hero-gradient/80" aria-hidden="true"></div>
+    <div class="absolute inset-0 opacity-[0.10]" aria-hidden="true">
+      <div class="absolute -left-32 top-24 h-96 w-96 rounded-full bg-gold blur-3xl"></div>
+      <div class="absolute right-0 top-64 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 sm:pb-32 sm:pt-40 lg:px-8 lg:pt-44">
+      <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium backdrop-blur">
+            <i data-lucide="shield-check" class="h-3.5 w-3.5 text-gold"></i>
+            <span>Base em Alcântara, São Gonçalo (RJ)</span>
+          </div>
+          <h1 class="mt-6 font-display text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
+            Cuidado de verdade para o seu pet: <span class="text-gold">transporte tranquilo</span> e passeios felizes
+          </h1>
+          <p class="mt-6 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
+            Cinco Patas Dog Car & Walker — Táxi Dog e Dog Walker profissional focados no conforto e bem-estar do seu
+            melhor amigo. Atendemos São Gonçalo, Niterói, Maricá, Itaboraí.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#calculadora">
+              <button
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 rounded-md px-8 bg-gold-gradient font-semibold text-navy shadow-gold hover:opacity-95">
+                <i data-lucide="car" class="mr-2 h-5 w-5"></i>
+                <span>Simular Táxi Dog</span>
+              </button>
+            </a>
+            <a href="#simulador-passeio">
+              <button
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border shadow-sm h-10 rounded-md px-8 border-white/30 bg-white/5 font-semibold text-white hover:bg-white/10 hover:text-white">
+                <i data-lucide="footprints" class="mr-2 h-5 w-5"></i>
+                <span>Simular Passeio</span>
+              </button>
+            </a>
+          </div>
+        </div>
+
+        <div class="relative hidden lg:block">
+          <div class="absolute -inset-6 rounded-[2.5rem] bg-gold/10 blur-2xl" aria-hidden="true"></div>
+          <div
+            class="rounded-xl border shadow relative overflow-hidden border-white/10 bg-white/[0.06] p-5 text-white shadow-elegant backdrop-blur">
+            <div class="overflow-hidden rounded-2xl">
+              <img src="assets/car-1.jpg" alt="Cinco Patas Dog Car & Walker - veículo"
+                class="aspect-[4/3] w-full object-cover" loading="eager" />
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3">
+              <div class="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div class="grid h-8 w-8 place-items-center rounded-lg bg-gold-gradient">
+                  <i data-lucide="car" class="h-4 w-4 text-navy"></i>
+                </div>
+                <div class="mt-2 text-sm font-semibold">Nissan Livina</div>
+                <div class="mt-0.5 text-[11px] text-white/60">Espaçosa, ar-condicionado</div>
+              </div>
+              <div class="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div class="grid h-8 w-8 place-items-center rounded-lg bg-gold-gradient">
+                  <i data-lucide="shield-check" class="h-4 w-4 text-navy"></i>
+                </div>
+                <div class="mt-2 text-sm font-semibold">Cinto Pet</div>
+                <div class="mt-0.5 text-[11px] text-white/60">Certificado, banco traseiro</div>
+              </div>
+              <div class="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div class="grid h-8 w-8 place-items-center rounded-lg bg-gold-gradient">
+                  <i data-lucide="route" class="h-4 w-4 text-navy"></i>
+                </div>
+                <div class="mt-2 text-sm font-semibold">GNV econômico</div>
+                <div class="mt-0.5 text-[11px] text-white/60">Preço justo, sem surpresas</div>
+              </div>
+              <div class="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div class="grid h-8 w-8 place-items-center rounded-lg bg-gold-gradient">
+                  <i data-lucide="paw-print" class="h-4 w-4 text-navy"></i>
+                </div>
+                <div class="mt-2 text-sm font-semibold">Cabine cuidada</div>
+                <div class="mt-0.5 text-[11px] text-white/60">Higienização entre corridas</div>
+              </div>
+            </div>
+          </div>
+  </section>
+
+  <!-- TAXI DOG CALCULATOR SECTION -->
+  <section id="calculadora" class="bg-secondary/40 py-20 sm:py-28">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <div
+          class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent shadow bg-gold text-navy hover:bg-gold">
+          Táxi Dog</div>
+        <h2 class="mt-4 font-display text-3xl font-extrabold text-navy sm:text-4xl">Calculadora Inteligente de Táxi Dog
+        </h2>
+        <p class="mt-3 text-muted-foreground">Preço justo com base na economia real do veículo: Nissan Livina a GNV,
+          partindo de Alcântara.</p>
+      </div>
+
+      <div class="mt-10">
+        <div class="rounded-xl bg-card text-card-foreground shadow relative border-0 p-0 shadow-elegant">
+          <div class="grid gap-0 md:grid-cols-2">
+            <!-- Input Form -->
+            <div class="bg-navy p-5 text-white sm:p-8 md:p-10 rounded-t-xl md:rounded-l-xl md:rounded-tr-none">
+              <div
+                class="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
+                <i data-lucide="sparkles" class="h-3.5 w-3.5 text-gold"></i>
+                <span>Calculadora Inteligente</span>
+              </div>
+              <h3 class="font-display text-2xl font-bold sm:text-3xl">Simule sua corrida de Táxi Dog</h3>
+              <p class="mt-2 text-sm text-white/70">Cálculo transparente com deslocamento até você e trajeto do pet.</p>
+
+              <div class="mt-8 space-y-5">
+                <!-- Porte -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-medium leading-none flex items-center gap-2 text-white/90">
+                      <i data-lucide="paw-print" class="h-4 w-4 text-gold"></i>
+                      <span>Porte do Pet</span>
+                    </label>
+                    <button type="button" id="btn-add-taxi-pet" onclick="addTaxiPet()"
+                      class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gold-gradient text-navy font-bold text-xs shadow hover:opacity-95 transition cursor-pointer">
+                      <i data-lucide="plus" class="h-3.5 w-3.5 stroke-[3]"></i>
+                      <span>Adicionar Pet</span>
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-porte" value="pequeno" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        <div class="text-sm font-semibold">Pequeno</div>
+                        <div class="text-[10px] text-white/60">Até 10 kg</div>
+                      </div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-porte" value="medio" checked class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        <div class="text-sm font-semibold">Médio</div>
+                        <div class="text-[10px] text-white/60">11–25 kg</div>
+                      </div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-porte" value="grande" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        <div class="text-sm font-semibold">Grande</div>
+                        <div class="text-[10px] text-white/60">26–45 kg</div>
+                      </div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-porte" value="gigante" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        <div class="text-sm font-semibold">Gigante</div>
+                        <div class="text-[10px] text-white/60">45 kg +</div>
+                      </div>
+                    </label>
+                  </div>
+                  <div id="taxi-pets-list" class="mt-3 space-y-2"></div>
+                </div>
+
+                <!-- Modalidade -->
+                <div>
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-white/90">
+                    <i data-lucide="repeat" class="h-4 w-4 text-gold"></i>
+                    <span>Modalidade</span>
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-trip" value="ida" checked class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-3 py-2.5 text-sm font-semibold text-center transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        Somente Ida</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-trip" value="ida_volta" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-3 py-2.5 text-sm font-semibold text-center transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        Ida e Volta</div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Humano junto -->
+                <div>
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-white/90">
+                    <i data-lucide="users" class="h-4 w-4 text-gold"></i>
+                    <span>O humano vai junto?</span>
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-human" value="false" checked class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-3 py-2.5 text-sm font-semibold text-center transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        Só o Pet</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="taxi-human" value="true" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-3 py-2.5 text-sm font-semibold text-center transition border-white/15 bg-white/5 text-white/80 hover:border-white/30 peer-checked:border-gold peer-checked:bg-gold/15 peer-checked:text-white peer-checked:shadow-gold">
+                        Pet + Humano</div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Endereço de Partida -->
+                <div class="relative">
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-white/90"
+                    for="taxi-pickup">
+                    <i data-lucide="map-pin" class="h-4 w-4 text-gold"></i>
+                    <span>Endereço de Partida do Pet</span>
+                  </label>
+                  <input id="taxi-pickup" type="text" autocomplete="off"
+                    placeholder="Ex: Rua Coronel Moreira César, 123, Icaraí, Niterói"
+                    class="flex h-9 w-full rounded-md border px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 md:text-sm border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold" />
+                  <div id="taxi-pickup-dropdown"
+                    class="hidden absolute left-0 right-0 top-full z-[100] mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/20 bg-navy text-white shadow-2xl backdrop-blur-md">
+                  </div>
+                </div>
+
+                <!-- Endereço de Destino -->
+                <div class="relative">
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-white/90"
+                    for="taxi-destination">
+                    <i data-lucide="route" class="h-4 w-4 text-gold"></i>
+                    <span>Endereço de Destino do Pet</span>
+                  </label>
+                  <input id="taxi-destination" type="text" autocomplete="off"
+                    placeholder="Ex: Av. Presidente Kennedy, 500, Centro, São Gonçalo"
+                    class="flex h-9 w-full rounded-md border px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 md:text-sm border-white/20 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-gold" />
+                  <div id="taxi-destination-dropdown"
+                    class="hidden absolute left-0 right-0 top-full z-[100] mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/20 bg-navy text-white shadow-2xl backdrop-blur-md">
+                  </div>
+                </div>
+
+                <div id="taxi-error" class="text-xs text-red-300 font-medium"></div>
+
+                <button id="btn-calc-taxi" onclick="handleTaxiCalc()"
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 rounded-md px-8 w-full bg-gold-gradient font-semibold text-navy shadow-gold hover:opacity-95">
+                  Calcular Valor Estimado
+                </button>
+              </div>
+            </div>
+
+            <!-- Result Card -->
+            <div id="taxi-result-container"
+              class="bg-white p-5 sm:p-8 md:p-10 flex flex-col justify-center items-center text-center">
+              <div class="grid h-16 w-16 place-items-center rounded-2xl bg-secondary">
+                <i data-lucide="dollar-sign" class="h-8 w-8 text-navy"></i>
+              </div>
+              <p class="mt-4 max-w-xs text-sm text-muted-foreground">Preencha os endereços e clique em <span
+                  class="font-semibold text-navy">Calcular</span> para ver o orçamento detalhado da corrida.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Container para Mensais do Táxi Dog -->
+      <div id="monthly-taxi-container"></div>
+      <div class="mt-8">
+        <div class="mb-5 text-center">
+          <div
+            class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent shadow bg-navy text-white hover:bg-navy">
+            Boas práticas</div>
+          <h3 class="mt-3 font-display text-2xl font-extrabold text-navy sm:text-3xl">Regras Importantes para o seu Táxi
+            Dog</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Regras simples que garantem uma viagem tranquila para o seu pet
+            e para todos os outros que usam o serviço.</p>
+        </div>
+        <div class="grid gap-5 md:grid-cols-2">
+          <div
+            class="rounded-xl border text-card-foreground shadow flex items-start gap-4 border-l-4 border-l-gold bg-white p-5 shadow-elegant">
+            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold-gradient">
+              <i data-lucide="shield-check" class="h-5 w-5 text-navy"></i>
+            </div>
+            <div class="min-w-0">
+              <h4 class="font-display text-lg font-bold text-navy">Segurança em primeiro lugar</h4>
+              <p class="mt-1 text-sm leading-relaxed text-muted-foreground">O pet só viaja em caixa de transporte
+                higienizada (para gatos) ou com cinto de segurança próprio para cães no banco traseiro.</p>
+            </div>
+          </div>
+          <div
+            class="rounded-xl border text-card-foreground shadow flex items-start gap-4 border-l-4 border-l-gold bg-white p-5 shadow-elegant">
+            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold-gradient">
+              <i data-lucide="syringe" class="h-5 w-5 text-navy"></i>
+            </div>
+            <div class="min-w-0">
+              <h4 class="font-display text-lg font-bold text-navy">Vacinação em dia</h4>
+              <p class="mt-1 text-sm leading-relaxed text-muted-foreground">É indispensável a carteira de vacinação
+                atualizada para o transporte — proteção do seu pet e de todos os outros cães que usam o serviço.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voltar ao Topo -->
+      <div class="mt-4 text-center print-hide">
+        <a href="#top"
+          class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+          <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold-gradient text-navy shadow-sm">
+            <i data-lucide="arrow-up" class="h-3 w-3 stroke-[3]"></i>
+          </div>
+          <span>Voltar ao topo</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALKER SIMULATOR SECTION -->
+  <section id="simulador-passeio" class="py-10 sm:py-16">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <div
+          class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent shadow bg-navy text-white hover:bg-navy">
+          Dog Walker</div>
+        <h2 class="mt-4 font-display text-3xl font-extrabold text-navy sm:text-4xl">Simule o passeio do seu cãozinho
+        </h2>
+        <p class="mt-3 text-muted-foreground">Informe o local, o tempo desejado e o porte — o valor aparece na hora.</p>
+      </div>
+
+      <div class="mt-10">
+        <div class="rounded-xl bg-card text-card-foreground shadow relative border-0 p-0 shadow-elegant">
+          <div class="grid gap-0 md:grid-cols-2">
+            <!-- Input Form -->
+            <div class="bg-gold-gradient p-5 text-navy sm:p-8 md:p-10 rounded-t-xl md:rounded-l-xl md:rounded-tr-none">
+              <div class="mb-6 inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold">
+                <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+                <span>Simulador de Passeio</span>
+              </div>
+              <h3 class="font-display text-2xl font-bold sm:text-3xl">Simule o passeio</h3>
+              <p class="mt-2 text-sm text-navy/70">Escolha porte, duração e local — o valor sai na hora.</p>
+
+              <div class="mt-8 space-y-5">
+                <!-- Porte -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-medium leading-none flex items-center gap-2 text-navy">
+                      <i data-lucide="paw-print" class="h-4 w-4"></i>
+                      <span>Porte do Pet</span>
+                    </label>
+                    <button type="button" id="btn-add-walker-pet" onclick="addWalkerPet()"
+                      class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-navy text-white font-bold text-xs shadow hover:bg-navy-deep transition cursor-pointer">
+                      <i data-lucide="plus" class="h-3.5 w-3.5 stroke-[3]"></i>
+                      <span>Adicionar Pet</span>
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <label class="cursor-pointer">
+                      <input type="radio" name="walker-porte" value="pequeno" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-navy/20 bg-white/70 text-navy hover:border-navy/50 peer-checked:border-navy peer-checked:bg-navy peer-checked:!text-white [&_*]:peer-checked:!text-white">
+                        <div class="text-sm font-semibold">Pequeno</div>
+                        <div class="text-[10px] opacity-70">Até 10 kg</div>
+                      </div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="walker-porte" value="medio" checked class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-navy/20 bg-white/70 text-navy hover:border-navy/50 peer-checked:border-navy peer-checked:bg-navy peer-checked:!text-white [&_*]:peer-checked:!text-white">
+                        <div class="text-sm font-semibold">Médio</div>
+                        <div class="text-[10px] opacity-70">11–25 kg</div>
+                      </div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="walker-porte" value="grande" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-navy/20 bg-white/70 text-navy hover:border-navy/50 peer-checked:border-navy peer-checked:bg-navy peer-checked:!text-white [&_*]:peer-checked:!text-white">
+                        <div class="text-sm font-semibold">Grande</div>
+                        <div class="text-[10px] opacity-70">26–45 kg</div>
+                      </div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="walker-porte" value="gigante" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-left transition border-navy/20 bg-white/70 text-navy hover:border-navy/50 peer-checked:border-navy peer-checked:bg-navy peer-checked:!text-white [&_*]:peer-checked:!text-white">
+                        <div class="text-sm font-semibold">Gigante</div>
+                        <div class="text-[10px] opacity-70">45 kg +</div>
+                      </div>
+                    </label>
+                  </div>
+                  <div id="walker-pets-list" class="mt-3 space-y-2"></div>
+                </div>
+
+                <!-- Duração -->
+                <div>
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-navy">
+                    <i data-lucide="timer" class="h-4 w-4"></i>
+                    <span>Duração</span>
+                  </label>
+                  <div class="grid grid-cols-3 gap-2">
+                    <label class="cursor-pointer">
+                      <input type="radio" name="walker-minutes" value="30" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-center text-sm font-semibold transition border-navy/20 bg-white/70 text-navy hover:border-navy/50 peer-checked:border-navy peer-checked:bg-navy peer-checked:!text-white [&_*]:peer-checked:!text-white">
+                        30 min</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="walker-minutes" value="60" checked class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-center text-sm font-semibold transition border-navy/20 bg-white/70 text-navy hover:border-navy/50 peer-checked:border-navy peer-checked:bg-navy peer-checked:!text-white [&_*]:peer-checked:!text-white">
+                        1 hora</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="walker-minutes" value="90" class="peer hidden" />
+                      <div
+                        class="rounded-xl border px-2 py-2.5 text-center text-sm font-semibold transition border-navy/20 bg-white/70 text-navy hover:border-navy/50 peer-checked:border-navy peer-checked:bg-navy peer-checked:!text-white [&_*]:peer-checked:!text-white">
+                        1h30</div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Local do Encontro -->
+                <div class="relative">
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 flex items-center gap-2 text-navy"
+                    for="walk-local">
+                    <i data-lucide="map-pin" class="h-4 w-4"></i>
+                    <span>Local do encontro</span>
+                  </label>
+                  <input id="walk-local" type="text" autocomplete="off"
+                    placeholder="Ex: Rua Coronel Moreira César, 123, Icaraí, Niterói"
+                    class="flex h-9 w-full rounded-md border px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 md:text-sm border-navy/20 bg-white text-navy placeholder:text-navy/50 focus-visible:ring-navy" />
+                  <div id="walk-local-dropdown"
+                    class="hidden absolute left-0 right-0 top-full z-[100] mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/20 bg-navy text-white shadow-2xl backdrop-blur-md">
+                  </div>
+                </div>
+
+                <div id="walker-error" class="text-xs text-red-600 font-medium"></div>
+
+                <button id="btn-calc-walker" onclick="handleWalkerCalc()"
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shadow h-10 rounded-md px-8 w-full bg-navy font-semibold text-white hover:bg-navy-deep">
+                  Simular Passeio
+                </button>
+              </div>
+            </div>
+
+            <!-- Result Card -->
+            <div id="walker-result-container"
+              class="bg-white p-5 sm:p-8 md:p-10 flex flex-col justify-center items-center text-center">
+              <div class="grid h-16 w-16 place-items-center rounded-2xl bg-warm">
+                <i data-lucide="paw-print" class="h-8 w-8 text-navy"></i>
+              </div>
+              <p class="mt-4 max-w-xs text-sm text-muted-foreground">Escolha porte, duração e local para ver o valor do
+                passeio.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Container para Mensais do Passeio -->
+      <div id="monthly-walker-container"></div>
+
+      <!-- Voltar ao Topo -->
+      <div class="mt-12 text-center print-hide">
+        <a href="#top"
+          class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+          <span class="text-amber-500 font-bold">↑</span> Voltar ao topo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMBOS & MONTHLY SECTION -->
+  <section id="planos" class="relative overflow-hidden bg-navy py-20 text-white sm:py-28">
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.12),transparent_70%)]">
+    </div>
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <span
+          class="px-3.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-extrabold uppercase tracking-wider shadow-sm">Combos
+          & Mensais</span>
+        <h2 class="mt-4 font-display text-3xl font-extrabold sm:text-4xl">Planos que combinam com a rotina do seu pet
+        </h2>
+        <p class="mt-3 text-white/70">Selecione sua cidade, bairro e porte do pet abaixo para ver os valores dos combos
+          e mensais atualizados para a sua localização.</p>
+      </div>
+
+      <!-- Filter Section -->
+      <div id="combo-filter-section" class="mt-8 flex flex-col items-center gap-6">
+        <!-- Cidade, Bairro e Parque em 3 colunas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+          <div class="w-full text-left">
+            <label class="text-xs text-white/80 font-medium flex items-center gap-1.5 mb-1">
+              <i data-lucide="map-pin" class="h-3.5 w-3.5 text-gold"></i>
+              <span>Cidade</span>
+            </label>
+            <select id="combo-city"
+              class="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm text-white backdrop-blur focus:outline-none focus:ring-2 focus:ring-gold">
+              <option value="" class="text-slate-900 bg-white">Carregando cidades...</option>
+            </select>
+          </div>
+          <div class="w-full text-left">
+            <label class="text-xs text-white/80 font-medium flex items-center gap-1.5 mb-1">
+              <i data-lucide="navigation" class="h-3.5 w-3.5 text-gold"></i>
+              <span>Bairro</span>
+            </label>
+            <select id="combo-neighborhood" disabled
+              class="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm text-white backdrop-blur focus:outline-none focus:ring-2 focus:ring-gold disabled:opacity-50">
+              <option value="" class="text-slate-900 bg-white">Selecione a cidade primeiro</option>
+            </select>
+          </div>
+          <div class="w-full text-left">
+            <label class="text-xs text-white/80 font-medium flex items-center gap-1.5 mb-1">
+              <i data-lucide="trees" class="h-3.5 w-3.5 text-gold"></i>
+              <span>Parque de Destino (Opcional)</span>
+            </label>
+            <select id="combo-park"
+              class="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm text-white backdrop-blur focus:outline-none focus:ring-2 focus:ring-gold">
+              <option value="" class="text-slate-900 bg-white">Nenhum parque (Passeio local no bairro)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Porte do Pet (Radio Cards matching Calculators) -->
+        <div class="w-full max-w-2xl text-center">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs text-white/80 font-medium flex items-center gap-1.5">
+              <i data-lucide="paw-print" class="h-3.5 w-3.5 text-gold"></i>
+              <span>Porte do Pet</span>
+            </label>
+            <button type="button" id="btn-add-combo-pet" onclick="addComboPet()"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gold-gradient text-navy font-bold text-xs shadow hover:opacity-95 transition cursor-pointer">
+              <i data-lucide="plus" class="h-3.5 w-3.5 stroke-[3]"></i>
+              <span>Adicionar Pet</span>
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+            <label class="cursor-pointer">
+              <input type="radio" name="combo-porte" value="pequeno" checked class="peer hidden" />
+              <div
+                class="rounded-xl border border-white/15 bg-white/5 p-3 text-center peer-checked:border-gold peer-checked:bg-gold/20 peer-checked:text-white transition">
+                <div class="text-xs font-semibold">Pequeno</div>
+                <div class="text-[10px] text-white/60">Até 10 kg</div>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="combo-porte" value="medio" class="peer hidden" />
+              <div
+                class="rounded-xl border border-white/15 bg-white/5 p-3 text-center peer-checked:border-gold peer-checked:bg-gold/20 peer-checked:text-white transition">
+                <div class="text-xs font-semibold">Médio</div>
+                <div class="text-[10px] text-white/60">11–25 kg</div>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="combo-porte" value="grande" class="peer hidden" />
+              <div
+                class="rounded-xl border border-white/15 bg-white/5 p-3 text-center peer-checked:border-gold peer-checked:bg-gold/20 peer-checked:text-white transition">
+                <div class="text-xs font-semibold">Grande</div>
+                <div class="text-[10px] text-white/60">26–45 kg</div>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="combo-porte" value="gigante" class="peer hidden" />
+              <div
+                class="rounded-xl border border-white/15 bg-white/5 p-3 text-center peer-checked:border-gold peer-checked:bg-gold/20 peer-checked:text-white transition">
+                <div class="text-xs font-semibold">Gigante</div>
+                <div class="text-[10px] text-white/60">Acima de 40 kg</div>
+              </div>
+            </label>
+          </div>
+          <div id="combo-pets-list" class="mt-3 space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Dynamic Combos Cards -->
+      <div id="combos-cards-container">
+        <div class="mt-12 rounded-2xl bg-white/5 p-8 text-center text-white/70">
+          Selecione sua cidade e bairro acima para ver os preços dos Combos calculados para a sua localização.
+        </div>
+      </div>
+
+      <!-- Voltar ao Topo -->
+      <div class="mt-12 text-center print-hide">
+        <a href="#top"
+          class="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-semibold text-amber-400 backdrop-blur hover:bg-white/10 hover:text-amber-300 transition">
+          <span class="text-amber-400 font-bold">↑</span> Voltar ao topo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE MIM SECTION -->
+  <section id="sobre" class="bg-amber-50/50 py-20 sm:py-28">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <span
+          class="px-3.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-extrabold uppercase tracking-wider shadow-sm">Sobre
+          Mim</span>
+        <h2 class="mt-4 font-display text-3xl font-extrabold text-slate-900 sm:text-4xl">Quem vai cuidar do seu melhor
+          amigo?</h2>
+        <p class="mt-3 text-slate-600">Muito prazer, eu sou o Thiago. <br> Conheça a história que deu vida à Cinco Patas
+          Dog
+          Car & Walker.</p>
+      </div>
+
+      <div class="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+        <div class="relative mx-auto w-full max-w-sm lg:mx-0">
+          <!-- 6 Photos Grid (2 columns x 3 rows) -->
+          <div class="relative grid grid-cols-2 gap-3">
+            <img src="assets/thiago-1.jpg" alt="Thiago com seu cãozinho"
+              class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-2.jpg" alt="Baylie em campo aberto"
+              class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-3.jpg" alt="Kyra deitada na grama"
+              class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-4.jpg" alt="A turma observando o horizonte"
+              class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-5.jpg" alt="Companheira sorridente"
+              class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+            <img src="assets/thiago-6.jpg" alt="Fiel parceira no gramado"
+              class="aspect-square w-full rounded-2xl object-cover shadow-lg hover:scale-105 transition" />
+          </div>
+        </div>
+
+        <div class="space-y-5 text-base leading-relaxed text-slate-700">
+          <p>Há mais de 5 anos, morei em uma chácara em Papucaia e vivi o que significa estar verdadeiramente cercado de
+            amor canino. Com o tempo, fui "adotado" por vários cães de rua e vizinhos que escolheram o meu quintal como
+            ponto de encontro favorito.</p>
+          <p>Meus companheiros de sempre foram <strong>Baylie e Kyra</strong>, mas a família cresceu rápido. Cuidei de
+            um grupo diverso e cheio de personalidade: <strong>Jessie</strong>, a Labrador cheia de energia;
+            <strong>Pretinho e Jhulie</strong>, Pitbulls poderosos mas carinhosos; e <strong>Amora e BB</strong>, as
+            pequenas Pinschers corajosas.
+          </p>
+          <p>Além do meu próprio bando, atuei como voluntário em um abrigo local de Papucaia, ajudando a cuidar de cerca
+            de 15 animais resgatados por vez. Foi ali que aprendi sobre manejo, higiene e primeiros socorros.</p>
+          <p>Hoje, morando em Alcântara e dirigindo uma Nissan Livina espaçosa e com ar-condicionado, coloco toda essa
+            experiência prática a serviço da <strong>Cinco Patas</strong>.</p>
+
+          <div class="mt-8 rounded-2xl border-l-4 border-amber-400 bg-white p-6 shadow-md">
+            <div
+              class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm mb-3">
+              <i data-lucide="quote" class="h-4 w-4 stroke-[2.5]"></i>
+            </div>
+            <p class="font-display text-lg font-semibold text-slate-900">"Mais que um serviço, um cuidado baseado em
+              anos de convivência, respeito e amor real pelos animais."</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voltar ao Topo -->
+      <div class="mt-12 text-center print-hide">
+        <a href="#top"
+          class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+          <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm">
+            <i data-lucide="arrow-up" class="h-3 w-3 stroke-[3]"></i>
+          </div>
+          <span>Voltar ao topo</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ & GUARANTEES SECTION -->
+  <section id="faq" class="py-20 sm:py-28 bg-white">
+    <div class="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 md:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <div>
+        <span
+          class="px-3.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-extrabold uppercase tracking-wider shadow-sm">Garantias</span>
+        <h2 class="mt-4 font-display text-3xl font-extrabold text-slate-900 sm:text-4xl">Transparência e carinho em cada
+          trajeto</h2>
+        <p class="mt-4 text-slate-600">Um serviço construído em cima de três pilares: cuidado com o pet, flexibilidade
+          para o tutor e comunicação honesta.</p>
+        <ul class="mt-6 space-y-4 text-sm font-medium">
+          <li class="flex items-center gap-3 text-slate-900">
+            <div
+              class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+                data-lucide="shield-check" class="h-4 w-4 stroke-[2.5]"></i></div>
+            <span>Cinto pet certificado</span>
+          </li>
+          <li class="flex items-center gap-3 text-slate-900">
+            <div
+              class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+                data-lucide="snowflake" class="h-4 w-4 stroke-[2.5]"></i></div>
+            <span>Ar-condicionado sempre ligado</span>
+          </li>
+          <li class="flex items-center gap-3 text-slate-900">
+            <div
+              class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+                data-lucide="clock" class="h-4 w-4 stroke-[2.5]"></i></div>
+            <span>30 min de espera grátis</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="space-y-3">
+        <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div
+                class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm">
+                <i data-lucide="shield" class="h-4 w-4 stroke-[2.5]"></i>
+              </div>
+              <span>Cuidado no Transporte</span>
+            </div>
+            <div
+              class="accordion-icon grid h-6 w-6 place-items-center rounded-full bg-gold-gradient text-slate-900 transition">
+              <i data-lucide="chevron-down" class="h-3.5 w-3.5 stroke-[2.5]"></i>
+            </div>
+          </div>
+          <div class="accordion-content mt-3 text-sm text-slate-600">
+            Todos os pets viajam protegidos por cinto de segurança pet certificado no banco traseiro ou em caixa de
+            transporte higienizada (para gatos). Veículo Nissan Livina espaçoso com ar-condicionado sempre ligado.
+          </div>
+        </div>
+
+        <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div
+                class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm">
+                <i data-lucide="sparkles" class="h-4 w-4 stroke-[2.5]"></i>
+              </div>
+              <span>Taxa de Higienização</span>
+            </div>
+            <div
+              class="accordion-icon grid h-6 w-6 place-items-center rounded-full bg-gold-gradient text-slate-900 transition">
+              <i data-lucide="chevron-down" class="h-3.5 w-3.5 stroke-[2.5]"></i>
+            </div>
+          </div>
+          <div class="accordion-content mt-3 text-sm text-slate-600">
+            A higienização padrão do veículo entre corridas já é responsabilidade nossa e não é cobrada. Uma taxa
+            adicional (de R$ 50 a R$ 150) só é cobrada se ocorrer incidente higiênico durante o trajeto.
+          </div>
+        </div>
+
+        <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div
+                class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm">
+                <i data-lucide="x-circle" class="h-4 w-4 stroke-[2.5]"></i>
+              </div>
+              <span>Política de Cancelamento</span>
+            </div>
+            <div
+              class="accordion-icon grid h-6 w-6 place-items-center rounded-full bg-gold-gradient text-slate-900 transition">
+              <i data-lucide="chevron-down" class="h-3.5 w-3.5 stroke-[2.5]"></i>
+            </div>
+          </div>
+          <div class="accordion-content mt-3 text-sm text-slate-600">
+            Cancelamentos de passeios ou táxi são totalmente gratuitos se realizados com até 24 horas de antecedência.
+          </div>
+        </div>
+
+        <div class="accordion-item rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="accordion-trigger cursor-pointer font-semibold text-slate-900 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div
+                class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm">
+                <i data-lucide="cloud-rain" class="h-4 w-4 stroke-[2.5]"></i>
+              </div>
+              <span>Dias de Chuva</span>
+            </div>
+            <div
+              class="accordion-icon grid h-6 w-6 place-items-center rounded-full bg-gold-gradient text-slate-900 transition">
+              <i data-lucide="chevron-down" class="h-3.5 w-3.5 stroke-[2.5]"></i>
+            </div>
+          </div>
+          <div class="accordion-content mt-3 text-sm text-slate-600">
+            Em caso de chuvas fortes, os passeios externos podem ser remarcados ou convertidos em sessões de
+            enriquecimento ambiental indoor na própria casa do cliente.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voltar ao Topo -->
+    <div class="mt-12 text-center print-hide">
+      <a href="#top"
+        class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-500 shadow-sm hover:border-amber-400 hover:text-amber-600 transition">
+        <div class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+            data-lucide="arrow-up" class="h-3 w-3 stroke-[3]"></i></div>
+        <span>Voltar ao topo</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- PRINTABLE BUSINESS CARD SECTION -->
+  <section id="cartao" class="print-card-section bg-slate-100 py-20 sm:py-28">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center print-hide">
+        <span
+          class="px-3.5 py-1 rounded-full bg-gold-gradient text-slate-900 text-xs font-extrabold uppercase tracking-wider shadow-sm">Cartão
+          de Visita</span>
+        <h2 class="mt-4 font-display text-3xl font-extrabold text-slate-900 sm:text-4xl">Leve a Cinco Patas no bolso
+        </h2>
+        <p class="mt-3 text-slate-600">Cartão de visita virtual — imprima em formato padrão (85 × 55 mm).
+        </p>
+        <div class="mt-6 flex justify-center">
+          <button onclick="window.print()"
+            class="px-6 py-3 rounded-xl bg-slate-900 text-white font-semibold flex items-center gap-2.5 hover:bg-slate-800 shadow-md transition">
+            <div
+              class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+                data-lucide="printer" class="h-3.5 w-3.5 stroke-[2.5]"></i></div>
+            <span>Imprimir Cartão</span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="mx-auto mt-10 flex max-w-4xl flex-col items-center gap-6 print-card-wrapper sm:flex-row sm:justify-center">
+        <!-- Frente -->
+        <div
+          class="business-card business-card-front overflow-hidden rounded-2xl shadow-xl transition hover:shadow-2xl w-full max-w-[380px] aspect-[85/55]">
+          <img src="assets/card-front.png" alt="Cartão Cinco Patas - Frente" class="h-full w-full object-contain" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAR -->
+  <section class="bg-gold-gradient py-14">
+    <div
+      class="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 text-center sm:px-6 md:flex-row md:justify-between md:text-left lg:px-8">
+      <div>
+        <h3 class="font-display text-2xl font-extrabold text-slate-900 sm:text-3xl">Pronto para agendar o próximo
+          passeio?</h3>
+        <p class="mt-1 text-slate-800/80">Resposta em minutos pelo WhatsApp — sem compromisso.</p>
+      </div>
+      <a href="https://wa.me/5521992244753?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Cinco%20Patas%20Dog%20Car%20%26%20Walker%20e%20quero%20agendar%20um%20servi%C3%A7o."
+        target="_blank" rel="noreferrer">
+        <button
+          class="px-6 py-3.5 rounded-xl bg-slate-900 font-semibold text-white hover:bg-slate-800 shadow-lg transition">Chamar
+          no WhatsApp</button>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-navy py-14 text-white/80">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 md:grid-cols-3 lg:px-8">
+      <div>
+        <div class="flex items-center gap-3 text-white">
+          <img src="assets/favicon.png" alt="Cinco Patas Dog Car & Walker"
+            class="h-10 w-10 object-contain drop-shadow" />
+          <span class="font-display text-lg font-bold">Cinco Patas Dog Car & Walker</span>
+        </div>
+        <p class="mt-4 text-sm text-white/60">Base Operacional em Alcântara, São Gonçalo (RJ). Atendimento estendido
+          para Niterói, Maricá e Itaboraí.</p>
+      </div>
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-amber-400">Serviços</div>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href="#calculadora" class="hover:text-amber-400 transition">Táxi Dog</a></li>
+          <li><a href="#simulador-passeio" class="hover:text-amber-400 transition">Dog Walker</a></li>
+          <li><a href="#planos" class="hover:text-amber-400 transition">Planos mensais</a></li>
+          <li><a href="#faq" class="hover:text-amber-400 transition">Perguntas frequentes</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-amber-400">Contato</div>
+        <ul class="mt-4 space-y-3 text-sm">
+          <li class="flex items-center gap-2.5">
+            <div
+              class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+                data-lucide="phone" class="h-3.5 w-3.5 stroke-[2.5]"></i></div>
+            <span>(21) 99224-4753</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <div
+              class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+                data-lucide="map-pin" class="h-3.5 w-3.5 stroke-[2.5]"></i></div>
+            <span>Alcântara, São Gonçalo</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <div
+              class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-gradient text-slate-900 shadow-sm"><i
+                data-lucide="clock" class="h-3.5 w-3.5 stroke-[2.5]"></i></div>
+            <span>Todos os dias, 7h às 19h</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="mx-auto mt-10 max-w-6xl border-t border-white/10 px-4 pt-6 text-xs text-white/50">
+      © 2026 Cinco Patas Dog Car & Walker. Todos os direitos reservados.
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+
+</html>
