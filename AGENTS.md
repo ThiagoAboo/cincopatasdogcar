@@ -12,7 +12,7 @@
 ## Regras de Negócio e Diretrizes de Design do Projeto Cinco Patas
 
 - **Identidade da Marca**: "Cinco Patas Dog Car & Walker" (nome curto: "Cinco Patas").
-- **Logo e Favicon**: `assets/logo.png` (Selo 3D metálico dourado com pata de cachorro e fundo transparente alpha) e `assets/favicon.png`.
+- **Logo e Favicon**: `assets/favicon.png` (Selo 3D metálico dourado com pata de cachorro e fundo transparente alpha) e `assets/favicon.png`.
 - **Ícones**: Estilo dourado premium (`text-amber-400`, `text-gold`, `bg-gold-gradient`).
 - **Navegação Mobile**: Menu hambúrguer (`☰`) com gaveta expansível para dispositivos móveis.
 - **Calculadora de Táxi Dog**: Detalhamento de custos alinhado à esquerda.

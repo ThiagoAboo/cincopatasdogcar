@@ -7,7 +7,7 @@ description: Regras de negócio e especificações de design do projeto Cinco Pa
 
 ## 1. Marca & Identidade Visual
 - **Nome da Marca**: "Cinco Patas Dog Car & Walker" (nome curto: "Cinco Patas").
-- **Logo Oficial**: Utilizar `assets/logo.png` (Selo metálico 3D dourado com pata de cachorro em PNG com transparência alpha).
+- **Logo Oficial**: Utilizar `assets/favicon.png` (Selo metálico 3D dourado com pata de cachorro em PNG com transparência alpha).
 - **Favicon**: `assets/favicon.png`.
 - **Estilo de Ícones**: Estilo dourado premium (`text-amber-400`, `text-gold`, `bg-gold-gradient`).
 - **Navegação Mobile**: Menu hambúrguer (`☰`) com gaveta expansível para dispositivos móveis.

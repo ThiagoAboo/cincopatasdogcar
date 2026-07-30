@@ -185,49 +185,80 @@ h4,
 
 /* Print CSS */
 @media print {
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
 
-  body * {
-    visibility: hidden !important;
+  /* Completely remove non-card sections from document layout flow to enforce 1 page */
+  body > *:not(#cartao) {
+    display: none !important;
   }
 
-  .print-card-section,
-  .print-card-section * {
-    visibility: visible !important;
+  header, nav, footer, section:not(#cartao) {
+    display: none !important;
   }
 
   .print-hide {
     display: none !important;
   }
 
-  .print-card-section {
-    position: absolute;
-    inset: 0;
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+
+  #cartao, .print-card-section {
+    display: flex !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
     padding: 0 !important;
     background: white !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   .print-card-wrapper {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 10mm !important;
-    margin: 10mm auto !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
   }
 
   .business-card {
     width: 85mm !important;
     height: 55mm !important;
     box-shadow: none !important;
-    page-break-inside: avoid;
-    border: 1px solid #ddd !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    border: none !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .business-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
   }
 
   .business-card-back {
-    page-break-before: always;
+    display: none !important;
   }
 }

@@ -699,7 +699,8 @@ async function handleWalkerCalc() {
   petsToCalc.forEach((p, idx) => {
     const pLabel = settings.porte_options.find(opt => opt.id === p.porte)?.label || p.porte;
     const hourlyRate = walkerPrices[p.porte] || 32.5;
-    const fullWalkPrice = round2(hourlyRate * timeOpt.factor);
+    // Fuel to client is embedded in the paseo price (idx === 0 gets travelFee embedded)
+    const fullWalkPrice = round2(hourlyRate * timeOpt.factor + (idx === 0 ? travelFee : 0));
     const isSecondPet = idx > 0;
 
     let disc = 0;
@@ -720,7 +721,7 @@ async function handleWalkerCalc() {
 
   const netPetsWalkCost = round2(sumFullPetsWalkCost - totalSecondPetDiscount);
   const minTotal = round2(settings.walker_min_price + travelFee);
-  const total = Math.max(round2(travelFee + netPetsWalkCost), minTotal);
+  const total = Math.max(netPetsWalkCost, minTotal);
   const primaryPorteLabel = petsDetailed.map(p => p.porteLabel).join(", ");
 
   currentWalkerResult = {
@@ -769,23 +770,13 @@ function renderWalkerResult(res) {
         </div>
       </div>
       <ul class="space-y-3 text-sm mb-4">
-        <li class="flex justify-between items-center border-b border-border pb-3 text-left">
-          <div class="text-left flex items-start gap-2">
-            <i data-lucide="navigation" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
-            <div>
-              <span class="font-semibold text-navy block text-left">Taxa de chegada até o Pet</span>
-              <span class="text-xs text-muted-foreground block text-left mt-0.5">Deslocamento inicial até o local do passeio</span>
-            </div>
-          </div>
-          <span class="font-semibold text-navy shrink-0 ml-2">${BRL(res.travelFee)}</span>
-        </li>
         ${res.pets.map((p, idx) => `
           <li class="flex justify-between items-center border-b border-border pb-3 text-left">
             <div class="text-left flex items-start gap-2">
               <i data-lucide="paw-print" class="h-4 w-4 text-gold shrink-0 mt-0.5"></i>
               <div>
                 <span class="font-semibold text-navy block text-left">Pet #${idx + 1} (${p.porteLabel})</span>
-                <span class="text-xs text-muted-foreground block text-left mt-0.5">Duração ${res.minutes} min</span>
+                <span class="text-xs text-muted-foreground block text-left mt-0.5">Duração ${res.minutes} min · Deslocamento incluso</span>
               </div>
             </div>
             <div class="text-right shrink-0 ml-2">
