@@ -94,29 +94,40 @@ const DEFAULT_SETTINGS = {
   ]
 };
 
-function getSettings() {
-  const stored = localStorage.getItem("app_settings");
-  let s = { ...DEFAULT_SETTINGS };
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      delete parsed.walker_price_by_porte;
-      delete parsed.taxi_multiplier_by_porte;
-      if (parsed.taxi_per_km_human === 3 || parsed.taxi_per_km_human === 3.00) {
-        parsed.taxi_per_km_human = 0.50;
+const settings = { ...DEFAULT_SETTINGS };
+
+async function loadSettingsFromPhysicalFile() {
+  try {
+    const res = await fetch("./settings.json?v=" + Date.now(), { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      delete data.walker_price_by_porte;
+      delete data.taxi_multiplier_by_porte;
+      if (data.taxi_per_km_human === 3 || data.taxi_per_km_human === 3.00) {
+        data.taxi_per_km_human = 0.50;
       }
-      s = { ...DEFAULT_SETTINGS, ...parsed };
-      // Save cleaned settings back if old root keys existed
-      localStorage.setItem("app_settings", JSON.stringify(s));
-    } catch (e) { }
+      Object.assign(settings, DEFAULT_SETTINGS, data);
+      settings.base_coords = { lat: -22.8160, lon: -43.0080 };
+      localStorage.setItem("app_settings_cache", JSON.stringify(settings));
+    }
+  } catch (e) {
+    const cached = localStorage.getItem("app_settings_cache") || localStorage.getItem("app_settings");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        Object.assign(settings, DEFAULT_SETTINGS, parsed);
+      } catch (err) {}
+    }
   }
-  delete s.walker_price_by_porte;
-  delete s.taxi_multiplier_by_porte;
-  s.base_coords = { lat: -22.8160, lon: -43.0080 }; // Enforce Alcântara Center
-  return s;
+  return settings;
 }
 
-const settings = getSettings();
+function getSettings() {
+  return settings;
+}
+
+// Tenta pré-carregar imediatamente caso fetch funcione
+loadSettingsFromPhysicalFile();
 
 // --- Helper Functions ---
 const BRL = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -1296,7 +1307,8 @@ function setupAccordion() {
 }
 
 // Global Initialization
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadSettingsFromPhysicalFile();
   setupCustomAutocompletes();
   setupAccordion();
   setupIBGECities();

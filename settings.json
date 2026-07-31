@@ -1,0 +1,92 @@
+{
+  "brand": "Cinco Patas Dog Car & Walker",
+  "brand_short": "Cinco Patas",
+  "whatsapp_number": "5521992244753",
+  "phone_display": "(21) 99224-4753",
+  "instagram_handle": "@cincopatasdogcar",
+  "city_base": "Alcântara, São Gonçalo (RJ)",
+  "base_coords": {
+    "lat": -22.816,
+    "lon": -43.008
+  },
+  "cities_covered": [
+    "São Gonçalo",
+    "Niterói",
+    "Maricá",
+    "Itaboraí"
+  ],
+  "schedule_display": "Todos os dias, 7h às 19h",
+  "fuel_cost_per_km": 0.30,
+  "fuel_cost_markup_percent": 0.50,
+  "taxi_per_km_pet": 2.50,
+  "taxi_per_km_human": 0.50,
+  "taxi_min_price": 25,
+  "walker_min_price": 30,
+  "walker_travel_fee_per_km_over": 1.50,
+  "walker_travel_fee_km_threshold": 5,
+  "wait_time_free_min": 30,
+  "wait_time_fee": 10,
+  "wait_time_fee_min_block": 15,
+  "hygiene_fee_min": 50,
+  "hygiene_fee_max": 150,
+  "combo_taxi_base_km": 5,
+  "combo_aventurinha_discount": 0.15,
+  "combo_vip_discount": 0.25,
+  "monthly_pkg_discount": 0.20,
+  "taxi_second_pet_discount": 0.50,
+  "walker_second_pet_discount": 0.50,
+  "max_pets": 3,
+  "cancel_free_hours": 24,
+  "porte_options": [
+    { "id": "pequeno", "label": "Pequeno", "weight": "Até 10 kg" },
+    { "id": "medio", "label": "Médio", "weight": "11–25 kg" },
+    { "id": "grande", "label": "Grande", "weight": "26–45 kg" },
+    { "id": "gigante", "label": "Gigante", "weight": "45 kg +" }
+  ],
+  "monthly_tiers": [
+    { "tier": "1x por semana", "freq": 1, "label": "4 serviços / mês" },
+    { "tier": "2x por semana", "freq": 2, "label": "8 serviços / mês", "accent": true },
+    { "tier": "3x por semana", "freq": 3, "label": "12 serviços / mês" }
+  ],
+  "walk_time_options": [
+    { "min": 30, "label": "30 min", "factor": 0.6 },
+    { "min": 60, "label": "1 hora", "factor": 1.0 },
+    { "min": 90, "label": "1h30", "factor": 1.4 }
+  ],
+  "cidades": [
+    {
+      "nome": "Niterói",
+      "parques": [
+        { "nome": "Campo de São Bento", "latitude": -22.9011, "longitude": -43.1097 },
+        { "nome": "Horto do Fonseca", "latitude": -22.8808, "longitude": -43.0903 },
+        { "nome": "Horto de Itaipu", "latitude": -22.9405, "longitude": -43.0321 },
+        { "nome": "Horto do Barreto", "latitude": -22.8753, "longitude": -43.1058 },
+        { "nome": "Parque da Cidade de Niterói", "latitude": -22.9234, "longitude": -43.0852 }
+      ]
+    },
+    {
+      "nome": "Maricá",
+      "parques": [
+        { "nome": "Orla da Lagoa de Araçatiba", "latitude": -22.9239, "longitude": -42.8256 },
+        { "nome": "Orla de Itaipuaçu", "latitude": -22.9722, "longitude": -42.9247 },
+        { "nome": "Praça Orlando de Barros Pimentel", "latitude": -22.9192, "longitude": -42.8183 },
+        { "nome": "Parque Linear de Inoã", "latitude": -22.9272, "longitude": -42.9103 }
+      ]
+    },
+    {
+      "nome": "São Gonçalo",
+      "parques": [
+        { "nome": "Praça dos Ex-Combatentes", "latitude": -22.8153, "longitude": -43.0536 },
+        { "nome": "Praça do Gradim", "latitude": -22.8092, "longitude": -43.0728 },
+        { "nome": "Praça de Neves", "latitude": -22.8317, "longitude": -43.0894 },
+        { "nome": "Praça da Trindade", "latitude": -22.8114, "longitude": -43.0353 }
+      ]
+    },
+    {
+      "nome": "Itaboraí",
+      "parques": [
+        { "nome": "Praça Marechal Floriano Peixoto", "latitude": -22.7444, "longitude": -42.8594 }
+      ]
+    }
+  ]
+}
