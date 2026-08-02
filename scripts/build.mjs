@@ -8,7 +8,7 @@ const dist = path.join(root, "dist");
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
 
-const entries = ["index.html", "admin.html", "app.js", "styles.css", "assets"];
+const entries = ["index.html", "admin.html", "app.js", "styles.css", "settings.json", "manifest.json", "assets"];
 
 for (const entry of entries) {
   const from = path.join(root, entry);
