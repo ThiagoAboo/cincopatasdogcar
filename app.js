@@ -134,24 +134,74 @@ const BRL = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL
 const round2 = (n) => Math.round(n * 100) / 100;
 const waLink = (msg) => `https://wa.me/${settings.whatsapp_number}?text=${encodeURIComponent(msg)}`;
 
-// --- Nominatim & OSRM Geocoding ---
-async function searchAddresses(q) {
-  const query = q.trim();
-  if (query.length < 3) return [];
-  const bias = /rj|rio de janeiro|brasil/i.test(query) ? query : `${query}, Rio de Janeiro, Brasil`;
+// --- API Keys (carregadas de settings.json) ---
+const GOOGLE_API_KEY = () => settings.google_api_key || "";
+const MAPBOX_TOKEN = () => settings.mapbox_token || "";
+
+// --- Google Maps JS SDK (carregamento dinâmico) ---
+let googleMapsReady = false;
+
+function loadGoogleMapsSDK() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) { googleMapsReady = true; resolve(); return; }
+    const key = GOOGLE_API_KEY();
+    if (!key) { reject(new Error("Sem Google API Key")); return; }
+    const s = document.createElement("script");
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+    s.async = true;
+    s.onload = () => { googleMapsReady = true; resolve(); };
+    s.onerror = () => reject(new Error("Falha ao carregar Google Maps SDK"));
+    document.head.appendChild(s);
+  });
+}
+
+// --- Geocoding (Google JS SDK principal · Mapbox fallback) ---
+async function searchAddressesGoogle(q) {
+  if (!googleMapsReady) return [];
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=br&addressdetails=1&q=${encodeURIComponent(bias)}`;
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.map((d) => ({
-      label: d.display_name,
-      lat: parseFloat(d.lat),
-      lon: parseFloat(d.lon),
+    const geocoder = new google.maps.Geocoder();
+    const resp = await geocoder.geocode({
+      address: q,
+      language: "pt-BR",
+      region: "br",
+      componentRestrictions: { country: "BR" },
+    });
+    const results = resp.results || resp;
+    if (!results?.length) return [];
+    return results.slice(0, 5).map((r) => ({
+      label: r.formatted_address,
+      lat: r.geometry.location.lat(),
+      lon: r.geometry.location.lng(),
     }));
   } catch (e) {
     return [];
   }
+}
+
+async function searchAddressesMapbox(q) {
+  try {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN()}&country=br&limit=5&language=pt&bbox=-44.5,-23.5,-42.0,-22.0`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.features || []).map((f) => ({
+      label: f.place_name,
+      lat: f.center[1],
+      lon: f.center[0],
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+async function searchAddresses(q) {
+  const query = q.trim();
+  if (query.length < 3) return [];
+  // Tenta Google JS SDK primeiro
+  const gResults = await searchAddressesGoogle(query);
+  if (gResults.length) return gResults;
+  // Fallback para Mapbox
+  return searchAddressesMapbox(query);
 }
 
 async function geocodeAddress(address) {
@@ -169,18 +219,46 @@ function haversineKm(a, b) {
   return Math.round(R * c * 1.25 * 10) / 10;
 }
 
-async function getRoadDistance(a, b) {
+// --- Distância rodoviária (Google JS SDK principal · Mapbox fallback · Haversine último recurso) ---
+async function getRoadDistanceGoogle(a, b) {
+  if (!googleMapsReady) return null;
   try {
-    const url = `https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("OSRM failed");
-    const data = await res.json();
-    if (!data.routes || !data.routes.length) throw new Error("No route found");
-    const meters = data.routes[0].distance;
-    return Math.round((meters / 1000) * 10) / 10;
+    const service = new google.maps.DistanceMatrixService();
+    const resp = await service.getDistanceMatrix({
+      origins: [new google.maps.LatLng(a.lat, a.lon)],
+      destinations: [new google.maps.LatLng(b.lat, b.lon)],
+      travelMode: google.maps.TravelMode.DRIVING,
+    });
+    const el = resp.rows?.[0]?.elements?.[0];
+    if (!el || el.status !== "OK") return null;
+    return Math.round((el.distance.value / 1000) * 10) / 10;
   } catch (e) {
-    return haversineKm(a, b);
+    return null;
   }
+}
+
+async function getRoadDistanceMapbox(a, b) {
+  try {
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false&access_token=${MAPBOX_TOKEN()}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.routes || !data.routes.length) return null;
+    return Math.round((data.routes[0].distance / 1000) * 10) / 10;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function getRoadDistance(a, b) {
+  // Tenta Google Distance Matrix (JS SDK) primeiro
+  const gDist = await getRoadDistanceGoogle(a, b);
+  if (gDist !== null) return gDist;
+  // Fallback Mapbox Directions
+  const mDist = await getRoadDistanceMapbox(a, b);
+  if (mDist !== null) return mDist;
+  // Último recurso: Haversine × 1.25
+  return haversineKm(a, b);
 }
 
 function validateAddress(v) {
@@ -1009,13 +1087,38 @@ function updateParkSelect() {
 
 async function fetchNeighborhoodsForCity(cityName) {
   let list = RJ_BAIRROS_MAP[cityName] || [];
+  // Tenta Google Geocoding (JS SDK) para buscar bairros
+  if (googleMapsReady) try {
+    const geocoder = new google.maps.Geocoder();
+    const resp = await geocoder.geocode({
+      address: cityName + ", RJ, Brasil",
+      language: "pt-BR",
+      region: "br",
+      componentRestrictions: { country: "BR" },
+    });
+    const results = resp.results || resp;
+    if (results?.length) {
+      const gBairros = results
+        .map(r => {
+          const comp = r.address_components || [];
+          const sub = comp.find(c => c.types.includes("sublocality_level_1") || c.types.includes("sublocality") || c.types.includes("neighborhood"));
+          return sub ? sub.long_name : null;
+        })
+        .filter(Boolean);
+      if (gBairros.length) {
+        const combined = Array.from(new Set([...list, ...gBairros]));
+        if (combined.length > 0) return combined.sort((a, b) => a.localeCompare(b));
+      }
+    }
+  } catch (e) { }
+  // Fallback Mapbox
   try {
-    const url = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cityName)}&state=Rio+de+Janeiro&country=Brasil&format=json&addressdetails=1&limit=50`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      const apiBairros = data
-        .map(d => d.address?.suburb || d.address?.neighbourhood || d.name)
+    const mUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cityName)}.json?access_token=${MAPBOX_TOKEN()}&country=br&types=neighborhood,locality&limit=10&language=pt&bbox=-44.5,-23.5,-42.0,-22.0`;
+    const mRes = await fetch(mUrl);
+    if (mRes.ok) {
+      const mData = await mRes.json();
+      const apiBairros = (mData.features || [])
+        .map(f => f.text || f.place_name?.split(",")[0])
         .filter(Boolean);
       const combined = Array.from(new Set([...list, ...apiBairros]));
       if (combined.length > 0) return combined.sort((a, b) => a.localeCompare(b));
@@ -1306,9 +1409,10 @@ function setupAccordion() {
   });
 }
 
-// Global Initialization
 document.addEventListener("DOMContentLoaded", async () => {
   await loadSettingsFromPhysicalFile();
+  // Carrega Google Maps SDK após settings (para ter a API key)
+  try { await loadGoogleMapsSDK(); } catch (e) { console.warn("Google Maps SDK indisponível, usando Mapbox como fallback.", e); }
   setupCustomAutocompletes();
   setupAccordion();
   setupIBGECities();
