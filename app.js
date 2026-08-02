@@ -134,24 +134,52 @@ const BRL = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL
 const round2 = (n) => Math.round(n * 100) / 100;
 const waLink = (msg) => `https://wa.me/${settings.whatsapp_number}?text=${encodeURIComponent(msg)}`;
 
-// --- Nominatim & OSRM Geocoding ---
-async function searchAddresses(q) {
-  const query = q.trim();
-  if (query.length < 3) return [];
-  const bias = /rj|rio de janeiro|brasil/i.test(query) ? query : `${query}, Rio de Janeiro, Brasil`;
+// --- API Keys (carregadas de settings.json) ---
+const GOOGLE_API_KEY = () => settings.google_api_key || "";
+const MAPBOX_TOKEN = () => settings.mapbox_token || "";
+
+// --- Geocoding (Google principal · Mapbox fallback) ---
+async function searchAddressesGoogle(q) {
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=br&addressdetails=1&q=${encodeURIComponent(bias)}`;
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(q)}&key=${GOOGLE_API_KEY()}&language=pt-BR&region=br&components=country:BR`;
+    const res = await fetch(url);
     if (!res.ok) return [];
     const data = await res.json();
-    return data.map((d) => ({
-      label: d.display_name,
-      lat: parseFloat(d.lat),
-      lon: parseFloat(d.lon),
+    if (data.status !== "OK" || !data.results?.length) return [];
+    return data.results.slice(0, 5).map((r) => ({
+      label: r.formatted_address,
+      lat: r.geometry.location.lat,
+      lon: r.geometry.location.lng,
     }));
   } catch (e) {
     return [];
   }
+}
+
+async function searchAddressesMapbox(q) {
+  try {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN()}&country=br&limit=5&language=pt&bbox=-44.5,-23.5,-42.0,-22.0`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.features || []).map((f) => ({
+      label: f.place_name,
+      lat: f.center[1],
+      lon: f.center[0],
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+async function searchAddresses(q) {
+  const query = q.trim();
+  if (query.length < 3) return [];
+  // Tenta Google primeiro
+  const google = await searchAddressesGoogle(query);
+  if (google.length) return google;
+  // Fallback para Mapbox
+  return searchAddressesMapbox(query);
 }
 
 async function geocodeAddress(address) {
@@ -169,18 +197,43 @@ function haversineKm(a, b) {
   return Math.round(R * c * 1.25 * 10) / 10;
 }
 
-async function getRoadDistance(a, b) {
+// --- Distância rodoviária (Google principal · Mapbox fallback · Haversine último recurso) ---
+async function getRoadDistanceGoogle(a, b) {
   try {
-    const url = `https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`;
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${a.lat},${a.lon}&destinations=${b.lat},${b.lon}&mode=driving&language=pt-BR&key=${GOOGLE_API_KEY()}`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error("OSRM failed");
+    if (!res.ok) return null;
     const data = await res.json();
-    if (!data.routes || !data.routes.length) throw new Error("No route found");
-    const meters = data.routes[0].distance;
-    return Math.round((meters / 1000) * 10) / 10;
+    const el = data.rows?.[0]?.elements?.[0];
+    if (!el || el.status !== "OK") return null;
+    return Math.round((el.distance.value / 1000) * 10) / 10;
   } catch (e) {
-    return haversineKm(a, b);
+    return null;
   }
+}
+
+async function getRoadDistanceMapbox(a, b) {
+  try {
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false&access_token=${MAPBOX_TOKEN()}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.routes || !data.routes.length) return null;
+    return Math.round((data.routes[0].distance / 1000) * 10) / 10;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function getRoadDistance(a, b) {
+  // Tenta Google Distance Matrix primeiro
+  const google = await getRoadDistanceGoogle(a, b);
+  if (google !== null) return google;
+  // Fallback Mapbox Directions
+  const mapbox = await getRoadDistanceMapbox(a, b);
+  if (mapbox !== null) return mapbox;
+  // Último recurso: Haversine × 1.25
+  return haversineKm(a, b);
 }
 
 function validateAddress(v) {
@@ -1009,13 +1062,35 @@ function updateParkSelect() {
 
 async function fetchNeighborhoodsForCity(cityName) {
   let list = RJ_BAIRROS_MAP[cityName] || [];
+  // Tenta Google Geocoding para buscar bairros
   try {
-    const url = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cityName)}&state=Rio+de+Janeiro&country=Brasil&format=json&addressdetails=1&limit=50`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      const apiBairros = data
-        .map(d => d.address?.suburb || d.address?.neighbourhood || d.name)
+    const gUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(cityName + ", RJ, Brasil")}&key=${GOOGLE_API_KEY()}&language=pt-BR&region=br&components=country:BR`;
+    const gRes = await fetch(gUrl);
+    if (gRes.ok) {
+      const gData = await gRes.json();
+      if (gData.status === "OK" && gData.results?.length) {
+        const gBairros = gData.results
+          .map(r => {
+            const comp = r.address_components || [];
+            const sub = comp.find(c => c.types.includes("sublocality_level_1") || c.types.includes("sublocality") || c.types.includes("neighborhood"));
+            return sub ? sub.long_name : null;
+          })
+          .filter(Boolean);
+        if (gBairros.length) {
+          const combined = Array.from(new Set([...list, ...gBairros]));
+          if (combined.length > 0) return combined.sort((a, b) => a.localeCompare(b));
+        }
+      }
+    }
+  } catch (e) { }
+  // Fallback Mapbox
+  try {
+    const mUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cityName)}.json?access_token=${MAPBOX_TOKEN()}&country=br&types=neighborhood,locality&limit=10&language=pt&bbox=-44.5,-23.5,-42.0,-22.0`;
+    const mRes = await fetch(mUrl);
+    if (mRes.ok) {
+      const mData = await mRes.json();
+      const apiBairros = (mData.features || [])
+        .map(f => f.text || f.place_name?.split(",")[0])
         .filter(Boolean);
       const combined = Array.from(new Set([...list, ...apiBairros]));
       if (combined.length > 0) return combined.sort((a, b) => a.localeCompare(b));

@@ -234,5 +234,7 @@
       ]
     }
   ],
-  "second_pet_discount": 0.5
+  "second_pet_discount": 0.5,
+  "google_api_key": "AIzaSyDW0Qi1t-7VabQEc3PuR4CQvDuR0hcTHvA",
+  "mapbox_token": "pk.eyJ1IjoidGhpYWdvdmllaXJhbGltYSIsImEiOiJjbXNiNDlqdngwMXdnMnlvaDZxNHFkNTJkIn0.YL-yYWUby2OMaY4_MFA_Yw"
 }
