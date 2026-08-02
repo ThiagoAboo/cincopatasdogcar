@@ -3,9 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "python3 -m http.server 8080 --bind 0.0.0.0",
+    "dev": "node scripts/dev-server.mjs",
     "build": "echo \"Static site, no build step.\"",
     "build:dev": "echo \"Static site, no build step.\"",
-    "start": "python3 -m http.server 8080 --bind 0.0.0.0"
+    "start": "node scripts/dev-server.mjs"
   }
 }
