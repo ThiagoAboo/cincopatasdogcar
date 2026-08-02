@@ -179,6 +179,7 @@ async function searchAddressesGoogle(q) {
 }
 
 async function searchAddressesMapbox(q) {
+  if (!MAPBOX_TOKEN()) return [];
   try {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN()}&country=br&limit=5&language=pt&bbox=-44.5,-23.5,-42.0,-22.0`;
     const res = await fetch(url);
@@ -238,6 +239,7 @@ async function getRoadDistanceGoogle(a, b) {
 }
 
 async function getRoadDistanceMapbox(a, b) {
+  if (!MAPBOX_TOKEN()) return null;
   try {
     const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false&access_token=${MAPBOX_TOKEN()}`;
     const res = await fetch(url);
@@ -1112,7 +1114,7 @@ async function fetchNeighborhoodsForCity(cityName) {
     }
   } catch (e) { }
   // Fallback Mapbox
-  try {
+  if (MAPBOX_TOKEN()) try {
     const mUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cityName)}.json?access_token=${MAPBOX_TOKEN()}&country=br&types=neighborhood,locality&limit=10&language=pt&bbox=-44.5,-23.5,-42.0,-22.0`;
     const mRes = await fetch(mUrl);
     if (mRes.ok) {
