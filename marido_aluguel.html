@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Thiago Vieira Marido de Aluguel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #1a5f7a;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .secao {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .flex-inputs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .flex-inputs label {
+            flex: 1;
+            min-width: 250px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .flex-inputs input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #1a5f7a;
+            color: white;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .categoria-row {
+            background-color: #eef5f8;
+            font-weight: bold;
+            color: #1a5f7a;
+        }
+        .valor {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .tempo {
+            color: #666;
+            font-size: 13px;
+        }
+        .desc-pacote {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        .card-msg {
+            background: #f9f9f9;
+            border-left: 4px solid #25D366;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .card-msg p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            white-space: pre-wrap;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .btn-wpp {
+            background-color: #25D366;
+            color: white;
+        }
+        .btn-wpp:hover {
+            background-color: #128C7E;
+        }
+        .btn-copy {
+            background-color: #1a5f7a;
+            color: white;
+        }
+        .btn-copy:hover {
+            background-color: #113f52;
+        }
+        .btn-acao {
+            background-color: #2e7d32;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+        .btn-acao:hover {
+            background-color: #1b5e20;
+        }
+        .recibo-box {
+            background: #fff;
+            border: 2px dashed #333;
+            padding: 25px;
+            font-family: 'Courier New', Courier, monospace;
+            max-width: 600px;
+            margin: 20px auto;
+            display: none;
+            color: #000;
+        }
+        .recibo-header {
+            text-align: center;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .recibo-linha {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .recibo-total {
+            border-top: 1px dashed #333;
+            padding-top: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 15px;
+            text-align: right;
+        }
+        @media print {
+            body * {
+                display: none;
+            }
+            .recibo-box, .recibo-box * {
+                display: block !important;
+            }
+            .recibo-box {
+                border: none;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Painel de Gerenciamento - Marido de Aluguel</h1>
+
+    <div class="secao no-print">
+        <h3>1. Dados do Cliente</h3>
+        <div class="flex-inputs">
+            <label>Nome do Cliente:
+                <input type="text" id="nomeCliente" placeholder="Ex: Joao Silva" oninput="atualizarTextos()">
+            </label>
+            <label>Telefone / WhatsApp (com DDD, somente numeros):
+                <input type="text" id="telCliente" placeholder="Ex: 21992244753" oninput="atualizarTextos()">
+            </label>
+        </div>
+    </div>
+
+    <div class="secao no-print">
+        <h3>2. Selecao de Servicos e Orcamento</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th width="5%">Selecione</th>
+                    <th width="55%">Servico / Pacote</th>
+                    <th width="20%">Valor Mão de Obra</th>
+                    <th width="20%">Tempo Estimado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="categoria-row"><td colspan="4">⏱️ PACOTES POR PERIODO (Multiplos Servicos)</td></tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Pacote Meio Periodo" data-valor="450.00" onchange="calcularTotal()"></td>
+                    <td><strong>Pacote Meio Periodo</strong><span class="desc-pacote">Exemplo: Ideal para pendurar ate 3 quadros, trocar 1 chuveiro e fixar 1 varal de teto na mesma visita.</span></td>
+                    <td class="valor">R$ 450,00</td>
+                    <td class="tempo">Ate 4 horas</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Pacote Diaria Completa" data-valor="800.00" onchange="calcularTotal()"></td>
+                    <td><strong>Pacote Diaria Completa</strong><span class="desc-pacote">Exemplo: Ideal para instalacao completa de mudancas (instalar todas as luminarias, cortinas, suportes de TV e prateleiras da casa).</span></td>
+                    <td class="valor">R$ 800,00</td>
+                    <td class="tempo">Ate 8 horas</td>
+                </tr>
+
+                <tr class="categoria-row"><td colspan="4">⚡ SERVIÇOS ELÉTRICOS</td></tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Troca de chuveiro comum" data-valor="120.00" onchange="calcularTotal()"></td>
+                    <td>Troca de chuveiro comum (fiacao existente)</td>
+                    <td class="valor">R$ 120,00</td>
+                    <td class="tempo">30 a 45 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de chuveiro novo" data-valor="200.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de chuveiro novo (fiacao/disjuntor novo)</td>
+                    <td class="valor">R$ 200,00</td>
+                    <td class="tempo">1h30 a 2h</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de ventilador de teto comum" data-valor="180.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de ventilador de teto comum</td>
+                    <td class="valor">R$ 180,00</td>
+                    <td class="tempo">1h a 1h30</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de ventilador de teto com controle" data-valor="220.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de ventilador de teto com controle</td>
+                    <td class="valor">R$ 220,00</td>
+                    <td class="tempo">1h a 1h30</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Troca de tomada ou interruptor" data-valor="50.00" onchange="calcularTotal()"></td>
+                    <td>Troca de tomada ou interruptor (unidade)</td>
+                    <td class="valor">R$ 50,00</td>
+                    <td class="tempo">15 a 20 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de luminaria/painel LED" data-valor="80.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de luminaria, spot ou painel LED</td>
+                    <td class="valor">R$ 80,00</td>
+                    <td class="tempo">30 a 50 min</td>
+                </tr>
+
+                <tr class="categoria-row"><td colspan="4">💧 SERVIÇOS HIDRAULICOS</td></tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Troca de mecanismo de descarga acoplada" data-valor="130.00" onchange="calcularTotal()"></td>
+                    <td>Troca de mecanismo de descarga acoplada</td>
+                    <td class="valor">R$ 130,00</td>
+                    <td class="tempo">45 a 60 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Troca de reparo de valvula Hydra" data-valor="180.00" onchange="calcularTotal()"></td>
+                    <td>Troca de reparo de valvula Hydra (parede)</td>
+                    <td class="valor">R$ 180,00</td>
+                    <td class="tempo">1h a 1h30</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de torneira simples" data-valor="90.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de torneira simples / misturador</td>
+                    <td class="valor">R$ 90,00</td>
+                    <td class="tempo">30 a 45 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de torneira gourmet/filtro" data-valor="130.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de torneira gourmet ou filtro de parede</td>
+                    <td class="valor">R$ 130,00</td>
+                    <td class="tempo">45 a 60 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Troca de sifao ou engate flexivel" data-valor="60.00" onchange="calcularTotal()"></td>
+                    <td>Troca de sifao de pia ou engate flexivel</td>
+                    <td class="valor">R$ 60,00</td>
+                    <td class="tempo">20 a 30 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Desentupimento leve de pia/ralo" data-valor="150.00" onchange="calcularTotal()"></td>
+                    <td>Desentupimento leve de pia ou ralo (bomba/mola)</td>
+                    <td class="valor">R$ 150,00</td>
+                    <td class="tempo">45 a 60 min</td>
+                </tr>
+
+                <tr class="categoria-row"><td colspan="4">🛠️ INSTALACOES E FIXACOES</td></tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Fixacao de TV em suporte fixo" data-valor="130.00" onchange="calcularTotal()"></td>
+                    <td>Fixacao de TV em suporte fixo (ate 55")</td>
+                    <td class="valor">R$ 130,00</td>
+                    <td class="tempo">40 a 50 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Fixacao de TV em suporte articulado" data-valor="180.00" onchange="calcularTotal()"></td>
+                    <td>Fixacao de TV em suporte articulado</td>
+                    <td class="valor">R$ 180,00</td>
+                    <td class="tempo">1h a 1h20</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de cortina ou persiana" data-valor="90.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de cortina ou persiana (por peca)</td>
+                    <td class="valor">R$ 90,00</td>
+                    <td class="tempo">30 a 45 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de varal de teto/prateleira" data-valor="100.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de varal de teto ou prateleira grande</td>
+                    <td class="valor">R$ 100,00</td>
+                    <td class="tempo">45 a 60 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Instalacao de espelho grande/painel" data-valor="110.00" onchange="calcularTotal()"></td>
+                    <td>Instalacao de espelho grande ou painel pesado</td>
+                    <td class="valor">R$ 110,00</td>
+                    <td class="tempo">45 a 60 min</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Kit de acessorios para banheiro" data-valor="120.00" onchange="calcularTotal()"></td>
+                    <td>Kit de acessorios para banheiro (ate 5 pecas)</td>
+                    <td class="valor">R$ 120,00</td>
+                    <td class="tempo">1h a 1h15</td>
+                </tr>
+
+                <tr class="categoria-row"><td colspan="4">📦 MONTAGEM DE MOVEIS GRANDES</td></tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Armario de Cozinha Aereo Grande" data-valor="210.00" onchange="calcularTotal()"></td>
+                    <td>Armario de Cozinha Aereo Grande (3 a 4 portas)</td>
+                    <td class="valor">R$ 210,00</td>
+                    <td class="tempo">2h a 3h</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Cozinha Compacta Completa" data-valor="420.00" onchange="calcularTotal()"></td>
+                    <td>Cozinha Compacta Completa (Modulada suspensa)</td>
+                    <td class="valor">R$ 420,00</td>
+                    <td class="tempo">4h a 6h</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Guarda-Roupa Casal Pequeno/Medio" data-valor="260.00" onchange="calcularTotal()"></td>
+                    <td>Guarda-Roupa Casal Pequeno/Medio (Ate 4 portas / 2 correr)</td>
+                    <td class="valor">R$ 260,00</td>
+                    <td class="tempo">2h30 a 4h</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Guarda-Roupa Casal Grande" data-valor="410.00" onchange="calcularTotal()"></td>
+                    <td>Guarda-Roupa Casal Grande (6 portas / 3 correr com espelho)</td>
+                    <td class="valor">R$ 410,00</td>
+                    <td class="tempo">4h a 6h</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="srv-chk" data-nome="Guarda-Roupa Gigante / Closet" data-valor="600.00" onchange="calcularTotal()"></td>
+                    <td>Guarda-Roupa Gigante / Closet com Painel de TV</td>
+                    <td class="valor">R$ 600,00</td>
+                    <td class="tempo">6h a 8h</td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align: right; margin-top: 15px; font-size: 18px; font-weight: bold; color: #2e7d32;">
+            Valor Total Selecionado: R$ <span id="totalGeral">0,00</span>
+        </div>
+        <button class="btn-acao" onclick="gerarRecibo()">Gerar Recibo Abaixo</button>
+    </div>
+    <div class="secao no-print">
+        <h3>3. Modelos de Mensagens para o Cliente</h3>
+        
+        <div class="card-msg">
+            <strong>Modelo 1: Apresentacao e Proposta de Orcamento</strong>
+            <p id="txtMsg1">Ola! Tudo bem? Aqui e o Thiago Vieira, marido de aluguel parceiro do GetNinjas. Vi a sua solicitacao de servico. Trabalho com precos fixos de mao de obra e agendamento planejado. Posso enviar seu orcamento sem compromisso?</p>
+            <div class="btn-group">
+                <button class="btn-wpp" onclick="enviarWpp(1)">Enviar WhatsApp</button>
+                <button class="btn-copy" onclick="copiarTexto(1)">Copiar Texto</button>
+            </div>
+        </div>
+
+        <div class="card-msg">
+            <strong>Modelo 2: Detalhamento de Valores Selecionados</strong>
+            <p id="txtMsg2">Ola [Cliente]! Escolha os servicos acima na tabela para gerar automaticamente a mensagem com o detalhamento dos valores.</p>
+            <div class="btn-group">
+                <button class="btn-wpp" onclick="enviarWpp(2)">Enviar WhatsApp</button>
+                <button class="btn-copy" onclick="copiarTexto(2)">Copiar Texto</button>
+            </div>
+        </div>
+
+        <div class="card-msg">
+            <strong>Modelo 3: Confirmacao de Agendamento</strong>
+            <p id="txtMsg3">Ola [Cliente], passando para confirmar nosso atendimento agendado. Estarei no local no horario combinado com todas as ferramentas necessarias para os reparos residenciais. Qualquer imprevisto com os materiais, por favor me avise antes. Ate breve!</p>
+            <div class="btn-group">
+                <button class="btn-wpp" onclick="enviarWpp(3)">Enviar WhatsApp</button>
+                <button class="btn-copy" onclick="copiarTexto(3)">Copiar Texto</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="recibo-box" id="reciboEmitido">
+        <div class="recibo-header">
+            <strong style="font-size: 16px;">RECIBO DE PRESTACAO DE SERVICOS</strong><br>
+            <span>SERVICOS RESIDENCIAIS - MARIDO DE ALUGUEL</span>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>PRESTADOR:</strong><br>
+            Thiago Vieira Lima<br>
+            CPF: 112.351.317-18<br>
+            Endereço: Avenida Jornalista Roberto Marinho, 309, Alcantara, Sao Gonçalo - RJ
+        </div>
+
+        <div style="margin-bottom: 15px; border-top: 1px dashed #333; padding-top: 10px;">
+            <strong>CONTRATANTE:</strong><br>
+            Nome: <span id="reciboNomeCliente">---</span><br>
+            Telefone: <span id="reciboTelCliente">---</span>
+        </div>
+
+        <div style="border-top: 1px dashed #333; padding-top: 10px;">
+            <strong>DESCRICAO DOS SERVICOS EXECUTADOS:</strong>
+            <div id="reciboItens" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="recibo-total">
+            VALOR TOTAL: R$ <span id="reciboTotalGeral">0,00</span>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center; font-size: 12px; border-top: 1px dashed #333; padding-top: 15px;">
+            Garantia legal de 90 dias referente apenas a mao de obra aplicada.<br>
+            Obrigado pela confianca!
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;" class="no-print">
+            <button class="btn-copy" onclick="window.print()">Imprimir ou Salvar PDF</button>
+        </div>
+    </div>
+    <script>
+        let totalGlobal = "0.00";
+        let srvSelecionados = [];
+
+        function calcularTotal() {
+            let total = 0;
+            srvSelecionados = [];
+            const checkboxes = document.querySelectorAll('.srv-chk:checked');
+            
+            checkboxes.forEach(chk => {
+                total += parseFloat(chk.getAttribute('data-valor'));
+                srvSelecionados.push({
+                    nome: chk.getAttribute('data-nome'),
+                    valor: parseFloat(chk.getAttribute('data-valor')).toFixed(2)
+                });
+            });
+            
+            totalGlobal = total.toFixed(2);
+            document.getElementById('totalGeral').innerText = totalGlobal.replace('.', ',');
+            atualizarTextos();
+        }
+
+        function atualizarTextos() {
+            const nome = document.getElementById('nomeCliente').value || '[Cliente]';
+            
+            // Atualizar Modelo 2
+            let listaServicos = "";
+            srvSelecionados.forEach(s => {
+                listaServicos += `- ${s.nome}: R$ ${s.valor.replace('.', ',')}\n`;
+            });
+            if(listaServicos === "") listaServicos = "[Nenhum servico selecionado]\n";
+
+            let msg2 = `Ola ${nome}! Segue o detalhamento do valor fixo de mao de obra para os servicos selecionados:\n\n${listaServicos}\nTotal Mao de Obra: R$ ${totalGlobal.replace('.', ',')}\n\nLembrando que os materiais necessarios sao por conta do cliente e o agendamento ja inclui as ferramentas corretas para execucao profissional. Podemos fechar para esta semana?`;
+            document.getElementById('txtMsg2').innerText = msg2;
+
+            // Atualizar Modelo 3
+            let msg3 = `Ola ${nome}, passando para confirmar nosso atendimento agendado. Estarei no local no horario combinado com todas as ferramentas necessarias para os reparos residenciais. Qualquer imprevisto com os materiais, por favor me avise antes. Ate breve!`;
+            document.getElementById('txtMsg3').innerText = msg3;
+        }
+
+        function enviarWpp(num) {
+            const tel = document.getElementById('telCliente').value;
+            if(!tel) {
+                alert("Por favor, insira o telefone do cliente primeiro.");
+                return;
+            }
+            const texto = encodeURIComponent(document.getElementById(`txtMsg${num}`).innerText);
+            window.open(`https://wa.me{tel}?text=${texto}`, '_blank');
+        }
+
+        function copiarTexto(num) {
+            const texto = document.getElementById(`txtMsg${num}`).innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                alert("Texto copiado com sucesso!");
+            });
+        }
+
+        function gerarRecibo() {
+            if(srvSelecionados.length === 0) {
+                alert("Selecione pelo menos um servico para gerar o recibo.");
+                return;
+            }
+            
+            document.getElementById('reciboNomeCliente').innerText = document.getElementById('nomeCliente').value || "Não informado";
+            document.getElementById('reciboTelCliente').innerText = document.getElementById('telCliente').value || "Não informado";
+            document.getElementById('reciboTotalGeral').innerText = totalGlobal.replace('.', ',');
+            
+            let containerItens = document.getElementById('reciboItens');
+            containerItens.innerHTML = "";
+            
+            srvSelecionados.forEach(s => {
+                let div = document.createElement('div');
+                div.className = "recibo-linha";
+                div.innerHTML = `<span>${s.nome}</span><span>R$ ${s.valor.replace('.', ',')}</span>`;
+                containerItens.appendChild(div);
+            });
+            
+            const elementoRecibo = document.getElementById('reciboEmitido');
+            elementoRecibo.style.display = "block";
+            elementoRecibo.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
